@@ -1,0 +1,28 @@
+.layout {
+    display: grid;
+    grid-template-areas:
+        "sidebar main-content"
+        "player player";
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 1fr 90px;
+    height: 100vh;
+    background-color: #121212;
+    color: white;
+}
+
+.main-container {
+    grid-area: main-content;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Styles de base pour le thème sombre de Spotify */
+:root {
+    --background-base: #121212;
+    --background-highlight: #282828;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --accent-color: #1db954;
+    --error-color: #ff4b4b;
+}

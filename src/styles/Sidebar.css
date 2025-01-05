@@ -1,0 +1,84 @@
+.sidebar {
+    grid-area: sidebar;
+    background-color: #000000;
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.logo {
+    padding: 0 12px;
+    margin-bottom: 18px;
+}
+
+.logo img {
+    height: 40px;
+}
+
+.logo-text {
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: bold;
+    padding: 0 12px;
+}
+
+.main-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    gap: 16px;
+}
+
+.nav-item:hover {
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    color: var(--text-primary);
+}
+
+.playlist-section {
+    margin-top: 24px;
+    border-top: 1px solid var(--background-highlight);
+    padding-top: 24px;
+}
+
+.create-playlist-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    gap: 16px;
+}
+
+.create-playlist-btn:hover {
+    color: var(--text-primary);
+}
+
+.liked-songs {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.liked-songs:hover {
+    color: var(--text-primary);
+}
