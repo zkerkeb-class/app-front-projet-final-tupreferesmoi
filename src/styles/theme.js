@@ -1,14 +1,13 @@
 export const theme = {
     colors: {
-        primary: "#1DB954", // Vert Spotify
-        secondary: "#121212", // Noir Spotify
-        background: "#000000", // Fond sombre
-        surface: "#282828",
+        background: "#121212",
+        primary: "#1DB954",
+        primaryHover: "#1ed760",
+        secondary: "#282828",
+        secondaryHover: "#3E3E3E",
         text: "#FFFFFF",
         textSecondary: "#B3B3B3",
-        hover: "#2A2A2A",
-        playing: "#1ED760",
-        gradient: "linear-gradient(transparent 0,rgba(0,0,0,.5) 100%)",
+        error: "#FF4B4B",
     },
     fonts: {
         primary:
@@ -25,5 +24,14 @@ export const theme = {
         md: "16px",
         lg: "24px",
         xl: "32px",
+    },
+    borderRadius: {
+        small: "4px",
+        medium: "8px",
+        large: "16px",
+        round: "50%",
+    },
+    transitions: {
+        default: "all 0.2s ease",
     },
 };

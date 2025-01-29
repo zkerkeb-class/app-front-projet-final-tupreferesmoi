@@ -2,15 +2,27 @@
 
 import React from "react";
 import styled from "styled-components";
+import Link from "next/link";
 
 const Section = styled.section`
     margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
 
+const TitleContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+    &:hover h2 {
+        text-decoration: underline;
+    }
+`;
+
 const Title = styled.h2`
     color: ${({ theme }) => theme.colors.text};
     font-size: 1.5rem;
-    margin-bottom: ${({ theme }) => theme.spacing.lg};
+    margin: 0;
+    cursor: pointer;
 `;
 
 const Grid = styled.div`
@@ -29,10 +41,14 @@ const Grid = styled.div`
     scrollbar-width: none;
 `;
 
-export default function MediaSection({ title, children }) {
+export default function MediaSection({ title, children, href }) {
     return (
         <Section>
-            <Title>{title}</Title>
+            <Link href={href || "#"} style={{ textDecoration: "none" }}>
+                <TitleContainer>
+                    <Title>{title}</Title>
+                </TitleContainer>
+            </Link>
             <Grid>{children}</Grid>
         </Section>
     );

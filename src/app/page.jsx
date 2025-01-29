@@ -56,8 +56,8 @@ export default function Home() {
         <Container>
             <Title>Bienvenue sur Spotify-Ynov</Title>
 
-            <MediaSection title="Dernières sorties">
-                {recentTracks.map((track) => (
+            <MediaSection title="Dernières sorties" href="/recent">
+                {recentTracks.slice(0, 10).map((track) => (
                     <MediaCard
                         key={track.id}
                         id={track.id}
@@ -70,8 +70,8 @@ export default function Home() {
                 ))}
             </MediaSection>
 
-            <MediaSection title="Artistes populaires">
-                {popularArtists.map((artist) => {
+            <MediaSection title="Artistes populaires" href="/artists">
+                {popularArtists.slice(0, 10).map((artist) => {
                     console.log("Rendu artiste:", artist);
                     return (
                         <MediaCard
@@ -86,8 +86,8 @@ export default function Home() {
                 })}
             </MediaSection>
 
-            <MediaSection title="Albums récents">
-                {recentAlbums.map((album) => (
+            <MediaSection title="Albums récents" href="/albums">
+                {recentAlbums.slice(0, 10).map((album) => (
                     <MediaCard
                         key={album.id}
                         id={album.id}
