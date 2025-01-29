@@ -4,11 +4,29 @@ const nextConfig = {
         styledComponents: true,
     },
     images: {
-        domains: [
-            "i.scdn.co",
-            "mosaic.scdn.co",
-            "wrapped-images.spotifycdn.com",
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "*.amazonaws.com",
+                pathname: "/**",
+            },
+            {
+                protocol: "https",
+                hostname: "picsum.photos",
+                pathname: "/**",
+            },
         ],
+        dangerouslyAllowSVG: true,
+        contentDispositionType: "attachment",
+        contentSecurityPolicy:
+            "default-src 'self'; script-src 'none'; sandbox;",
+    },
+    webpack(config) {
+        config.module.rules.push({
+            test: /\.(webp)$/i,
+            type: "asset/resource",
+        });
+        return config;
     },
     async rewrites() {
         return [
