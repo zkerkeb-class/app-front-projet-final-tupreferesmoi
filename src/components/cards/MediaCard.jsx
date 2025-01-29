@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import { Play } from "react-feather";
@@ -80,19 +81,7 @@ const Subtitle = styled.p`
     text-overflow: ellipsis;
 `;
 
-interface MediaCardProps {
-    title: string;
-    subtitle?: string;
-    imageUrl: string;
-    onClick?: () => void;
-}
-
-export default function MediaCard({
-    title,
-    subtitle,
-    imageUrl,
-    onClick,
-}: MediaCardProps) {
+export default function MediaCard({ title, subtitle, imageUrl, onClick }) {
     return (
         <Card onClick={onClick}>
             <ImageContainer>

@@ -27,5 +27,3 @@ export const theme = {
         xl: "32px",
     },
 };
-
-export type Theme = typeof theme;
