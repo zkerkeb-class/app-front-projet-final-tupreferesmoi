@@ -7,11 +7,8 @@ import { Home, Search, BookOpen, PlusSquare, Heart } from "react-feather";
 
 const SidebarContainer = styled.aside`
     background-color: ${({ theme }) => theme.colors.background};
-    width: 240px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     gap: ${({ theme }) => theme.spacing.xs};
@@ -22,12 +19,16 @@ const NavigationSection = styled.div`
     background: ${({ theme }) => theme.colors.secondary};
     border-radius: 8px;
     padding: ${({ theme }) => theme.spacing.md};
+    display: flex;
+    flex-direction: column;
+    gap: ${({ theme }) => theme.spacing.xs};
 `;
 
 const LibrarySection = styled(NavigationSection)`
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    gap: ${({ theme }) => theme.spacing.md};
 `;
 
 const NavLink = styled(Link)`
@@ -36,8 +37,7 @@ const NavLink = styled(Link)`
     gap: ${({ theme }) => theme.spacing.md};
     color: ${({ theme }) => theme.colors.textSecondary};
     text-decoration: none;
-    padding: ${({ theme }) => theme.spacing.sm}
-        ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.sm};
     border-radius: 4px;
     font-weight: 600;
     transition: all 0.2s ease;
@@ -56,9 +56,21 @@ const LibraryHeader = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: ${({ theme }) => theme.spacing.sm}
-        ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.sm};
     color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+const LibraryHeaderLeft = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${({ theme }) => theme.spacing.sm};
+    color: ${({ theme }) => theme.colors.textSecondary};
+    font-weight: 600;
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
 `;
 
 const CreatePlaylistButton = styled.button`
@@ -68,8 +80,7 @@ const CreatePlaylistButton = styled.button`
     background: transparent;
     border: none;
     color: ${({ theme }) => theme.colors.textSecondary};
-    padding: ${({ theme }) => theme.spacing.sm}
-        ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.sm};
     cursor: pointer;
     width: 100%;
     text-align: left;
@@ -80,9 +91,19 @@ const CreatePlaylistButton = styled.button`
     }
 `;
 
+const Logo = styled.div`
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: ${({ theme }) => theme.spacing.md};
+    margin-bottom: ${({ theme }) => theme.spacing.sm};
+`;
+
 export default function Sidebar() {
     return (
         <SidebarContainer>
+            <Logo>Spotify-Ynov</Logo>
+
             <NavigationSection>
                 <NavLink href="/">
                     <Home />
@@ -96,11 +117,11 @@ export default function Sidebar() {
 
             <LibrarySection>
                 <LibraryHeader>
-                    <NavLink href="/library">
+                    <LibraryHeaderLeft>
                         <BookOpen />
                         Bibliothèque
-                    </NavLink>
-                    <PlusSquare size={24} />
+                    </LibraryHeaderLeft>
+                    <PlusSquare size={24} style={{ cursor: "pointer" }} />
                 </LibraryHeader>
 
                 <CreatePlaylistButton>
