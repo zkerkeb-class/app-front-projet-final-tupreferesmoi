@@ -1,27 +1,29 @@
 "use client";
 
 import React from "react";
-import { Providers } from "../providers";
+import { ThemeProvider } from "styled-components";
 import StyledComponentsRegistry from "../lib/registry";
+import { theme } from "../styles/theme";
+import GlobalStyles from "../styles/GlobalStyles";
 import Sidebar from "../components/layout/Sidebar";
-import styled from "styled-components";
-
-const MainContainer = styled.main`
-    margin-left: 240px;
-    min-height: 100vh;
-    background: ${({ theme }) => theme.colors.background};
-`;
+import { Provider } from "react-redux";
+import { store } from "../store";
 
 export default function RootLayout({ children }) {
     return (
         <html lang="fr">
             <body>
-                <StyledComponentsRegistry>
-                    <Providers>
-                        <Sidebar />
-                        <MainContainer>{children}</MainContainer>
-                    </Providers>
-                </StyledComponentsRegistry>
+                <Provider store={store}>
+                    <StyledComponentsRegistry>
+                        <ThemeProvider theme={theme}>
+                            <GlobalStyles />
+                            <Sidebar />
+                            <main style={{ marginLeft: "240px" }}>
+                                {children}
+                            </main>
+                        </ThemeProvider>
+                    </StyledComponentsRegistry>
+                </Provider>
             </body>
         </html>
     );

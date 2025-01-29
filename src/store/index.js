@@ -1,13 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import playerReducer from "./slices/playerSlice";
 
 export const store = configureStore({
     reducer: {
-        // Vos reducers seront ajoutés ici
+        player: playerReducer,
+        // Autres reducers à ajouter ici (auth, playlists, etc.)
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-            serializableCheck: false,
+            serializableCheck: {
+                // Ignorer certaines actions non-sérialisables
+                ignoredActions: ["player/setCurrentTrack"],
+            },
         }),
 });
 
