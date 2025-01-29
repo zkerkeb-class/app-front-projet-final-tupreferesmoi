@@ -2,12 +2,14 @@ module.exports = {
     env: {
         browser: true,
         es2021: true,
+        node: true,
     },
     extends: [
         "eslint:recommended",
         "plugin:react/recommended",
         "plugin:import/errors",
         "plugin:import/warnings",
+        "next/core-web-vitals",
     ],
     parserOptions: {
         ecmaFeatures: {
@@ -21,6 +23,8 @@ module.exports = {
         "react/react-in-jsx-scope": "off",
         "react/prop-types": "off",
         "import/no-unresolved": "off",
+        "import/no-named-as-default": "off",
+        "import/no-named-as-default-member": "off",
     },
     settings: {
         react: {
