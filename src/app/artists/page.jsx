@@ -35,36 +35,72 @@ const Grid = styled.div`
     }
 `;
 
+const ErrorMessage = styled.div`
+    color: ${({ theme }) => theme.colors.error};
+    text-align: center;
+    padding: ${({ theme }) => theme.spacing.xl};
+`;
+
+const LoadingMessage = styled.div`
+    color: ${({ theme }) => theme.colors.textSecondary};
+    text-align: center;
+    padding: ${({ theme }) => theme.spacing.xl};
+`;
+
 export default function ArtistsPage() {
     const [artists, setArtists] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const artistsData = await musicApi.getPopularArtists();
-                setArtists(artistsData);
+                if (Array.isArray(artistsData)) {
+                    setArtists(
+                        artistsData.filter((artist) => artist && artist.id)
+                    );
+                } else {
+                    throw new Error("Format de données invalide");
+                }
             } catch (error) {
                 console.error("Erreur lors du chargement des artistes:", error);
+                setError("Impossible de charger les artistes");
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchData();
     }, []);
 
+    if (loading) {
+        return <LoadingMessage>Chargement des artistes...</LoadingMessage>;
+    }
+
+    if (error) {
+        return <ErrorMessage>{error}</ErrorMessage>;
+    }
+
     return (
         <Container>
             <Title>Artistes populaires</Title>
             <Grid>
-                {artists.map((artist) => (
-                    <MediaCard
-                        key={artist.id}
-                        id={artist.id}
-                        title={artist.name}
-                        description={`${artist.followers} followers`}
-                        imageUrl={artist.imageUrl}
-                        type="artist"
-                    />
-                ))}
+                {artists.map(
+                    (artist) =>
+                        artist &&
+                        artist.id && (
+                            <MediaCard
+                                key={artist.id}
+                                id={artist.id}
+                                title={artist.name}
+                                description={`${artist.followers || 0} followers`}
+                                imageUrl={artist.imageUrl}
+                                type="artist"
+                            />
+                        )
+                )}
             </Grid>
         </Container>
     );

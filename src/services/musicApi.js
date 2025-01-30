@@ -140,4 +140,34 @@ export const musicApi = {
             throw error;
         }
     },
+
+    // Récupération d'un artiste
+    getArtist: async (artistId) => {
+        try {
+            const response = await api.get(`/artists/${artistId}`);
+            return response.data;
+        } catch (error) {
+            console.error(
+                "Erreur lors de la récupération de l'artiste:",
+                error
+            );
+            throw error;
+        }
+    },
+
+    // Récupération des pistes d'un artiste
+    getArtistTracks: async (artistId) => {
+        try {
+            const response = await api.get(`/tracks`, {
+                params: { artistId },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(
+                "Erreur lors de la récupération des pistes de l'artiste:",
+                error
+            );
+            throw error;
+        }
+    },
 };
