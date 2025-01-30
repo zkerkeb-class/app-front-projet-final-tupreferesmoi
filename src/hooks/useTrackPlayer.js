@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTrack, setIsPlaying } from "../store/slices/playerSlice";
 import { musicApi } from "../services/musicApi";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DEFAULT_IMAGE = "/logo192.png";
 
@@ -9,21 +9,38 @@ export const useTrackPlayer = () => {
     const dispatch = useDispatch();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const audioRef = useRef(null);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
 
     useEffect(() => {
         if (!audioRef.current) {
             audioRef.current = new Audio();
+            audioRef.current.volume = volume;
         }
 
         const audio = audioRef.current;
 
-        const handleEnded = () => {
-            dispatch(setIsPlaying(false));
+        const handleTimeUpdate = () => {
+            setCurrentTime(audio.currentTime);
         };
 
+        const handleDurationChange = () => {
+            setDuration(audio.duration);
+        };
+
+        const handleEnded = () => {
+            dispatch(setIsPlaying(false));
+            setCurrentTime(0);
+        };
+
+        audio.addEventListener("timeupdate", handleTimeUpdate);
+        audio.addEventListener("durationchange", handleDurationChange);
         audio.addEventListener("ended", handleEnded);
 
         return () => {
+            audio.removeEventListener("timeupdate", handleTimeUpdate);
+            audio.removeEventListener("durationchange", handleDurationChange);
             audio.removeEventListener("ended", handleEnded);
             if (audio.src) {
                 URL.revokeObjectURL(audio.src);
@@ -68,11 +85,6 @@ export const useTrackPlayer = () => {
 
             let audioUrl;
             if (track.audioUrl) {
-                // Utiliser directement l'URL signée si disponible
-                console.log(
-                    "Utilisation de l'URL audio signée:",
-                    track.audioUrl
-                );
                 audioUrl = track.audioUrl;
                 audioRef.current.src = audioUrl;
 
@@ -106,8 +118,6 @@ export const useTrackPlayer = () => {
                     audioRef.current.addEventListener("error", handleError);
                 });
             } else {
-                // Sinon, récupérer le stream
-                console.log("Récupération du stream pour la piste:", track.id);
                 const response = await musicApi.getTrackStream(track.id);
                 if (!response?.data) {
                     throw new Error("Impossible de récupérer le stream audio");
@@ -130,13 +140,61 @@ export const useTrackPlayer = () => {
         } catch (error) {
             console.error("Erreur lors de la lecture de la piste:", error);
             dispatch(setIsPlaying(false));
-            // Ne pas relancer la lecture en cas d'erreur
+        }
+    };
+
+    const handleSeek = (e) => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = x / rect.width;
+        const newTime = percentage * audio.duration;
+
+        audio.currentTime = newTime;
+        setCurrentTime(newTime);
+    };
+
+    const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        if (audioRef.current) {
+            audioRef.current.volume = newVolume;
+        }
+    };
+
+    const toggleMute = () => {
+        const newVolume = volume === 0 ? 1 : 0;
+        setVolume(newVolume);
+        if (audioRef.current) {
+            audioRef.current.volume = newVolume;
+        }
+    };
+
+    const skipToStart = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+        }
+    };
+
+    const skipToEnd = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = audioRef.current.duration;
         }
     };
 
     return {
         currentTrack,
         isPlaying,
+        currentTime,
+        duration,
+        volume,
         handlePlayTrack,
+        handleSeek,
+        handleVolumeChange,
+        toggleMute,
+        skipToStart,
+        skipToEnd,
     };
 };
