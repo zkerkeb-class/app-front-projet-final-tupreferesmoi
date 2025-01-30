@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "./Sidebar.jsx";
-import TopBar from "./TopBar.jsx";
+import Header from "./Header.jsx";
 import Player from "./Player.jsx";
 import MainContent from "./MainContent.jsx";
 import "../../styles/Layout.css";
@@ -10,7 +10,7 @@ const Layout = ({ children }) => {
         <div className="layout">
             <Sidebar />
             <div className="main-container">
-                <TopBar />
+                <Header />
                 <MainContent>{children}</MainContent>
             </div>
             <Player />

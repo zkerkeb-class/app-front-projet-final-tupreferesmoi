@@ -7,7 +7,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const Card = styled.div`
-    background: ${({ theme }) => theme.colors.secondary};
     border-radius: 8px;
     padding: ${({ theme }) => theme.spacing.sm};
     width: 200px;
@@ -15,9 +14,11 @@ const Card = styled.div`
     cursor: pointer;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    background: transparent;
 
     &:hover {
-        background: ${({ theme }) => theme.colors.secondaryHover};
+        background: rgba(255, 255, 255, 0.1);
+
         .play-button {
             opacity: 1;
             transform: translateY(0);
@@ -30,39 +31,34 @@ const ImageContainer = styled.div`
     width: 100%;
     aspect-ratio: 1;
     margin-bottom: ${({ theme }) => theme.spacing.sm};
-    border-radius: 4px;
+    border-radius: ${({ type }) => (type === "artist" ? "50%" : "4px")};
     overflow: hidden;
-    background: ${({ theme }) => theme.colors.background};
 
     img {
         object-fit: cover !important;
-        transition: transform 0.3s ease;
-        transform-origin: center center;
-    }
-
-    &:hover img {
-        transform: scale(1.05);
+        transition: all 0.3s ease;
     }
 `;
 
 const PlayButton = styled.button`
     position: absolute;
-    bottom: ${({ theme }) => theme.spacing.sm};
-    right: ${({ theme }) => theme.spacing.sm};
+    bottom: 85px;
+    right: 20px;
     background: ${({ theme }) => theme.colors.primary};
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
     transition: all 0.3s ease;
     color: ${({ theme }) => theme.colors.text};
     z-index: 2;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
     &:hover {
         transform: scale(1.1) translateY(0);
@@ -71,14 +67,14 @@ const PlayButton = styled.button`
 `;
 
 const Content = styled.div`
-    z-index: 1;
+    text-align: ${({ type }) => (type === "artist" ? "center" : "left")};
 `;
 
 const Title = styled.h3`
     color: ${({ theme }) => theme.colors.text};
-    font-size: 1rem;
-    margin: 0;
-    margin-bottom: ${({ theme }) => theme.spacing.xs};
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -86,7 +82,7 @@ const Title = styled.h3`
 
 const Description = styled.p`
     color: ${({ theme }) => theme.colors.textSecondary};
-    font-size: 0.875rem;
+    font-size: 14px;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -108,22 +104,29 @@ export default function MediaCard({
 
     const handleClick = (e) => {
         e.preventDefault();
-        if (type === "artist") {
-            router.push(`/artist/${id}`);
-        } else if (type === "album") {
-            router.push(`/album/${id}`);
+        switch (type) {
+            case "artist":
+                router.push(`/artist/${id}`);
+                break;
+            case "album":
+                router.push(`/album/${id}`);
+                break;
+            case "track":
+                router.push(`/track/${id}`);
+                break;
+            default:
+                break;
         }
     };
 
     const handlePlayClick = (e) => {
-        e.preventDefault();
         e.stopPropagation();
         if (onPlay) onPlay();
     };
 
     return (
-        <Card onClick={handleClick}>
-            <ImageContainer>
+        <Card onClick={handleClick} type={type}>
+            <ImageContainer type={type}>
                 <Image
                     src={imageUrl || DEFAULT_IMAGE}
                     alt={title}
@@ -134,15 +137,17 @@ export default function MediaCard({
                         objectFit: "cover",
                     }}
                 />
-                {type === "track" && (
-                    <PlayButton onClick={handlePlayClick}>
-                        <Play size={20} />
-                    </PlayButton>
-                )}
             </ImageContainer>
-            <Content>
+            {(type === "track" || type === "album" || type === "artist") && (
+                <PlayButton className="play-button" onClick={handlePlayClick}>
+                    <Play size={24} />
+                </PlayButton>
+            )}
+            <Content type={type}>
                 <Title>{title}</Title>
-                <Description>{description}</Description>
+                <Description>
+                    {type === "artist" ? "Artiste" : description}
+                </Description>
             </Content>
         </Card>
     );
