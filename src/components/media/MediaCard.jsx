@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Play } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setCurrentTrack, setIsPlaying } from "../../store/slices/playerSlice";
 
 const Card = styled.div`
     border-radius: 8px;
@@ -57,7 +59,7 @@ const PlayButton = styled.button`
     transform: translateY(8px);
     transition: all 0.3s ease;
     color: ${({ theme }) => theme.colors.text};
-    z-index: 2;
+    z-index: 1;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
     &:hover {
@@ -97,10 +99,18 @@ export default function MediaCard({
     title,
     description,
     imageUrl,
-    onPlay,
+    audioUrl,
     type = "track",
+    artist,
+    onPlay,
 }) {
     const router = useRouter();
+    const dispatch = useDispatch();
+    const [imgError, setImgError] = useState(false);
+
+    const handleImageError = () => {
+        setImgError(true);
+    };
 
     const handleClick = (e) => {
         e.preventDefault();
@@ -121,18 +131,32 @@ export default function MediaCard({
 
     const handlePlayClick = (e) => {
         e.stopPropagation();
-        if (onPlay) onPlay();
+        if (type === "track") {
+            const trackData = {
+                id,
+                title,
+                artist,
+                coverUrl: imgError ? DEFAULT_IMAGE : imageUrl || DEFAULT_IMAGE,
+                audioUrl,
+            };
+            dispatch(setCurrentTrack(trackData));
+            dispatch(setIsPlaying(true));
+            if (onPlay) {
+                onPlay(trackData);
+            }
+        }
     };
 
     return (
         <Card onClick={handleClick} type={type}>
             <ImageContainer type={type}>
                 <Image
-                    src={imageUrl || DEFAULT_IMAGE}
+                    src={imgError ? DEFAULT_IMAGE : imageUrl || DEFAULT_IMAGE}
                     alt={title}
                     fill
                     sizes="200px"
                     priority={true}
+                    onError={handleImageError}
                     style={{
                         objectFit: "cover",
                     }}

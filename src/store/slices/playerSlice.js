@@ -3,14 +3,13 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     currentTrack: null,
     isPlaying: false,
+    queue: [],
     volume: 1,
     progress: 0,
-    duration: 0,
-    mode: "normal", // 'normal', 'repeat', 'shuffle'
-    queue: [],
+    mode: "normal",
 };
 
-export const playerSlice = createSlice({
+const playerSlice = createSlice({
     name: "player",
     initialState,
     reducers: {
@@ -20,23 +19,28 @@ export const playerSlice = createSlice({
         setIsPlaying: (state, action) => {
             state.isPlaying = action.payload;
         },
+        setQueue: (state, action) => {
+            state.queue = action.payload;
+        },
         setVolume: (state, action) => {
             state.volume = action.payload;
         },
         setProgress: (state, action) => {
             state.progress = action.payload;
         },
-        setDuration: (state, action) => {
-            state.duration = action.payload;
-        },
         setMode: (state, action) => {
             state.mode = action.payload;
         },
-        setQueue: (state, action) => {
-            state.queue = action.payload;
-        },
         addToQueue: (state, action) => {
             state.queue.push(action.payload);
+        },
+        removeFromQueue: (state, action) => {
+            state.queue = state.queue.filter(
+                (track) => track.id !== action.payload
+            );
+        },
+        clearQueue: (state) => {
+            state.queue = [];
         },
     },
 });
@@ -44,12 +48,13 @@ export const playerSlice = createSlice({
 export const {
     setCurrentTrack,
     setIsPlaying,
+    setQueue,
     setVolume,
     setProgress,
-    setDuration,
     setMode,
-    setQueue,
     addToQueue,
+    removeFromQueue,
+    clearQueue,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

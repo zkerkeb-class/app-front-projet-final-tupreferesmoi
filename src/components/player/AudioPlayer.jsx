@@ -27,26 +27,106 @@ const PlayerContainer = styled.div`
     bottom: 0;
     left: 0;
     right: 0;
-    height: 90px;
+    height: 72px;
     background-color: ${({ theme }) => theme.colors.secondary};
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 16px;
+    padding: 0 16px;
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-columns: 30% 40% 30%;
     align-items: center;
+    z-index: 100;
 `;
 
 const TrackInfo = styled.div`
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 180px;
+    padding-top: 8px;
+
+    img {
+        border-radius: 4px;
+    }
+
+    .track-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .title {
+            color: ${({ theme }) => theme.colors.text};
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .artist {
+            color: ${({ theme }) => theme.colors.textSecondary};
+            font-size: 12px;
+        }
+    }
 `;
 
 const Controls = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    max-width: 722px;
+    width: 100%;
+    padding: 0 16px;
+
+    .control-buttons {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 8px;
+
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            padding: 0;
+            color: #b3b3b3;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            transition: all 0.2s;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            &:hover:not(:disabled) {
+                color: #fff;
+                transform: scale(1.06);
+            }
+
+            &.play-pause {
+                background: #fff;
+                border-radius: 50%;
+                color: #000;
+                width: 32px;
+                height: 32px;
+
+                svg {
+                    width: 14px;
+                    height: 14px;
+                }
+
+                &:hover:not(:disabled) {
+                    transform: scale(1.06);
+                    background: #fff;
+                }
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    }
 `;
 
 const VolumeControl = styled.div`
@@ -54,24 +134,85 @@ const VolumeControl = styled.div`
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
+    padding-right: 32px;
+
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        padding: 0;
+        color: #b3b3b3;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        &:hover {
+            color: #fff;
+        }
+    }
+
+    .volume-slider {
+        width: 93px;
+    }
 `;
 
 const ProgressBar = styled.input`
     width: 100%;
     height: 4px;
     -webkit-appearance: none;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
     cursor: pointer;
+    position: relative;
+    margin: 0;
 
     &::-webkit-slider-thumb {
         -webkit-appearance: none;
         width: 12px;
         height: 12px;
-        background: ${({ theme }) => theme.colors.primary};
+        background: #fff;
         border-radius: 50%;
         cursor: pointer;
+        margin-top: -4px;
+        opacity: 0;
+        transition: opacity 0.2s;
     }
+
+    &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+            to right,
+            #fff ${(props) => props.value}%,
+            rgba(255, 255, 255, 0.1) ${(props) => props.value}%
+        );
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    &:hover {
+        &::-webkit-slider-thumb {
+            opacity: 1;
+        }
+    }
+`;
+
+const TimeDisplay = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 11px;
+    color: #b3b3b3;
+    margin-top: 8px;
+    padding: 0 2px;
+    user-select: none;
 `;
 
 const FullscreenPlayer = styled.div`
@@ -97,16 +238,91 @@ export default function AudioPlayer() {
     const audioRef = useRef(null);
     const [showFullscreen, setShowFullscreen] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+    const [duration, setDuration] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
+
+    useEffect(() => {
+        if (currentTrack) {
+            console.log("Piste actuelle:", {
+                id: currentTrack.id,
+                title: currentTrack.title,
+                artist: currentTrack.artist,
+                audioUrl: currentTrack.audioUrl,
+            });
+        }
+
+        if (audioRef.current && currentTrack?.audioUrl) {
+            console.log("Tentative de lecture audio:");
+            console.log("URL:", currentTrack.audioUrl);
+
+            // Mettre à jour la source audio
+            audioRef.current.src = currentTrack.audioUrl;
+
+            console.log("État initial de l'audio:", {
+                currentTime: audioRef.current.currentTime,
+                duration: audioRef.current.duration,
+                paused: audioRef.current.paused,
+                readyState: audioRef.current.readyState,
+                networkState: audioRef.current.networkState,
+                src: audioRef.current.src,
+            });
+
+            audioRef.current.load();
+
+            if (isPlaying) {
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log("Lecture démarrée avec succès");
+                        })
+                        .catch((error) => {
+                            console.error("Erreur lors de la lecture:", error);
+                            console.log("État de l'audio après erreur:", {
+                                currentTime: audioRef.current.currentTime,
+                                duration: audioRef.current.duration,
+                                paused: audioRef.current.paused,
+                                readyState: audioRef.current.readyState,
+                                networkState: audioRef.current.networkState,
+                                error: audioRef.current.error,
+                                src: audioRef.current.src,
+                            });
+                            dispatch(setIsPlaying(false));
+                        });
+                }
+            }
+        } else if (currentTrack && !currentTrack.audioUrl) {
+            console.error(
+                "Pas d'URL audio disponible pour la piste:",
+                currentTrack.title
+            );
+        }
+    }, [currentTrack?.audioUrl, isPlaying]);
 
     useEffect(() => {
         if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.play();
-            } else {
-                audioRef.current.pause();
-            }
+            const handleError = (e) => {
+                console.error("Erreur de l'élément audio:", e);
+                console.log("Code d'erreur:", audioRef.current.error?.code);
+                console.log(
+                    "Message d'erreur:",
+                    audioRef.current.error?.message
+                );
+                console.log("Source audio:", audioRef.current.src);
+                console.log("État de l'audio lors de l'erreur:", {
+                    readyState: audioRef.current.readyState,
+                    networkState: audioRef.current.networkState,
+                });
+            };
+
+            audioRef.current.addEventListener("error", handleError);
+            return () => {
+                if (audioRef.current) {
+                    audioRef.current.removeEventListener("error", handleError);
+                }
+            };
         }
-    }, [isPlaying, currentTrack]);
+    }, [audioRef.current]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -114,8 +330,17 @@ export default function AudioPlayer() {
         }
     }, [volume]);
 
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.addEventListener("loadedmetadata", () => {
+                setDuration(audioRef.current.duration);
+            });
+        }
+    }, [audioRef.current]);
+
     const handleTimeUpdate = () => {
         if (audioRef.current) {
+            setCurrentTime(audioRef.current.currentTime);
             dispatch(
                 setProgress(
                     (audioRef.current.currentTime / audioRef.current.duration) *
@@ -162,6 +387,12 @@ export default function AudioPlayer() {
         setShowFullscreen(!showFullscreen);
     };
 
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    };
+
     return (
         <>
             <PlayerContainer>
@@ -171,13 +402,17 @@ export default function AudioPlayer() {
                             <Image
                                 src={currentTrack.coverUrl}
                                 alt={currentTrack.title}
-                                width={56}
-                                height={56}
+                                width={42}
+                                height={42}
                                 style={{ objectFit: "cover" }}
                             />
-                            <div>
-                                <div>{currentTrack.title}</div>
-                                <div>{currentTrack.artist}</div>
+                            <div className="track-text">
+                                <div className="title">
+                                    {currentTrack.title}
+                                </div>
+                                <div className="artist">
+                                    {currentTrack.artist}
+                                </div>
                             </div>
                         </>
                     )}
@@ -185,29 +420,43 @@ export default function AudioPlayer() {
 
                 <Controls>
                     <div className="control-buttons">
-                        <button onClick={toggleMode}>
+                        <button onClick={toggleMode} disabled={!currentTrack}>
                             {mode === "shuffle" ? <Shuffle /> : <Repeat />}
                         </button>
-                        <button>
+                        <button disabled={!currentTrack}>
                             <SkipBack />
                         </button>
-                        <button onClick={togglePlay}>
+                        <button
+                            className="play-pause"
+                            onClick={togglePlay}
+                            disabled={!currentTrack}
+                        >
                             {isPlaying ? <Pause /> : <Play />}
                         </button>
-                        <button>
+                        <button disabled={!currentTrack}>
                             <SkipForward />
                         </button>
-                        <button onClick={toggleFullscreen}>
+                        <button
+                            onClick={toggleFullscreen}
+                            disabled={!currentTrack}
+                        >
                             <Maximize />
                         </button>
                     </div>
-                    <ProgressBar
-                        type="range"
-                        value={progress}
-                        onChange={handleProgressChange}
-                        min={0}
-                        max={100}
-                    />
+                    <div style={{ width: "100%" }}>
+                        <ProgressBar
+                            type="range"
+                            value={progress}
+                            onChange={handleProgressChange}
+                            min={0}
+                            max={100}
+                            style={{ opacity: currentTrack ? 1 : 0.5 }}
+                        />
+                        <TimeDisplay>
+                            <span>{formatTime(currentTime)}</span>
+                            <span>{formatTime(duration)}</span>
+                        </TimeDisplay>
+                    </div>
                 </Controls>
 
                 <VolumeControl>
@@ -215,6 +464,7 @@ export default function AudioPlayer() {
                         {isMuted ? <VolumeX /> : <Volume2 />}
                     </button>
                     <ProgressBar
+                        className="volume-slider"
                         type="range"
                         value={volume * 100}
                         onChange={handleVolumeChange}
@@ -225,9 +475,25 @@ export default function AudioPlayer() {
 
                 <audio
                     ref={audioRef}
+                    src={currentTrack?.audioUrl}
                     onTimeUpdate={handleTimeUpdate}
                     onEnded={() => {
-                        // Logique pour passer à la piste suivante
+                        console.log("Lecture terminée");
+                        dispatch(setIsPlaying(false));
+                    }}
+                    onError={(e) => {
+                        console.error("Erreur de lecture audio:", e);
+                        if (audioRef.current) {
+                            console.log(
+                                "Code d'erreur:",
+                                audioRef.current.error?.code
+                            );
+                            console.log(
+                                "Message d'erreur:",
+                                audioRef.current.error?.message
+                            );
+                            console.log("Source audio:", audioRef.current.src);
+                        }
                     }}
                 />
             </PlayerContainer>

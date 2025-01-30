@@ -70,8 +70,10 @@ export default function RecentPage() {
                         title={track.title}
                         description={track.artist}
                         imageUrl={track.coverUrl}
-                        onPlay={() => handlePlay(track)}
+                        audioUrl={track.audioUrl}
                         type="track"
+                        artist={track.artist}
+                        onPlay={() => handlePlay(track)}
                     />
                 ))}
             </Grid>
