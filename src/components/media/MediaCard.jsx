@@ -114,15 +114,17 @@ export default function MediaCard({
 
     const handleClick = (e) => {
         e.preventDefault();
+        if (!id || id === "undefined") return;
+
         switch (type) {
             case "artist":
-                router.push(`/artist/${id}`);
+                router.push(`/artists/${id}`);
                 break;
             case "album":
-                router.push(`/album/${id}`);
+                router.push(`/albums/${id}`);
                 break;
             case "track":
-                router.push(`/track/${id}`);
+                router.push(`/tracks/${id}`);
                 break;
             default:
                 break;
@@ -131,6 +133,8 @@ export default function MediaCard({
 
     const handlePlayClick = (e) => {
         e.stopPropagation();
+        if (!id || id === "undefined") return;
+
         if (type === "track") {
             const trackData = {
                 id,
@@ -144,6 +148,8 @@ export default function MediaCard({
             if (onPlay) {
                 onPlay(trackData);
             }
+        } else if (type === "artist") {
+            router.push(`/artists/${id}`);
         }
     };
 
