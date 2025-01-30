@@ -33,9 +33,6 @@ export default function Home() {
                     musicApi.getRecentAlbums(),
                 ]);
 
-                console.log("Données reçues - Artistes:", artists);
-                console.log("Premier artiste:", artists[0]);
-
                 setRecentTracks(tracks);
                 setPopularArtists(artists);
                 setRecentAlbums(albums);
@@ -71,19 +68,16 @@ export default function Home() {
             </MediaSection>
 
             <MediaSection title="Artistes populaires" href="/artists">
-                {popularArtists.slice(0, 10).map((artist) => {
-                    console.log("Rendu artiste:", artist);
-                    return (
-                        <MediaCard
-                            key={artist.id}
-                            id={artist.id}
-                            title={artist.name}
-                            description={`${artist.followers} followers`}
-                            imageUrl={artist.imageUrl}
-                            type="artist"
-                        />
-                    );
-                })}
+                {popularArtists.slice(0, 10).map((artist) => (
+                    <MediaCard
+                        key={artist.id}
+                        id={artist.id}
+                        title={artist.name}
+                        description={`${artist.followers} followers`}
+                        imageUrl={artist.imageUrl}
+                        type="artist"
+                    />
+                ))}
             </MediaSection>
 
             <MediaSection title="Albums récents" href="/albums">
