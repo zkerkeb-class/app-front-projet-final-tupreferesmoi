@@ -26,6 +26,10 @@ const nextConfig = {
             test: /\.(webp)$/i,
             type: "asset/resource",
         });
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            "@": require("path").resolve(__dirname, "./src"),
+        };
         return config;
     },
     async rewrites() {

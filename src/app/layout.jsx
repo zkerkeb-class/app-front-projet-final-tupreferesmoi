@@ -17,6 +17,7 @@ import {
     MainContent,
     ContentWrapper,
 } from "../features/layout";
+import { AuthProvider } from "../contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,27 +25,29 @@ export default function RootLayout({ children }) {
     return (
         <html lang="fr" suppressHydrationWarning>
             <body suppressHydrationWarning className={inter.className}>
-                <StyledComponentsRegistry>
-                    <Provider store={store}>
-                        <ThemeProvider theme={theme}>
-                            <GlobalStyle />
-                            <AppLayout>
-                                <MainWrapper>
-                                    <SidebarWrapper>
-                                        <Sidebar />
-                                    </SidebarWrapper>
-                                    <MainContent>
-                                        <Header />
-                                        <ContentWrapper>
-                                            {children}
-                                        </ContentWrapper>
-                                    </MainContent>
-                                </MainWrapper>
-                                <AudioPlayer />
-                            </AppLayout>
-                        </ThemeProvider>
-                    </Provider>
-                </StyledComponentsRegistry>
+                <AuthProvider>
+                    <StyledComponentsRegistry>
+                        <Provider store={store}>
+                            <ThemeProvider theme={theme}>
+                                <GlobalStyle />
+                                <AppLayout>
+                                    <MainWrapper>
+                                        <SidebarWrapper>
+                                            <Sidebar />
+                                        </SidebarWrapper>
+                                        <MainContent>
+                                            <Header />
+                                            <ContentWrapper>
+                                                {children}
+                                            </ContentWrapper>
+                                        </MainContent>
+                                    </MainWrapper>
+                                    <AudioPlayer />
+                                </AppLayout>
+                            </ThemeProvider>
+                        </Provider>
+                    </StyledComponentsRegistry>
+                </AuthProvider>
             </body>
         </html>
     );
