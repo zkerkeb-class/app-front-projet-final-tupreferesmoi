@@ -45,8 +45,8 @@ const ContentWrapper = styled.div`
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="fr">
-            <body className={inter.className}>
+        <html lang="fr" suppressHydrationWarning>
+            <body suppressHydrationWarning className={inter.className}>
                 <StyledComponentsRegistry>
                     <Provider store={store}>
                         <ThemeProvider theme={theme}>

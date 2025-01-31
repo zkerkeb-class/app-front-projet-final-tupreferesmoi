@@ -275,7 +275,7 @@ export default function AudioPlayer() {
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
             audio.removeEventListener("ended", handleEnded);
         };
-    }, [dispatch]);
+    }, [dispatch, volume]);
 
     // Gestion du changement de piste
     useEffect(() => {
@@ -327,7 +327,7 @@ export default function AudioPlayer() {
     useEffect(() => {
         const audio = getAudioInstance();
         if (audio) {
-            audio.volume = volume;
+            audio.volume = Number(volume) || 0;
         }
     }, [volume]);
 
@@ -335,21 +335,13 @@ export default function AudioPlayer() {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Arrêter la lecture en cours
-        audio.pause();
+        const value = Number(e.target.value) || 0;
+        const newTime = (value / 100) * audio.duration;
 
-        const newTime = (e.target.value / 100) * audio.duration;
+        // Mettre à jour la position sans interrompre la lecture
         audio.currentTime = newTime;
         setCurrentTime(newTime);
-        dispatch(setProgress(e.target.value));
-
-        // Reprendre la lecture
-        if (isPlaying) {
-            audio.play().catch((error) => {
-                console.error("Erreur lors de la lecture:", error);
-                dispatch(setIsPlaying(false));
-            });
-        }
+        dispatch(setProgress(value));
     };
 
     const togglePlay = () => {
@@ -357,7 +349,7 @@ export default function AudioPlayer() {
     };
 
     const handleVolumeChange = (e) => {
-        const newVolume = parseFloat(e.target.value) / 100;
+        const newVolume = Number(e.target.value) / 100 || 0;
         dispatch(setVolume(newVolume));
         setIsMuted(newVolume === 0);
     };
@@ -393,47 +385,25 @@ export default function AudioPlayer() {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Arrêter la lecture en cours
-        audio.pause();
-
-        // Remettre à zéro
+        // Mettre à zéro sans interrompre la lecture
         audio.currentTime = 0;
         setCurrentTime(0);
         dispatch(setProgress(0));
-
-        // Reprendre la lecture
-        if (isPlaying) {
-            audio.play().catch((error) => {
-                console.error("Erreur lors de la lecture:", error);
-                dispatch(setIsPlaying(false));
-            });
-        }
     };
 
     const handleSkipToEnd = () => {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Arrêter la lecture en cours
-        audio.pause();
-
         const newTime =
             duration - currentTime <= 3
                 ? duration
                 : Math.min(currentTime + 10, duration);
 
-        // Mettre à jour la position
+        // Mettre à jour la position sans interrompre la lecture
         audio.currentTime = newTime;
         setCurrentTime(newTime);
         dispatch(setProgress((newTime / duration) * 100));
-
-        // Reprendre la lecture
-        if (isPlaying) {
-            audio.play().catch((error) => {
-                console.error("Erreur lors de la lecture:", error);
-                dispatch(setIsPlaying(false));
-            });
-        }
     };
 
     return (
@@ -502,15 +472,15 @@ export default function AudioPlayer() {
                     >
                         <ProgressBar
                             type="range"
-                            value={progress}
+                            value={Number(progress) || 0}
                             onChange={handleProgressChange}
                             min={0}
                             max={100}
                             style={{ opacity: currentTrack ? 1 : 0.5 }}
                         />
                         <TimeDisplay>
-                            <span>{formatTime(currentTime)}</span>
-                            <span>{formatTime(duration)}</span>
+                            <span>{formatTime(currentTime || 0)}</span>
+                            <span>{formatTime(duration || 0)}</span>
                         </TimeDisplay>
                     </div>
                 </Controls>
@@ -522,7 +492,7 @@ export default function AudioPlayer() {
                     <ProgressBar
                         className="volume-slider"
                         type="range"
-                        value={volume * 100}
+                        value={Number(volume * 100) || 0}
                         onChange={handleVolumeChange}
                         min={0}
                         max={100}
