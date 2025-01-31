@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     setCurrentTrack,
     setIsPlaying,
+    setQueue,
+    setCurrentTrackIndex,
 } from "../../../store/slices/playerSlice";
 
 const ArtistHeader = styled.div`
@@ -224,6 +226,11 @@ export default function ArtistPage({ params }) {
     };
 
     const handlePlay = (track) => {
+        // On définit la liste complète des pistes comme queue
+        dispatch(setQueue(tracks));
+        // On trouve l'index de la piste sélectionnée
+        const trackIndex = tracks.findIndex((t) => t.id === track.id);
+        dispatch(setCurrentTrackIndex(trackIndex));
         dispatch(setCurrentTrack(track));
         dispatch(setIsPlaying(true));
     };

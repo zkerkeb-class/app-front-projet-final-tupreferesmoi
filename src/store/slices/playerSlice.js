@@ -7,6 +7,7 @@ const initialState = {
     volume: 1,
     progress: 0,
     mode: "normal",
+    currentTrackIndex: -1,
 };
 
 const playerSlice = createSlice({
@@ -42,6 +43,23 @@ const playerSlice = createSlice({
         clearQueue: (state) => {
             state.queue = [];
         },
+        setCurrentTrackIndex: (state, action) => {
+            state.currentTrackIndex = action.payload;
+        },
+        playNext: (state) => {
+            if (state.currentTrackIndex < state.queue.length - 1) {
+                state.currentTrackIndex += 1;
+                state.currentTrack = state.queue[state.currentTrackIndex];
+            } else {
+                state.isPlaying = false;
+            }
+        },
+        playPrevious: (state) => {
+            if (state.currentTrackIndex > 0) {
+                state.currentTrackIndex -= 1;
+                state.currentTrack = state.queue[state.currentTrackIndex];
+            }
+        },
     },
 });
 
@@ -55,6 +73,9 @@ export const {
     addToQueue,
     removeFromQueue,
     clearQueue,
+    setCurrentTrackIndex,
+    playNext,
+    playPrevious,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
