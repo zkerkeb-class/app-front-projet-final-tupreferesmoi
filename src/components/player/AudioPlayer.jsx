@@ -14,12 +14,15 @@ import {
     Repeat,
     Shuffle,
     Maximize,
+    Minimize,
 } from "react-feather";
 import {
     setIsPlaying,
     setProgress,
     setVolume,
     setMode,
+    playNext,
+    playPrevious,
 } from "../../store/slices/playerSlice";
 import { getAudioInstance } from "../../utils/audioInstance";
 
@@ -107,6 +110,10 @@ const Controls = styled.div`
             &:hover:not(:disabled) {
                 color: ${({ theme }) => theme.colors.text};
                 transform: scale(1.06);
+            }
+
+            &.active {
+                color: ${({ theme }) => theme.colors.primary};
             }
 
             &.play-pause {
@@ -230,19 +237,191 @@ const FullscreenPlayer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+
+    .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        filter: blur(30px);
+        opacity: 0.3;
+        object-fit: cover;
+    }
+
+    .main-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -60%);
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 48px;
+
+        .content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            text-align: center;
+
+            img {
+                width: 300px;
+                height: 300px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+                border-radius: 4px;
+            }
+
+            .track-info {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 32px;
+
+                .title {
+                    font-size: 28px;
+                    font-weight: 700;
+                    color: ${({ theme }) => theme.colors.text};
+                }
+
+                .artist {
+                    font-size: 16px;
+                    color: ${({ theme }) => theme.colors.textSecondary};
+                }
+            }
+        }
+    }
+
+    .player-section {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 64px;
+
+        .controls-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            padding: 0 48px;
+            opacity: ${({ $showControls }) => ($showControls ? 1 : 0)};
+            transition: opacity 0.3s ease;
+        }
+    }
 `;
+
+const FullscreenControls = styled(Controls)`
+    width: 100%;
+    max-width: 1000px;
+    padding: 0;
+    margin: 0 auto;
+
+    .control-buttons {
+        gap: 32px;
+        margin-bottom: 32px;
+        justify-content: center;
+
+        button {
+            width: 40px;
+            height: 40px;
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            &.play-pause {
+                width: 48px;
+                height: 48px;
+
+                svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+        }
+    }
+
+    ${ProgressBar} {
+        height: 6px;
+
+        &::-webkit-slider-thumb {
+            width: 16px;
+            height: 16px;
+            margin-top: -5px;
+        }
+    }
+
+    ${TimeDisplay} {
+        font-size: 14px;
+        padding: 4px 16px;
+    }
+`;
+
+const FullscreenVolumeControl = styled(VolumeControl)`
+    position: absolute;
+    bottom: 16px;
+    right: 32px;
+    padding-right: 0;
+    opacity: ${({ $showControls }) => ($showControls ? 1 : 0)};
+    transition: opacity 0.3s ease;
+
+    .volume-slider {
+        width: 120px;
+    }
+
+    button {
+        width: 40px;
+        height: 40px;
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+`;
+
+const MinimizeButton = styled.button`
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+    transition: opacity 0.3s ease;
+    z-index: 2;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+    }
+`;
+
+const DEFAULT_IMAGE = "/default-album.png";
 
 export default function AudioPlayer() {
     const dispatch = useDispatch();
-    const { currentTrack, isPlaying, volume, progress, mode } = useSelector(
-        (state) => state.player
-    );
+    const {
+        currentTrack,
+        isPlaying,
+        volume,
+        progress,
+        mode,
+        queue,
+        currentTrackIndex,
+    } = useSelector((state) => state.player);
 
     const [showFullscreen, setShowFullscreen] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
+    const [showControls, setShowControls] = useState(true);
+    const [mouseTimeout, setMouseTimeout] = useState(null);
 
     // Initialisation de l'audio
     useEffect(() => {
@@ -261,9 +440,19 @@ export default function AudioPlayer() {
         };
 
         const handleEnded = () => {
-            dispatch(setIsPlaying(false));
-            setCurrentTime(0);
-            dispatch(setProgress(0));
+            if (mode === "repeat") {
+                audio.currentTime = 0;
+                audio.play();
+            } else if (
+                queue.length > 0 &&
+                currentTrackIndex < queue.length - 1
+            ) {
+                dispatch(playNext());
+            } else {
+                dispatch(setIsPlaying(false));
+                setCurrentTime(0);
+                dispatch(setProgress(0));
+            }
         };
 
         audio.addEventListener("timeupdate", handleTimeUpdate);
@@ -275,7 +464,7 @@ export default function AudioPlayer() {
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
             audio.removeEventListener("ended", handleEnded);
         };
-    }, [dispatch, volume]);
+    }, [dispatch, volume, mode, queue, currentTrackIndex]);
 
     // Gestion du changement de piste
     useEffect(() => {
@@ -385,26 +574,85 @@ export default function AudioPlayer() {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Mettre à zéro sans interrompre la lecture
-        audio.currentTime = 0;
-        setCurrentTime(0);
-        dispatch(setProgress(0));
+        if (currentTime <= 3) {
+            // Si on est dans les 3 premières secondes et qu'il y a une piste précédente
+            if (currentTrackIndex > 0) {
+                dispatch(playPrevious());
+            } else {
+                // Sinon, on revient au début de la piste actuelle
+                audio.currentTime = 0;
+                setCurrentTime(0);
+                dispatch(setProgress(0));
+            }
+        } else {
+            // Si on est après les 3 premières secondes, on revient au début de la piste actuelle
+            audio.currentTime = 0;
+            setCurrentTime(0);
+            dispatch(setProgress(0));
+        }
     };
 
     const handleSkipToEnd = () => {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        const newTime =
-            duration - currentTime <= 3
-                ? duration
-                : Math.min(currentTime + 10, duration);
-
-        // Mettre à jour la position sans interrompre la lecture
-        audio.currentTime = newTime;
-        setCurrentTime(newTime);
-        dispatch(setProgress((newTime / duration) * 100));
+        if (duration - currentTime <= 3) {
+            // Si on est dans les 3 dernières secondes et qu'il y a une piste suivante
+            if (currentTrackIndex < queue.length - 1) {
+                dispatch(playNext());
+            }
+        } else {
+            // Sinon, on avance de 10 secondes
+            const newTime = Math.min(currentTime + 10, duration);
+            audio.currentTime = newTime;
+            setCurrentTime(newTime);
+            dispatch(setProgress((newTime / duration) * 100));
+        }
     };
+
+    const handleMouseMove = () => {
+        setShowControls(true);
+        document.body.style.cursor = "default";
+
+        // Réinitialiser le timeout précédent
+        if (mouseTimeout) {
+            clearTimeout(mouseTimeout);
+        }
+
+        // Définir un nouveau timeout
+        const timeout = setTimeout(() => {
+            if (showFullscreen) {
+                setShowControls(false);
+                document.body.style.cursor = "none";
+            }
+        }, 3000);
+
+        setMouseTimeout(timeout);
+    };
+
+    useEffect(() => {
+        // Nettoyer le timeout lors du démontage
+        return () => {
+            if (mouseTimeout) {
+                clearTimeout(mouseTimeout);
+            }
+            document.body.style.cursor = "default";
+        };
+    }, [mouseTimeout]);
+
+    // Ajouter l'effet pour gérer la touche Échap
+    useEffect(() => {
+        const handleEscape = (event) => {
+            if (event.key === "Escape" && showFullscreen) {
+                setShowFullscreen(false);
+            }
+        };
+
+        document.addEventListener("keydown", handleEscape);
+        return () => {
+            document.removeEventListener("keydown", handleEscape);
+        };
+    }, [showFullscreen]);
 
     return (
         <>
@@ -413,7 +661,7 @@ export default function AudioPlayer() {
                     {currentTrack && (
                         <>
                             <Image
-                                src={currentTrack.coverUrl}
+                                src={currentTrack.coverUrl || DEFAULT_IMAGE}
                                 alt={currentTrack.title}
                                 width={56}
                                 height={56}
@@ -433,7 +681,11 @@ export default function AudioPlayer() {
 
                 <Controls>
                     <div className="control-buttons">
-                        <button onClick={toggleMode} disabled={!currentTrack}>
+                        <button
+                            onClick={toggleMode}
+                            disabled={!currentTrack}
+                            className={mode === "repeat" ? "active" : ""}
+                        >
                             {mode === "shuffle" ? <Shuffle /> : <Repeat />}
                         </button>
                         <button
@@ -501,8 +753,128 @@ export default function AudioPlayer() {
             </PlayerContainer>
 
             {showFullscreen && (
-                <FullscreenPlayer>
-                    {/* Interface fullscreen avec visualisation de la waveform */}
+                <FullscreenPlayer
+                    onMouseMove={handleMouseMove}
+                    $showControls={showControls}
+                >
+                    <Image
+                        className="background-image"
+                        src={currentTrack?.coverUrl || DEFAULT_IMAGE}
+                        alt=""
+                        fill
+                        priority
+                    />
+
+                    <MinimizeButton
+                        onClick={toggleFullscreen}
+                        $visible={showControls}
+                    >
+                        <Minimize />
+                    </MinimizeButton>
+
+                    <div className="main-content">
+                        <div className="content">
+                            <Image
+                                src={currentTrack?.coverUrl || DEFAULT_IMAGE}
+                                alt={currentTrack?.title}
+                                width={400}
+                                height={400}
+                                priority
+                            />
+                            <div className="track-info">
+                                <div className="title">
+                                    {currentTrack?.title}
+                                </div>
+                                <div className="artist">
+                                    {currentTrack?.artist}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="player-section">
+                        <div className="controls-wrapper">
+                            <FullscreenControls>
+                                <div className="control-buttons">
+                                    <button
+                                        onClick={toggleMode}
+                                        disabled={!currentTrack}
+                                        className={
+                                            mode === "repeat" ? "active" : ""
+                                        }
+                                    >
+                                        {mode === "shuffle" ? (
+                                            <Shuffle />
+                                        ) : (
+                                            <Repeat />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={handleSkipToStart}
+                                        disabled={!currentTrack}
+                                    >
+                                        <SkipBack />
+                                    </button>
+                                    <button
+                                        className="play-pause"
+                                        onClick={togglePlay}
+                                        disabled={!currentTrack}
+                                    >
+                                        {isPlaying ? <Pause /> : <Play />}
+                                    </button>
+                                    <button
+                                        onClick={handleSkipToEnd}
+                                        disabled={!currentTrack}
+                                    >
+                                        <SkipForward />
+                                    </button>
+                                </div>
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: "8px",
+                                    }}
+                                >
+                                    <ProgressBar
+                                        type="range"
+                                        value={Number(progress) || 0}
+                                        onChange={handleProgressChange}
+                                        min={0}
+                                        max={100}
+                                        style={{
+                                            opacity: currentTrack ? 1 : 0.5,
+                                        }}
+                                    />
+                                    <TimeDisplay>
+                                        <span>
+                                            {formatTime(currentTime || 0)}
+                                        </span>
+                                        <span>{formatTime(duration || 0)}</span>
+                                    </TimeDisplay>
+                                </div>
+                            </FullscreenControls>
+                        </div>
+
+                        <FullscreenVolumeControl $showControls={showControls}>
+                            <button onClick={toggleMute}>
+                                {isMuted ? (
+                                    <VolumeX size={24} />
+                                ) : (
+                                    <Volume2 size={24} />
+                                )}
+                            </button>
+                            <ProgressBar
+                                className="volume-slider"
+                                type="range"
+                                value={Number(volume * 100) || 0}
+                                onChange={handleVolumeChange}
+                                min={0}
+                                max={100}
+                            />
+                        </FullscreenVolumeControl>
+                    </div>
                 </FullscreenPlayer>
             )}
         </>
