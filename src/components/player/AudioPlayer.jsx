@@ -335,21 +335,20 @@ export default function AudioPlayer() {
         const audio = getAudioInstance();
         if (!audio) return;
 
+        // Arrêter la lecture en cours
+        audio.pause();
+
         const newTime = (e.target.value / 100) * audio.duration;
-
-        // Arrêter la lecture avant de changer la position
-        const wasPlaying = !audio.paused;
-        if (wasPlaying) {
-            audio.pause();
-        }
-
         audio.currentTime = newTime;
         setCurrentTime(newTime);
         dispatch(setProgress(e.target.value));
 
-        // Reprendre la lecture si elle était en cours
-        if (wasPlaying) {
-            audio.play();
+        // Reprendre la lecture
+        if (isPlaying) {
+            audio.play().catch((error) => {
+                console.error("Erreur lors de la lecture:", error);
+                dispatch(setIsPlaying(false));
+            });
         }
     };
 
@@ -394,23 +393,20 @@ export default function AudioPlayer() {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Arrêter la lecture avant de changer la position
-        const wasPlaying = !audio.paused;
-        if (wasPlaying) {
-            audio.pause();
-        }
+        // Arrêter la lecture en cours
+        audio.pause();
 
-        if (currentTime <= 3) {
-            audio.currentTime = 0;
-        } else {
-            audio.currentTime = 0;
-        }
+        // Remettre à zéro
+        audio.currentTime = 0;
         setCurrentTime(0);
         dispatch(setProgress(0));
 
-        // Reprendre la lecture si elle était en cours
-        if (wasPlaying) {
-            audio.play();
+        // Reprendre la lecture
+        if (isPlaying) {
+            audio.play().catch((error) => {
+                console.error("Erreur lors de la lecture:", error);
+                dispatch(setIsPlaying(false));
+            });
         }
     };
 
@@ -418,24 +414,25 @@ export default function AudioPlayer() {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Arrêter la lecture avant de changer la position
-        const wasPlaying = !audio.paused;
-        if (wasPlaying) {
-            audio.pause();
-        }
+        // Arrêter la lecture en cours
+        audio.pause();
 
         const newTime =
             duration - currentTime <= 3
                 ? duration
                 : Math.min(currentTime + 10, duration);
 
+        // Mettre à jour la position
         audio.currentTime = newTime;
         setCurrentTime(newTime);
         dispatch(setProgress((newTime / duration) * 100));
 
-        // Reprendre la lecture si elle était en cours
-        if (wasPlaying) {
-            audio.play();
+        // Reprendre la lecture
+        if (isPlaying) {
+            audio.play().catch((error) => {
+                console.error("Erreur lors de la lecture:", error);
+                dispatch(setIsPlaying(false));
+            });
         }
     };
 

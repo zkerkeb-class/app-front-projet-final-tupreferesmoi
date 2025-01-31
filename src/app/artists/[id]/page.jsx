@@ -6,7 +6,11 @@ import { Play, Pause } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { musicApi } from "../../../services/musicApi";
-import { useTrackPlayer } from "../../../hooks/useTrackPlayer";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    setCurrentTrack,
+    setIsPlaying,
+} from "../../../store/slices/playerSlice";
 
 const ArtistHeader = styled.div`
     padding: 60px 24px 24px;
@@ -138,16 +142,16 @@ const PlayButton = styled.button`
     }
 `;
 
-const DEFAULT_IMAGE =
-    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiMyQTJBMkEiLz48cGF0aCBkPSJNOTAgODBIMTEwQzExNS41MjMgODAgMTIwIDg0LjQ3NzIgMTIwIDkwVjExMEMxMjAgMTE1LjUyMyAxMTUuNTIzIDEyMCAxMTAgMTIwSDkwQzg0LjQ3NzIgMTIwIDgwIDExNS41MjMgODAgMTEwVjkwQzgwIDg0LjQ3NzIgODQuNDc3MiA4MCA5MCA4MFoiIGZpbGw9IiM0MDQwNDAiLz48cGF0aCBkPSJNMTAwIDg1QzEwMi43NjEgODUgMTA1IDg3LjIzODYgMTA1IDkwQzEwNSA5Mi43NjE0IDEwMi43NjEgOTUgMTAwIDk1Qzk3LjIzODYgOTUgOTUgOTIuNzYxNCA5NSA5MEM5NSA4Ny4yMzg2IDk3LjIzODYgODUgMTAwIDg1WiIgZmlsbD0iIzU5NTk1OSIvPjwvc3ZnPg==";
+const DEFAULT_IMAGE = "/default-album.png";
 
 export default function ArtistPage({ params }) {
+    const dispatch = useDispatch();
+    const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [artist, setArtist] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { currentTrack, isPlaying, handlePlayTrack } = useTrackPlayer();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -182,9 +186,15 @@ export default function ArtistPage({ params }) {
                                     track.artist ||
                                     artistResponse.data?.name ||
                                     "Artiste inconnu",
-                                album: track.album || "Album inconnu",
-                                coverUrl: track.coverUrl || DEFAULT_IMAGE,
-                                duration: track.duration || 0,
+                                album:
+                                    track.album?.title ||
+                                    track.album ||
+                                    "Album inconnu",
+                                coverUrl:
+                                    track.album?.coverImage?.thumbnail ||
+                                    track.coverUrl ||
+                                    DEFAULT_IMAGE,
+                                duration: parseInt(track.duration) || 0,
                                 audioUrl: track.audioUrl || null,
                             })
                         );
@@ -208,7 +218,7 @@ export default function ArtistPage({ params }) {
         };
 
         fetchData();
-    }, [params?.id, artist?.name]);
+    }, [params?.id]);
 
     const formatDuration = (seconds) => {
         const minutes = Math.floor(seconds / 60);
@@ -216,13 +226,9 @@ export default function ArtistPage({ params }) {
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
 
-    const handleTrackPlay = (track) => {
-        if (!track.id) {
-            console.error("ID de piste manquant");
-            return;
-        }
-
-        handlePlayTrack(track);
+    const handlePlay = (track) => {
+        dispatch(setCurrentTrack(track));
+        dispatch(setIsPlaying(true));
     };
 
     if (loading) {
@@ -257,18 +263,17 @@ export default function ArtistPage({ params }) {
         <div>
             <ArtistHeader>
                 <ArtistImage>
-                    {(artist.imageUrl || artist.image || DEFAULT_IMAGE) && (
-                        <Image
-                            src={
-                                artist.imageUrl || artist.image || DEFAULT_IMAGE
-                            }
-                            alt={artist.name || "Artiste"}
-                            fill
-                            style={{ objectFit: "cover" }}
-                            priority
-                            unoptimized
-                        />
-                    )}
+                    <Image
+                        src={
+                            artist.imageUrl ||
+                            artist.image?.large ||
+                            DEFAULT_IMAGE
+                        }
+                        alt={artist.name || "Artiste"}
+                        fill
+                        style={{ objectFit: "cover" }}
+                        sizes="(max-width: 232px) 100vw, 232px"
+                    />
                 </ArtistImage>
                 <ArtistInfo>
                     <p>Artiste vérifié</p>
@@ -284,7 +289,7 @@ export default function ArtistPage({ params }) {
                             <span className="track-number">{index + 1}</span>
                             <div className="track-play">
                                 <PlayButton
-                                    onClick={() => handleTrackPlay(track)}
+                                    onClick={() => handlePlay(track)}
                                     disabled={!track.id}
                                 >
                                     {currentTrack?.id === track.id &&
@@ -296,22 +301,20 @@ export default function ArtistPage({ params }) {
                                 </PlayButton>
                             </div>
                             <div className="track-title">
-                                {(track.coverUrl || DEFAULT_IMAGE) && (
-                                    <Image
-                                        src={track.coverUrl || DEFAULT_IMAGE}
-                                        alt={track.title || "Titre"}
-                                        width={40}
-                                        height={40}
-                                        unoptimized
-                                    />
-                                )}
+                                <Image
+                                    src={track.coverUrl || DEFAULT_IMAGE}
+                                    alt={track.title || "Titre"}
+                                    width={40}
+                                    height={40}
+                                    sizes="40px"
+                                />
                                 <div className="title-text">
                                     <span>{track.title}</span>
                                     <span>{track.artist}</span>
                                 </div>
                             </div>
                             <div className="track-album">
-                                {track.album?.title}
+                                {track.album?.title || track.album}
                             </div>
                             <div className="track-duration">
                                 {formatDuration(track.duration)}
