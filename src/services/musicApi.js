@@ -156,15 +156,39 @@ export const musicApi = {
     },
 
     // Récupération des pistes d'un artiste
-    getArtistTracks: async (artistId) => {
+    getArtistTracks: async (artistId, albumId = null) => {
         try {
-            const response = await api.get(`/tracks`, {
-                params: { artistId },
-            });
+            const params = {};
+            if (artistId) params.artistId = artistId;
+            if (albumId) params.albumId = albumId;
+
+            const response = await api.get(`/tracks`, { params });
+            return response.data;
+        } catch (error) {
+            console.error("Erreur lors de la récupération des pistes:", error);
+            throw error;
+        }
+    },
+
+    // Récupération d'un album spécifique
+    getAlbum: async (albumId) => {
+        try {
+            const response = await api.get(`/albums/${albumId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Erreur lors de la récupération de l'album:", error);
+            throw error;
+        }
+    },
+
+    // Récupération des pistes d'un album
+    getAlbumTracks: async (albumId) => {
+        try {
+            const response = await api.get(`/albums/${albumId}/tracks`);
             return response.data;
         } catch (error) {
             console.error(
-                "Erreur lors de la récupération des pistes de l'artiste:",
+                "Erreur lors de la récupération des pistes de l'album:",
                 error
             );
             throw error;

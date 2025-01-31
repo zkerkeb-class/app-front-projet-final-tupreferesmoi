@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CONTROLS_HIDE_DELAY } from "../components/player/constants";
+import { CONTROLS_HIDE_DELAY } from "../constants";
 
 export const useFullscreenPlayer = () => {
     const [showFullscreen, setShowFullscreen] = useState(false);
@@ -19,6 +19,7 @@ export const useFullscreenPlayer = () => {
         const handleEscape = (event) => {
             if (event.key === "Escape" && showFullscreen) {
                 setShowFullscreen(false);
+                document.body.style.cursor = "default";
             }
         };
 
@@ -47,8 +48,17 @@ export const useFullscreenPlayer = () => {
     };
 
     const toggleFullscreen = () => {
-        setShowFullscreen(!showFullscreen);
+        const newShowFullscreen = !showFullscreen;
+        setShowFullscreen(newShowFullscreen);
         setShowControls(true);
+
+        // Réinitialiser le style du curseur si on quitte le mode plein écran
+        if (!newShowFullscreen) {
+            if (mouseTimeout) {
+                clearTimeout(mouseTimeout);
+            }
+            document.body.style.cursor = "default";
+        }
     };
 
     return {

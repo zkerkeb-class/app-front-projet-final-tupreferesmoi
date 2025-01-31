@@ -6,12 +6,9 @@ import {
     setVolume,
     playNext,
     playPrevious,
-} from "../store/slices/playerSlice";
-import { getAudioInstance } from "../utils/audioInstance";
-import {
-    SKIP_THRESHOLD,
-    FORWARD_SKIP_TIME,
-} from "../components/player/constants";
+} from "../../../store/slices/playerSlice";
+import { getAudioInstance } from "../../../utils/audioInstance";
+import { SKIP_THRESHOLD, FORWARD_SKIP_TIME } from "../constants";
 
 export const useAudioPlayer = () => {
     const dispatch = useDispatch();

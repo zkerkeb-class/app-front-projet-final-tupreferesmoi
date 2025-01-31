@@ -1,4 +1,4 @@
-export const DEFAULT_IMAGE = "/default-album.png";
+export const DEFAULT_IMAGE = "/logo192.png";
 
 export const PLAYER_MODES = {
     NORMAL: "normal",
