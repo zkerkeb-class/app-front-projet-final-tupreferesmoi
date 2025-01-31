@@ -8,8 +8,8 @@ import { TrackInfo } from "./components/TrackInfo";
 import { PlaybackControls } from "./components/PlaybackControls";
 import { VolumeControl } from "./components/VolumeControl";
 import { FullscreenPlayer } from "./components/FullscreenPlayer";
-import { useAudioPlayer } from "../../hooks/useAudioPlayer";
-import { useFullscreenPlayer } from "../../hooks/useFullscreenPlayer";
+import { useAudioPlayer } from "./hooks/useAudioPlayer";
+import { useFullscreenPlayer } from "./hooks/useFullscreenPlayer";
 import { PLAYER_MODES } from "./constants";
 
 export default function AudioPlayer() {

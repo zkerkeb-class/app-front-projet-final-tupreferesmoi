@@ -1,19 +1,21 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Volume2, VolumeX } from "react-feather";
 import { VolumeControlContainer } from "../styles/volumeControl.styles";
 import { ProgressBar } from "../../../styles/common/controls";
+import { IconButton } from "../../../components/common";
 
 export const VolumeControl = ({
-    volume,
-    isMuted,
+    volume = 1,
+    isMuted = false,
     onVolumeChange,
     onToggleMute,
 }) => {
     return (
         <VolumeControlContainer>
-            <button onClick={onToggleMute}>
+            <IconButton onClick={onToggleMute} $active={isMuted}>
                 {isMuted ? <VolumeX /> : <Volume2 />}
-            </button>
+            </IconButton>
             <ProgressBar
                 className="volume-slider"
                 type="range"
@@ -25,3 +27,12 @@ export const VolumeControl = ({
         </VolumeControlContainer>
     );
 };
+
+VolumeControl.propTypes = {
+    volume: PropTypes.number,
+    isMuted: PropTypes.bool,
+    onVolumeChange: PropTypes.func.isRequired,
+    onToggleMute: PropTypes.func.isRequired,
+};
+
+export default VolumeControl;
