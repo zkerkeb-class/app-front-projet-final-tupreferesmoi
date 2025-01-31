@@ -16,26 +16,23 @@ const ArtistHeader = styled.div`
     padding: 60px 24px 24px;
     background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
     display: flex;
-    gap: 24px;
-    align-items: flex-end;
-`;
-
-const ArtistImage = styled.div`
-    width: 232px;
-    height: 232px;
-    border-radius: 50%;
-    overflow: hidden;
-    position: relative;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 340px;
 `;
 
 const ArtistInfo = styled.div`
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 
     h1 {
         font-size: 96px;
         font-weight: 900;
         margin: 0;
         padding: 0;
+        color: ${({ theme }) => theme.colors.text};
     }
 
     p {
@@ -262,19 +259,6 @@ export default function ArtistPage({ params }) {
     return (
         <div>
             <ArtistHeader>
-                <ArtistImage>
-                    <Image
-                        src={
-                            artist.imageUrl ||
-                            artist.image?.large ||
-                            DEFAULT_IMAGE
-                        }
-                        alt={artist.name || "Artiste"}
-                        fill
-                        style={{ objectFit: "cover" }}
-                        sizes="(max-width: 232px) 100vw, 232px"
-                    />
-                </ArtistImage>
                 <ArtistInfo>
                     <p>Artiste vérifié</p>
                     <h1>{artist.name}</h1>
