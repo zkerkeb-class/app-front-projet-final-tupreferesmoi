@@ -2,16 +2,10 @@
 
 import React from "react";
 import styled from "styled-components";
-import {
-    Search,
-    Home,
-    Grid,
-    ChevronLeft,
-    ChevronRight,
-    User,
-} from "react-feather";
+import { Search, Home, Grid, ChevronLeft, ChevronRight } from "react-feather";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import UserMenu from "../../../components/common/UserMenu";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -118,25 +112,6 @@ const BrowseButton = styled.button`
     }
 `;
 
-const UserButton = styled.button`
-    height: 32px;
-    padding: 0 ${({ theme }) => theme.spacing.sm};
-    border-radius: 16px;
-    background-color: rgba(0, 0, 0, 0.7);
-    border: none;
-    color: ${({ theme }) => theme.colors.text};
-    display: flex;
-    align-items: center;
-    gap: ${({ theme }) => theme.spacing.xs};
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-        transform: scale(1.02);
-    }
-`;
-
 export default function Header() {
     const router = useRouter();
 
@@ -168,9 +143,7 @@ export default function Header() {
                 <BrowseButton>
                     <Grid size={24} />
                 </BrowseButton>
-                <UserButton>
-                    <User size={20} />
-                </UserButton>
+                <UserMenu />
             </NavigationSection>
         </HeaderContainer>
     );
