@@ -1,3 +1,7 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     compiler: {
@@ -21,6 +25,14 @@ const nextConfig = {
         contentSecurityPolicy:
             "default-src 'self'; script-src 'none'; sandbox;",
     },
+    // Enable React strict mode for better development
+    reactStrictMode: true,
+    // Enable production source maps for better debugging
+    productionBrowserSourceMaps: true,
+    // Optimize fonts
+    optimizeFonts: true,
+    // Enable SWC minification
+    swcMinify: true,
     webpack(config) {
         config.module.rules.push({
             test: /\.(webp)$/i,
@@ -52,4 +64,4 @@ const nextConfig = {
     },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

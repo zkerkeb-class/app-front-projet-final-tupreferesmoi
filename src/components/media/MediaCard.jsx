@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, memo, useCallback } from "react";
 import styled from "styled-components";
 import { Play } from "react-feather";
 import Image from "next/image";
@@ -94,7 +94,24 @@ const Description = styled.p`
 const DEFAULT_IMAGE =
     "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiMyQTJBMkEiLz48cGF0aCBkPSJNOTAgODBIMTEwQzExNS41MjMgODAgMTIwIDg0LjQ3NzIgMTIwIDkwVjExMEMxMjAgMTE1LjUyMyAxMTUuNTIzIDEyMCAxMTAgMTIwSDkwQzg0LjQ3NzIgMTIwIDgwIDExNS41MjMgODAgMTEwVjkwQzgwIDg0LjQ3NzIgODQuNDc3MiA4MCA5MCA4MFoiIGZpbGw9IiM0MDQwNDAiLz48cGF0aCBkPSJNMTAwIDg1QzEwMi43NjEgODUgMTA1IDg3LjIzODYgMTA1IDkwQzEwNSA5Mi43NjE0IDEwMi43NjEgOTUgMTAwIDk1Qzk3LjIzODYgOTUgOTUgOTIuNzYxNCA5NSA5MEM5NSA4Ny4yMzg2IDk3LjIzODYgODUgMTAwIDg1WiIgZmlsbD0iIzU5NTk1OSIvPjwvc3ZnPg==";
 
-export default function MediaCard({
+const MemoizedImage = memo(({ src, alt, onError }) => (
+    <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="200px"
+        priority={false}
+        loading="lazy"
+        onError={onError}
+        style={{
+            objectFit: "cover",
+        }}
+    />
+));
+
+MemoizedImage.displayName = 'MemoizedImage';
+
+const MediaCard = memo(function MediaCard({
     id,
     title,
     description,
@@ -108,11 +125,11 @@ export default function MediaCard({
     const dispatch = useDispatch();
     const [imgError, setImgError] = useState(false);
 
-    const handleImageError = () => {
+    const handleImageError = useCallback(() => {
         setImgError(true);
-    };
+    }, []);
 
-    const handleClick = (e) => {
+    const handleClick = useCallback((e) => {
         e.preventDefault();
         if (!id || id === "undefined") return;
 
@@ -129,9 +146,9 @@ export default function MediaCard({
             default:
                 break;
         }
-    };
+    }, [id, type, router]);
 
-    const handlePlayClick = (e) => {
+    const handlePlayClick = useCallback((e) => {
         e.stopPropagation();
         if (!id || id === "undefined") return;
 
@@ -151,21 +168,15 @@ export default function MediaCard({
         } else if (type === "artist") {
             router.push(`/artists/${id}`);
         }
-    };
+    }, [id, type, title, artist, imageUrl, audioUrl, imgError, dispatch, router, onPlay]);
 
     return (
         <Card onClick={handleClick} type={type}>
             <ImageContainer type={type}>
-                <Image
+                <MemoizedImage
                     src={imgError ? DEFAULT_IMAGE : imageUrl || DEFAULT_IMAGE}
                     alt={title}
-                    fill
-                    sizes="200px"
-                    priority={true}
                     onError={handleImageError}
-                    style={{
-                        objectFit: "cover",
-                    }}
                 />
             </ImageContainer>
             {(type === "track" || type === "album" || type === "artist") && (
@@ -181,4 +192,8 @@ export default function MediaCard({
             </Content>
         </Card>
     );
-}
+});
+
+MediaCard.displayName = 'MediaCard';
+
+export default MediaCard;
