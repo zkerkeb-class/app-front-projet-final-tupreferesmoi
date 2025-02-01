@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@features/auth/AuthContext";
 
 const UserMenu = () => {
     const [isOpen, setIsOpen] = useState(false);

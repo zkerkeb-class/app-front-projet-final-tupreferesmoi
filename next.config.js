@@ -29,6 +29,16 @@ const nextConfig = {
         config.resolve.alias = {
             ...config.resolve.alias,
             "@": require("path").resolve(__dirname, "./src"),
+            "@components": require("path").resolve(__dirname, "./src/components"),
+            "@features": require("path").resolve(__dirname, "./src/features"),
+            "@styles": require("path").resolve(__dirname, "./src/styles"),
+            "@store": require("path").resolve(__dirname, "./src/store"),
+            "@services": require("path").resolve(__dirname, "./src/services"),
+            "@utils": require("path").resolve(__dirname, "./src/utils"),
+            "@hooks": require("path").resolve(__dirname, "./src/hooks"),
+            "@config": require("path").resolve(__dirname, "./src/config"),
+            "@lib": require("path").resolve(__dirname, "./src/lib"),
+            "@providers": require("path").resolve(__dirname, "./src/providers")
         };
         return config;
     },

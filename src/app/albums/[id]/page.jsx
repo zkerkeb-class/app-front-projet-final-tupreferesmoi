@@ -225,9 +225,30 @@ export default function AlbumPage({ params }) {
     };
 
     const handlePlay = (track, index) => {
-        dispatch(setQueue(tracks));
+        // Transform track data to include coverUrl
+        const transformedTrack = {
+            ...track,
+            coverUrl: track?.coverImage?.medium || track?.coverImage?.large || track?.coverImage?.thumbnail || album?.coverImage?.medium || album?.coverImage?.large || album?.coverImage?.thumbnail || DEFAULT_IMAGE,
+            artist: album?.artistId?.name || "Unknown Artist",
+        };
+        
+        // Transform all tracks in the queue to include coverUrl
+        const transformedTracks = tracks.map(t => ({
+            ...t,
+            coverUrl:
+                t?.coverImage?.medium ||
+                t?.coverImage?.large ||
+                t?.coverImage?.thumbnail ||
+                album?.coverImage?.medium ||
+                album?.coverImage?.large ||
+                album?.coverImage?.thumbnail ||
+                DEFAULT_IMAGE,
+            artist: album?.artistId?.name || "Unknown Artist",
+        }));
+
+        dispatch(setQueue(transformedTracks));
         dispatch(setCurrentTrackIndex(index));
-        dispatch(setCurrentTrack(track));
+        dispatch(setCurrentTrack(transformedTrack));
         dispatch(setIsPlaying(true));
     };
 
