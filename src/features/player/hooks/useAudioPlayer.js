@@ -6,17 +6,25 @@ import {
     setVolume,
     playNext,
     playPrevious,
+    setCurrentTime as setPlayerCurrentTime,
+    setDuration as setPlayerDuration,
 } from "../../../store/slices/playerSlice";
 import { getAudioInstance } from "../../../utils/audioInstance";
 import { SKIP_THRESHOLD, FORWARD_SKIP_TIME } from "../constants";
 
 export const useAudioPlayer = () => {
     const dispatch = useDispatch();
-    const { currentTrack, isPlaying, volume, mode, queue, currentTrackIndex } =
-        useSelector((state) => state.player);
+    const {
+        currentTrack,
+        isPlaying,
+        volume,
+        mode,
+        queue,
+        currentTrackIndex,
+        currentTime,
+        duration,
+    } = useSelector((state) => state.player);
 
-    const [duration, setDuration] = useState(0);
-    const [currentTime, setCurrentTime] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
 
     // Init audio et gestion des événements
@@ -27,26 +35,38 @@ export const useAudioPlayer = () => {
         audio.volume = volume;
 
         const handleTimeUpdate = () => {
-            setCurrentTime(audio.currentTime);
+            dispatch(setPlayerCurrentTime(audio.currentTime));
             dispatch(setProgress((audio.currentTime / audio.duration) * 100));
         };
 
         const handleLoadedMetadata = () => {
-            setDuration(audio.duration);
+            dispatch(setPlayerDuration(audio.duration));
         };
 
         const handleEnded = () => {
-            if (mode === "repeat") {
+            if (mode === "repeat-one") {
                 audio.currentTime = 0;
-                audio.play();
+                audio.play().catch(console.error);
             } else if (
-                queue.length > 0 &&
-                currentTrackIndex < queue.length - 1
+                mode === "repeat" &&
+                currentTrackIndex === queue.length - 1
             ) {
+                dispatch(playNext());
+            } else if (mode === "shuffle") {
+                const nextIndex = Math.floor(Math.random() * queue.length);
+                if (nextIndex !== currentTrackIndex) {
+                    dispatch({
+                        type: "player/setCurrentTrackIndex",
+                        payload: nextIndex,
+                    });
+                } else {
+                    handleEnded();
+                }
+            } else if (currentTrackIndex < queue.length - 1) {
                 dispatch(playNext());
             } else {
                 dispatch(setIsPlaying(false));
-                setCurrentTime(0);
+                dispatch(setPlayerCurrentTime(0));
                 dispatch(setProgress(0));
             }
         };
@@ -61,6 +81,13 @@ export const useAudioPlayer = () => {
             audio.removeEventListener("ended", handleEnded);
         };
     }, [dispatch, volume, mode, queue, currentTrackIndex]);
+
+    // Effet pour gérer le volume
+    useEffect(() => {
+        const audio = getAudioInstance();
+        if (!audio) return;
+        audio.volume = volume;
+    }, [volume]);
 
     // Gestion du changement de piste
     useEffect(() => {
@@ -97,17 +124,20 @@ export const useAudioPlayer = () => {
         const value = Number(e.target.value) || 0;
         const newTime = (value / 100) * audio.duration;
         audio.currentTime = newTime;
-        setCurrentTime(newTime);
+        dispatch(setPlayerCurrentTime(newTime));
         dispatch(setProgress(value));
     };
 
     const handleVolumeChange = (e) => {
-        const newVolume = Number(e.target.value) / 100 || 0;
+        const newVolume = Number(e.target.value) / 100;
         dispatch(setVolume(newVolume));
         setIsMuted(newVolume === 0);
     };
 
     const toggleMute = () => {
+        const audio = getAudioInstance();
+        if (!audio) return;
+
         if (isMuted) {
             dispatch(setVolume(1));
             setIsMuted(false);
@@ -121,11 +151,11 @@ export const useAudioPlayer = () => {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        if (currentTime <= SKIP_THRESHOLD && currentTrackIndex > 0) {
+        if (audio.currentTime <= SKIP_THRESHOLD && currentTrackIndex > 0) {
             dispatch(playPrevious());
         } else {
             audio.currentTime = 0;
-            setCurrentTime(0);
+            dispatch(setPlayerCurrentTime(0));
             dispatch(setProgress(0));
         }
     };
@@ -142,19 +172,19 @@ export const useAudioPlayer = () => {
         } else {
             const newTime = Math.min(currentTime + FORWARD_SKIP_TIME, duration);
             audio.currentTime = newTime;
-            setCurrentTime(newTime);
+            dispatch(setPlayerCurrentTime(newTime));
             dispatch(setProgress((newTime / duration) * 100));
         }
     };
 
     return {
-        duration,
-        currentTime,
-        isMuted,
         handleProgressChange,
-        handleVolumeChange,
-        toggleMute,
         handleSkipToStart,
         handleSkipToEnd,
+        handleVolumeChange,
+        toggleMute,
+        isMuted,
+        currentTime,
+        duration,
     };
 };

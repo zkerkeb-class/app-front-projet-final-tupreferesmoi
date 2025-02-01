@@ -8,66 +8,106 @@ import {
     Repeat,
     Shuffle,
     Maximize,
+    RotateCw,
 } from "react-feather";
 import { ControlsContainer } from "../styles/playbackControls.styles";
 import { ProgressBar, TimeDisplay } from "../../../styles/common/controls";
 import { IconButton } from "../../../components/common";
 import { formatTime } from "../../../utils/formatTime";
 import { useDispatch, useSelector } from "react-redux";
+import { setIsPlaying, setMode } from "../../../store/slices/playerSlice";
+import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { PLAYER_MODES } from "../constants";
 
-export const PlaybackControls = () => {
+export const PlaybackControls = ({ disabled, onToggleFullscreen }) => {
     const dispatch = useDispatch();
-    const { isPlaying } = useSelector((state) => state.player);
-    const {
-        mode = "normal",
-        progress = 0,
-        currentTime = 0,
-        duration = 0,
-    } = useSelector((state) => state.player);
+    const { isPlaying, mode, progress, currentTime, duration, currentTrack } =
+        useSelector((state) => state.player);
+    const { handleProgressChange, handleSkipToStart, handleSkipToEnd } =
+        useAudioPlayer();
+
+    const handleTogglePlay = () => {
+        if (!currentTrack) return;
+        dispatch(setIsPlaying(!isPlaying));
+    };
+
+    const handleToggleMode = () => {
+        if (!currentTrack) return;
+        const modes = [
+            PLAYER_MODES.NORMAL,
+            PLAYER_MODES.REPEAT,
+            PLAYER_MODES.REPEAT_ONE,
+            PLAYER_MODES.SHUFFLE,
+        ];
+        const currentIndex =
+            modes.indexOf(mode) !== -1 ? modes.indexOf(mode) : 0;
+        const nextIndex = (currentIndex + 1) % modes.length;
+        dispatch(setMode(modes[nextIndex]));
+    };
+
+    const getRepeatIcon = () => {
+        switch (mode) {
+            case PLAYER_MODES.REPEAT_ONE:
+                return <RotateCw />;
+            case PLAYER_MODES.REPEAT:
+                return <Repeat />;
+            case PLAYER_MODES.SHUFFLE:
+                return <Shuffle />;
+            default:
+                return <Repeat />;
+        }
+    };
+
+    const getModeTitle = () => {
+        switch (mode) {
+            case PLAYER_MODES.REPEAT_ONE:
+                return "Répéter le morceau";
+            case PLAYER_MODES.REPEAT:
+                return "Répéter la liste";
+            case PLAYER_MODES.SHUFFLE:
+                return "Mode aléatoire";
+            default:
+                return "Mode normal";
+        }
+    };
 
     return (
-        <ControlsContainer disabled={false}>
+        <ControlsContainer disabled={disabled}>
             <div className="control-buttons">
                 <IconButton
-                    onClick={() => dispatch({ type: "player/toggleMode" })}
-                    disabled={false}
-                    $active={mode !== "normal"}
-                    title={
-                        mode === "shuffle"
-                            ? "Mode aléatoire"
-                            : "Mode répétition"
-                    }
+                    onClick={handleToggleMode}
+                    disabled={disabled}
+                    $active={mode !== PLAYER_MODES.NORMAL}
+                    title={getModeTitle()}
                 >
-                    {mode === "shuffle" ? <Shuffle /> : <Repeat />}
+                    {getRepeatIcon()}
                 </IconButton>
                 <IconButton
-                    onClick={() => dispatch({ type: "player/skipToStart" })}
-                    disabled={false}
+                    onClick={handleSkipToStart}
+                    disabled={disabled}
                     title="Précédent"
                 >
                     <SkipBack />
                 </IconButton>
                 <IconButton
                     variant="primary"
-                    onClick={() => dispatch({ type: "player/togglePlay" })}
-                    disabled={false}
+                    onClick={handleTogglePlay}
+                    disabled={disabled}
                     size="large"
                     title={isPlaying ? "Pause" : "Lecture"}
                 >
                     {isPlaying ? <Pause /> : <Play />}
                 </IconButton>
                 <IconButton
-                    onClick={() => dispatch({ type: "player/skipToEnd" })}
-                    disabled={false}
+                    onClick={handleSkipToEnd}
+                    disabled={disabled}
                     title="Suivant"
                 >
                     <SkipForward />
                 </IconButton>
                 <IconButton
-                    onClick={() =>
-                        dispatch({ type: "player/toggleFullscreen" })
-                    }
-                    disabled={false}
+                    onClick={onToggleFullscreen}
+                    disabled={disabled}
                     title="Plein écran"
                 >
                     <Maximize />
@@ -77,19 +117,14 @@ export const PlaybackControls = () => {
                 <ProgressBar
                     type="range"
                     value={Number(progress) || 0}
-                    onChange={(e) =>
-                        dispatch({
-                            type: "player/progressChange",
-                            payload: e.target.value,
-                        })
-                    }
+                    onChange={handleProgressChange}
                     min={0}
                     max={100}
-                    disabled={false}
+                    disabled={disabled}
                 />
                 <TimeDisplay>
-                    <span>{formatTime(currentTime || 0)}</span>
-                    <span>{formatTime(duration || 0)}</span>
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
                 </TimeDisplay>
             </div>
         </ControlsContainer>
@@ -97,25 +132,8 @@ export const PlaybackControls = () => {
 };
 
 PlaybackControls.propTypes = {
-    isPlaying: PropTypes.bool,
-    currentTrack: PropTypes.shape({
-        id: PropTypes.string,
-        title: PropTypes.string,
-        artist: PropTypes.string,
-        coverUrl: PropTypes.string,
-        audioUrl: PropTypes.string,
-    }),
-    mode: PropTypes.oneOf(["normal", "repeat", "shuffle"]),
-    progress: PropTypes.number,
-    currentTime: PropTypes.number,
-    duration: PropTypes.number,
-    onTogglePlay: PropTypes.func.isRequired,
-    onSkipToStart: PropTypes.func.isRequired,
-    onSkipToEnd: PropTypes.func.isRequired,
-    onToggleMode: PropTypes.func.isRequired,
-    onToggleFullscreen: PropTypes.func.isRequired,
-    onProgressChange: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
+    onToggleFullscreen: PropTypes.func.isRequired,
 };
 
 export default PlaybackControls;
