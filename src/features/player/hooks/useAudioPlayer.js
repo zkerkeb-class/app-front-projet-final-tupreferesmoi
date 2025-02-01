@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    setCurrentTime,
+    setDuration,
     setIsPlaying,
-    setProgress,
     setVolume,
     playNext,
     playPrevious,
-    setCurrentTime as setPlayerCurrentTime,
-    setDuration as setPlayerDuration,
-} from "../../../store/slices/playerSlice";
-import { getAudioInstance } from "../../../utils/audioInstance";
+    setProgress
+} from "@store/slices/playerSlice";
+import { getAudioInstance } from "@utils/audioInstance";
 import { SKIP_THRESHOLD, FORWARD_SKIP_TIME } from "../constants";
 
 export const useAudioPlayer = () => {
@@ -35,12 +35,12 @@ export const useAudioPlayer = () => {
         audio.volume = volume;
 
         const handleTimeUpdate = () => {
-            dispatch(setPlayerCurrentTime(audio.currentTime));
+            dispatch(setCurrentTime(audio.currentTime));
             dispatch(setProgress((audio.currentTime / audio.duration) * 100));
         };
 
         const handleLoadedMetadata = () => {
-            dispatch(setPlayerDuration(audio.duration));
+            dispatch(setDuration(audio.duration));
         };
 
         const handleEnded = () => {
@@ -66,7 +66,7 @@ export const useAudioPlayer = () => {
                 dispatch(playNext());
             } else {
                 dispatch(setIsPlaying(false));
-                dispatch(setPlayerCurrentTime(0));
+                dispatch(setCurrentTime(0));
                 dispatch(setProgress(0));
             }
         };
@@ -124,7 +124,7 @@ export const useAudioPlayer = () => {
         const value = Number(e.target.value) || 0;
         const newTime = (value / 100) * audio.duration;
         audio.currentTime = newTime;
-        dispatch(setPlayerCurrentTime(newTime));
+        dispatch(setCurrentTime(newTime));
         dispatch(setProgress(value));
     };
 
@@ -155,7 +155,7 @@ export const useAudioPlayer = () => {
             dispatch(playPrevious());
         } else {
             audio.currentTime = 0;
-            dispatch(setPlayerCurrentTime(0));
+            dispatch(setCurrentTime(0));
             dispatch(setProgress(0));
         }
     };
@@ -172,7 +172,7 @@ export const useAudioPlayer = () => {
         } else {
             const newTime = Math.min(currentTime + FORWARD_SKIP_TIME, duration);
             audio.currentTime = newTime;
-            dispatch(setPlayerCurrentTime(newTime));
+            dispatch(setCurrentTime(newTime));
             dispatch(setProgress((newTime / duration) * 100));
         }
     };

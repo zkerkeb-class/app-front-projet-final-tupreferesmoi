@@ -6,7 +6,7 @@ import { Play } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setCurrentTrack, setIsPlaying } from "../../store/slices/playerSlice";
+import { setCurrentTrack, setIsPlaying } from "@store/slices/playerSlice";
 
 const Card = styled.div`
     border-radius: 8px;

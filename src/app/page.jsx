@@ -4,11 +4,11 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { setCurrentTrack, setIsPlaying } from "../store/slices/playerSlice";
-import { musicApi } from "../services/musicApi";
-import { GridLoader } from "../components/common/loaders";
-import { Card } from "../components/common";
-import { Section } from "../components/common/sections/Section";
+import { setCurrentTrack, setIsPlaying } from "@store/slices/playerSlice";
+import { musicApi } from "@services/musicApi";
+import { GridLoader } from "@components/common/loaders";
+import { Card } from "@components/common";
+import { Section } from "@components/common/sections/Section";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};

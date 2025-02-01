@@ -1,13 +1,13 @@
 "use client";
 
 import { Inter } from "next/font/google";
-import StyledComponentsRegistry from "../lib/registry";
+import StyledComponentsRegistry from "@lib/registry";
 import { ThemeProvider } from "styled-components";
-import { theme } from "../styles/theme";
+import { theme } from "@styles/theme";
 import { Provider } from "react-redux";
-import { store } from "../store";
-import GlobalStyle from "../styles/GlobalStyle";
-import { AudioPlayer } from "../features/player";
+import { store } from "@store";
+import GlobalStyle from "@styles/GlobalStyle";
+import { AudioPlayer } from "@features/player";
 import {
     Header,
     Sidebar,
@@ -16,8 +16,8 @@ import {
     SidebarWrapper,
     MainContent,
     ContentWrapper,
-} from "../features/layout";
-import { AuthProvider } from "../features/auth/AuthContext";
+} from "@features/layout";
+import { AuthProvider } from "@features/auth/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
