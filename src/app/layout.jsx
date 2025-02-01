@@ -17,7 +17,7 @@ import {
     MainContent,
     ContentWrapper,
 } from "../features/layout";
-import { AuthProvider } from "../contexts/AuthContext";
+import { AuthProvider } from "../features/auth/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
