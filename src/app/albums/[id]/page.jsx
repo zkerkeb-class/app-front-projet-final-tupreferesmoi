@@ -193,9 +193,6 @@ export default function AlbumPage({ params }) {
                     musicApi.getAlbumTracks(params.id),
                 ]);
 
-                console.log("Album Response complet:", albumResponse);
-                console.log("Tracks Response complet:", tracksResponse);
-
                 // Vérification simplifiée
                 if (!albumResponse?.data || !tracksResponse?.data) {
                     throw new Error("Données invalides");
@@ -207,6 +204,7 @@ export default function AlbumPage({ params }) {
                 console.log("Album Data:", albumData);
                 console.log("Tracks Data:", tracksData);
 
+                console.log("Album Response:", albumResponse.AlbumCover);
                 setAlbum(albumData);
                 setTracks(tracksData);
             } catch (error) {
@@ -266,16 +264,10 @@ export default function AlbumPage({ params }) {
             <AlbumHeader>
                 <AlbumCover>
                     <Image
-                        src={
-                            album?.coverUrls?.large ||
-                            album?.coverUrls?.medium ||
-                            album?.coverUrls?.thumbnail ||
-                            DEFAULT_IMAGE
-                        }
-                        alt={`Couverture de l'album ${album?.title || "Album inconnu"}`}
+                        src={album?.coverImage?.large || DEFAULT_IMAGE}
+                        alt={album.title}
                         fill
                         style={{ objectFit: "cover" }}
-                        priority
                         unoptimized={true}
                     />
                 </AlbumCover>
@@ -334,18 +326,15 @@ export default function AlbumPage({ params }) {
                             <div className="track-title">
                                 <Image
                                     src={
-                                        track?.coverUrls?.large ||
-                                        track?.coverUrls?.medium ||
-                                        track?.coverUrls?.thumbnail ||
-                                        album?.coverUrls?.large ||
-                                        album?.coverUrls?.medium ||
-                                        album?.coverUrls?.thumbnail ||
+                                        track?.coverImage?.thumbnail ||
+                                        album?.coverImage?.thumbnail ||
                                         DEFAULT_IMAGE
                                     }
                                     alt={track.title}
                                     width={40}
                                     height={40}
                                     style={{ objectFit: "cover" }}
+                                    unoptimized={true}
                                 />
                                 <div className="title-text">
                                     <span className="title">{track.title}</span>
