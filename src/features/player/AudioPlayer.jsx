@@ -65,7 +65,7 @@ export default function AudioPlayer() {
 
     return (
         <>
-            <PlayerContainer>
+            <PlayerContainer className="player-container">
                 {currentTrack ? (
                     <TrackInfo track={currentTrack} />
                 ) : (

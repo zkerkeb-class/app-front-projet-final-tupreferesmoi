@@ -19,6 +19,7 @@ export const useFullscreenPlayer = () => {
         const handleEscape = (event) => {
             if (event.key === "Escape" && showFullscreen) {
                 setShowFullscreen(false);
+                setShowControls(true);
                 document.body.style.cursor = "default";
             }
         };
@@ -37,22 +38,21 @@ export const useFullscreenPlayer = () => {
             clearTimeout(mouseTimeout);
         }
 
-        const timeout = setTimeout(() => {
-            if (showFullscreen) {
+        if (showFullscreen) {
+            const timeout = setTimeout(() => {
                 setShowControls(false);
                 document.body.style.cursor = "none";
-            }
-        }, CONTROLS_HIDE_DELAY);
-
-        setMouseTimeout(timeout);
+            }, CONTROLS_HIDE_DELAY);
+            setMouseTimeout(timeout);
+        }
     };
 
     const toggleFullscreen = () => {
         const newShowFullscreen = !showFullscreen;
         setShowFullscreen(newShowFullscreen);
         setShowControls(true);
+        document.body.style.cursor = "default";
 
-        // Réinitialiser le style du curseur si on quitte le mode plein écran
         if (!newShowFullscreen) {
             if (mouseTimeout) {
                 clearTimeout(mouseTimeout);
