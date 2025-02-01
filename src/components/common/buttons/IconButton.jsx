@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 import { StyledIconButton } from "./styles/IconButton.styles";
 
@@ -15,7 +15,7 @@ import { StyledIconButton } from "./styles/IconButton.styles";
  *   <Play />
  * </IconButton>
  */
-export const IconButton = ({
+const IconButton = memo(({
     children,
     variant = "default",
     $active = false,
@@ -43,7 +43,9 @@ export const IconButton = ({
             {children}
         </StyledIconButton>
     );
-};
+});
+
+IconButton.displayName = 'IconButton';
 
 IconButton.propTypes = {
     /** Contenu du bouton (généralement une icône) */

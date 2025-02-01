@@ -1,21 +1,25 @@
 "use client";
 
-import { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@features/auth/AuthContext";
 
-const UserMenu = () => {
+const UserMenu = memo(() => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
     const router = useRouter();
     const { user, logout } = useAuth();
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout();
         router.push("/");
         router.refresh();
-    };
+    }, [logout, router]);
+
+    const toggleMenu = useCallback(() => {
+        setIsOpen(prev => !prev);
+    }, []);
 
     const styles = {
         container: {
@@ -73,6 +77,23 @@ const UserMenu = () => {
         },
     };
 
+    // Close menu when clicking outside
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isOpen]);
+
     if (!user) {
         return (
             <Link href="/login" style={styles.button}>
@@ -83,7 +104,7 @@ const UserMenu = () => {
 
     return (
         <div style={styles.container} ref={menuRef}>
-            <button onClick={() => setIsOpen(!isOpen)} style={styles.button}>
+            <button onClick={toggleMenu} style={styles.button}>
                 <div style={styles.avatar}>
                     {user.username.charAt(0).toUpperCase()}
                 </div>
@@ -110,6 +131,8 @@ const UserMenu = () => {
             )}
         </div>
     );
-};
+});
+
+UserMenu.displayName = 'UserMenu';
 
 export default UserMenu;

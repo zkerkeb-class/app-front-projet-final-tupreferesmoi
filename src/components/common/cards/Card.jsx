@@ -1,9 +1,30 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import PropTypes from "prop-types";
 import Image from "next/image";
 import { CardContainer, ImageWrapper, Content } from "./styles/Card.styles";
-import { IconButton } from "../buttons/IconButton";
+import IconButton from "../buttons/IconButton";
 import { Play } from "react-feather";
+
+const MemoizedImage = memo(({ src, alt, type }) => (
+    <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        loading="lazy"
+        style={{
+            objectFit: type === "artist" ? "cover" : "contain",
+        }}
+    />
+));
+
+MemoizedImage.displayName = 'MemoizedImage';
+
+MemoizedImage.propTypes = {
+    src: PropTypes.string.isRequired,
+    alt: PropTypes.string.isRequired,
+    type: PropTypes.oneOf(["album", "artist", "playlist"]).isRequired,
+};
 
 /**
  * Card réutilisable pour les albums, artistes et playlists
@@ -17,7 +38,7 @@ import { Play } from "react-feather";
  *   onPlay={() => {}}
  * />
  */
-export const Card = ({
+const Card = memo(({
     title,
     subtitle = "",
     imageUrl,
@@ -27,22 +48,18 @@ export const Card = ({
     isPlaying = false,
     className = "",
 }) => {
-    const handlePlayClick = (e) => {
+    const handlePlayClick = useCallback((e) => {
         e.stopPropagation();
         onPlay?.();
-    };
+    }, [onPlay]);
 
     return (
         <CardContainer onClick={onClick} className={className}>
             <ImageWrapper $type={type}>
-                <Image
+                <MemoizedImage
                     src={imageUrl}
                     alt={title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{
-                        objectFit: type === "artist" ? "cover" : "contain",
-                    }}
+                    type={type}
                 />
                 {onPlay && (
                     <div className="play-button">
@@ -63,7 +80,9 @@ export const Card = ({
             </Content>
         </CardContainer>
     );
-};
+});
+
+Card.displayName = 'Card';
 
 Card.propTypes = {
     /** Titre de la card */
