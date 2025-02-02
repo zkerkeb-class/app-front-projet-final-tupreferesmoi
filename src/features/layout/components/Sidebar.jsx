@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { Home, Search, BookOpen, PlusSquare, Heart } from "react-feather";
+import playlistApi from "@/services/playlistApi";
 
 const SidebarContainer = styled.aside`
     background-color: ${({ theme }) => theme.colors.background};
@@ -25,10 +26,12 @@ const NavigationSection = styled.div`
 `;
 
 const LibrarySection = styled(NavigationSection)`
-    flex-grow: 1;
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: ${({ theme }) => theme.spacing.md};
+    overflow: hidden;
 `;
 
 const NavLink = styled(Link)`
@@ -99,7 +102,115 @@ const Logo = styled.div`
     margin-bottom: ${({ theme }) => theme.spacing.sm};
 `;
 
+const PlaylistsList = styled.div`
+    flex: 1;
+    min-height: 0;
+    margin-top: ${({ theme }) => theme.spacing.md};
+    display: flex;
+    flex-direction: column;
+    gap: ${({ theme }) => theme.spacing.xs};
+    overflow-y: auto;
+    padding-right: ${({ theme }) => theme.spacing.sm};
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+`;
+
+const PlaylistsHeader = styled.div`
+    color: ${({ theme }) => theme.colors.textSecondary};
+    padding: ${({ theme }) => theme.spacing.sm};
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+`;
+
+const PlaylistLink = styled(Link)`
+    color: ${({ theme }) => theme.colors.textSecondary};
+    text-decoration: none;
+    padding: ${({ theme }) => theme.spacing.sm};
+    font-size: 14px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+        background: rgba(255, 255, 255, 0.1);
+    }
+`;
+
+const Input = styled.input`
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 4px;
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 14px;
+    margin-bottom: 8px;
+
+    &:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    &::placeholder {
+        color: ${({ theme }) => theme.colors.textSecondary};
+    }
+`;
+
 export default function Sidebar() {
+    const [playlists, setPlaylists] = useState([]);
+    const [isCreating, setIsCreating] = useState(false);
+    const [newPlaylistName, setNewPlaylistName] = useState("");
+
+    useEffect(() => {
+        loadPlaylists();
+    }, []);
+
+    const loadPlaylists = async () => {
+        try {
+            const response = await playlistApi.getUserPlaylists();
+            console.log("Playlists chargées:", response);
+            setPlaylists(response);
+        } catch (error) {
+            console.error("Erreur lors du chargement des playlists:", error);
+            setPlaylists([]);
+        }
+    };
+
+    const handleCreatePlaylist = async () => {
+        if (!newPlaylistName.trim()) return;
+
+        try {
+            await playlistApi.createPlaylist({
+                name: newPlaylistName,
+                description: "",
+            });
+            setNewPlaylistName("");
+            setIsCreating(false);
+            await loadPlaylists(); // Recharger les playlists après la création
+        } catch (error) {
+            console.error("Erreur lors de la création de la playlist:", error);
+        }
+    };
+
     return (
         <SidebarContainer>
             <Logo>Spotify-Ynov</Logo>
@@ -121,18 +232,67 @@ export default function Sidebar() {
                         <BookOpen />
                         Bibliothèque
                     </LibraryHeaderLeft>
-                    <PlusSquare size={24} style={{ cursor: "pointer" }} />
+                    <PlusSquare 
+                        size={24} 
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setIsCreating(true)}
+                    />
                 </LibraryHeader>
 
-                <CreatePlaylistButton>
-                    <PlusSquare size={20} />
-                    Créer une playlist
-                </CreatePlaylistButton>
+                {isCreating ? (
+                    <>
+                        <Input
+                            type="text"
+                            placeholder="Nom de la playlist"
+                            value={newPlaylistName}
+                            onChange={(e) => setNewPlaylistName(e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === "Enter") {
+                                    handleCreatePlaylist();
+                                }
+                            }}
+                            autoFocus
+                        />
+                        <CreatePlaylistButton onClick={handleCreatePlaylist}>
+                            Créer
+                        </CreatePlaylistButton>
+                    </>
+                ) : (
+                    <CreatePlaylistButton onClick={() => setIsCreating(true)}>
+                        <PlusSquare size={20} />
+                        Créer une playlist
+                    </CreatePlaylistButton>
+                )}
 
                 <NavLink href="/liked">
                     <Heart />
                     Titres likés
                 </NavLink>
+
+                <NavLink href="/playlists">
+                    <BookOpen />
+                    Mes playlists
+                </NavLink>
+
+                <PlaylistsList>
+                    <PlaylistsHeader>
+                        Playlists récentes
+                    </PlaylistsHeader>
+                    {playlists && playlists.length > 0 ? (
+                        playlists.slice(0, 5).map((playlist) => (
+                            <PlaylistLink
+                                key={playlist._id || playlist.id}
+                                href={`/playlists/${playlist._id || playlist.id}`}
+                            >
+                                {playlist.name}
+                            </PlaylistLink>
+                        ))
+                    ) : (
+                        <div style={{ color: 'rgba(255,255,255,0.5)', padding: '8px', fontSize: '14px' }}>
+                            Aucune playlist
+                        </div>
+                    )}
+                </PlaylistsList>
             </LibrarySection>
         </SidebarContainer>
     );
