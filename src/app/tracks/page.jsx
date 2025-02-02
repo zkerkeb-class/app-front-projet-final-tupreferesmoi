@@ -10,6 +10,7 @@ import { Card } from "@components/common";
 import Pagination from "@components/common/Pagination";
 import { useRouter } from "next/navigation";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
+import { getAudioInstance } from "@/utils/audioInstance";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
@@ -42,6 +43,8 @@ export default function TracksPage() {
     const [page, setPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const [currentTrack, setCurrentTrack] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const loadTracks = async (pageNumber) => {
         try {
@@ -82,9 +85,37 @@ export default function TracksPage() {
         }
     };
 
-    const handlePlay = (track) => {
-        dispatch(setCurrentTrack(track));
-        dispatch(setIsPlaying(true));
+    const handlePlay = async (track) => {
+        if (!track) return;
+
+        const audio = getAudioInstance();
+        if (!audio) return;
+
+        // Formater les données de la piste pour le player
+        const trackData = {
+            ...track,
+            artist: track.artist || "Artiste inconnu",
+        };
+
+        if (currentTrack?.id === track.id) {
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                await audio.play();
+            }
+            dispatch(setIsPlaying(!isPlaying));
+            return;
+        }
+
+        // Nouvelle piste
+        audio.src = track.audioUrl;
+        dispatch(setCurrentTrack(trackData));
+        try {
+            await audio.play();
+            dispatch(setIsPlaying(true));
+        } catch (error) {
+            console.error("Erreur lors de la lecture:", error);
+        }
     };
 
     if (loading && tracks.length === 0) {
@@ -124,6 +155,7 @@ export default function TracksPage() {
                         type="album"
                         onClick={() => router.push(`/tracks/${track.id}`)}
                         onPlay={() => handlePlay(track)}
+                        isPlaying={currentTrack?.id === track.id && isPlaying}
                     />
                 ))}
             </Grid>
