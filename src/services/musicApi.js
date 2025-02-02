@@ -133,6 +133,19 @@ export const musicApi = {
         return handleResponse(response);
     },
 
+    globalSearch: async (query) => {
+        try{
+            const response = await api.get(`/globalSearchs/${encodeURIComponent(query)}`)
+            .then(function (response) {
+                return response.data;
+              });
+            return response.data
+            
+        } catch(error){
+            console.error("Echec de la rechereche global");
+        }
+    },
+
     // Gestion des likes
     likeTrack: async (trackId) => {
         const response = await fetch(`${BASE_URL}/tracks/${trackId}/like`, {
