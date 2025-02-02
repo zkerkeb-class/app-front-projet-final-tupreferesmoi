@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause, Clock, Trash2, Globe, Lock } from "react-feather";
+import { Play, Pause, Clock, Trash2, Globe, Lock, Plus } from "react-feather";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +10,7 @@ import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
 import { getAudioInstance } from "@/utils/audioInstance";
 import playlistApi from "@/services/playlistApi";
 import { formatTime } from '@/utils/formatTime';
+import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 
 const Container = styled.div`
     padding: 60px 24px 24px;
@@ -71,7 +72,7 @@ const TrackList = styled.div`
 
 const TrackHeader = styled.div`
     display: grid;
-    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr);
+    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr) 40px;
     padding: 8px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: ${({ theme }) => theme.colors.textSecondary};
@@ -83,7 +84,7 @@ const TrackHeader = styled.div`
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr);
+    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr) 40px;
     padding: 8px 16px;
     color: ${({ theme }) => theme.colors.textSecondary};
     border-radius: 4px;
@@ -174,6 +175,28 @@ const IconButton = styled.button`
     }
 `;
 
+const AddToPlaylistButton = styled.button`
+    opacity: 0;
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+        transform: scale(1.1);
+    }
+
+    ${TrackItem}:hover & {
+        opacity: 1;
+    }
+`;
+
 export default function PlaylistPage() {
     const router = useRouter();
     const { id } = useParams();
@@ -183,6 +206,8 @@ export default function PlaylistPage() {
     const [loading, setLoading] = useState(true);
     const dispatch = useDispatch();
     const [isUpdating, setIsUpdating] = useState(false);
+    const [selectedTrackId, setSelectedTrackId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -356,15 +381,15 @@ export default function PlaylistPage() {
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Clock size={16} />
                     </div>
+                    <div></div>
                 </TrackHeader>
                 <TrackList>
                     {playlist.tracks?.map((track, index) => (
                         <TrackItem
                             key={track._id}
-                            onClick={() => handlePlay(track)}
                         >
                             <div className="track-number">{index + 1}</div>
-                            <div className="track-title">{track.title}</div>
+                            <div className="track-title" onClick={() => handlePlay(track)}>{track.title}</div>
                             <Link
                                 href={`/albums/${track.albumId?._id}`}
                                 className="track-album"
@@ -380,10 +405,28 @@ export default function PlaylistPage() {
                                 {track.artistId?.name || "Artiste inconnu"}
                             </Link>
                             <div>{formatTime(track.duration)}</div>
+                            <AddToPlaylistButton
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedTrackId(track._id);
+                                    setIsModalOpen(true);
+                                }}
+                            >
+                                <Plus size={20} />
+                            </AddToPlaylistButton>
                         </TrackItem>
                     ))}
                 </TrackList>
             </TracksSection>
+
+            <AddToPlaylistModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedTrackId(null);
+                }}
+                trackId={selectedTrackId}
+            />
         </Container>
     );
 } 

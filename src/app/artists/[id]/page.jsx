@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause } from "react-feather";
+import { Play, Pause, Plus } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { musicApi } from "../../../services/musicApi";
@@ -13,6 +13,8 @@ import {
     setQueue,
     setCurrentTrackIndex,
 } from "../../../store/slices/playerSlice";
+import Link from "next/link";
+import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 
 const ArtistHeader = styled.div`
     padding: 60px 24px 24px;
@@ -56,7 +58,7 @@ const TrackList = styled.div`
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 16px 16px 6fr 4fr 3fr minmax(120px, 1fr);
+    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px;
     padding: 8px;
     border-radius: 4px;
     align-items: center;
@@ -141,6 +143,28 @@ const PlayButton = styled.button`
     }
 `;
 
+const AddToPlaylistButton = styled.button`
+    opacity: 0;
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+        transform: scale(1.1);
+    }
+
+    ${TrackItem}:hover & {
+        opacity: 1;
+    }
+`;
+
 const DEFAULT_IMAGE = "/default-album.png";
 
 export default function ArtistPage({ params }) {
@@ -151,6 +175,8 @@ export default function ArtistPage({ params }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const [selectedTrackId, setSelectedTrackId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -264,7 +290,7 @@ export default function ArtistPage({ params }) {
     }
 
     return (
-        <div>
+        <>
             <ArtistHeader>
                 <ArtistInfo>
                     <p>Artiste vérifié</p>
@@ -274,46 +300,55 @@ export default function ArtistPage({ params }) {
             </ArtistHeader>
 
             <TracksSection>
+                <h2>Titres populaires</h2>
                 <TrackList>
                     {tracks.map((track, index) => (
-                        <TrackItem key={track.id || index}>
+                        <TrackItem key={track._id || track.id}>
                             <span className="track-number">{index + 1}</span>
                             <div className="track-play">
-                                <PlayButton
-                                    onClick={() => handlePlay(track)}
-                                    disabled={!track.id}
-                                >
-                                    {currentTrack?.id === track.id &&
-                                    isPlaying ? (
-                                        <Pause size={16} />
+                                <PlayButton onClick={() => handlePlay(track)}>
+                                    {currentTrack?.id === track.id && isPlaying ? (
+                                        <Pause size={12} />
                                     ) : (
-                                        <Play size={16} />
+                                        <Play size={12} />
                                     )}
                                 </PlayButton>
                             </div>
                             <div className="track-title">
-                                <Image
-                                    src={track.coverUrl || DEFAULT_IMAGE}
-                                    alt={track.title || "Titre"}
-                                    width={40}
-                                    height={40}
-                                    sizes="40px"
-                                />
                                 <div className="title-text">
-                                    <span>{track.title}</span>
-                                    <span>{track.artist}</span>
+                                    <span className="title">{track.title}</span>
+                                    <span className="artist">
+                                        <Link href={`/albums/${track.albumId?._id || track.album?._id}`}>
+                                            {track.albumId?.title || track.album?.title}
+                                        </Link>
+                                    </span>
                                 </div>
                             </div>
-                            <div className="track-album">
-                                {track.album?.title || track.album}
-                            </div>
-                            <div className="track-duration">
+                            <span className="track-duration">
                                 {formatDuration(track.duration)}
-                            </div>
+                            </span>
+                            <AddToPlaylistButton
+                                onClick={() => {
+                                    setSelectedTrackId(track._id || track.id);
+                                    setIsModalOpen(true);
+                                }}
+                            >
+                                <Plus size={20} />
+                            </AddToPlaylistButton>
                         </TrackItem>
                     ))}
                 </TrackList>
             </TracksSection>
-        </div>
+
+            <AddToPlaylistModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedTrackId(null);
+                }}
+                trackId={selectedTrackId}
+            />
+        </>
     );
 }
+
