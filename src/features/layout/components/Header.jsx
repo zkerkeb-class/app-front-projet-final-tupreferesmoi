@@ -203,7 +203,7 @@ export default function Header() {
             //console.log("on as des pistes");
             requestResult.tracks.forEach((elem) =>{ // générer une ligne de de menu pour élement chaque tracks trouver
                 //console.log(elem);
-                searchResultList.insertAdjacentHTML('afterbegin', listElemTemplate("Track" ,elem.title, elem_id, elem.albumId, elem.artistId))
+                searchResultList.insertAdjacentHTML('afterbegin', listElemTemplate("Track" ,elem.title, elem._id, elem.albumId, elem.artistId))
                 
             }) 
             
