@@ -2,11 +2,11 @@
 
 import React from "react";
 import styled from "styled-components";
-import { Search, Home, Grid, ChevronLeft, ChevronRight, Music } from "react-feather";
+import { Home, Grid, ChevronLeft, ChevronRight } from "react-feather";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import UserMenu from "../../../components/common/UserMenu";
-import { musicApi } from "@/services/musicApi";
+import SearchBar from "../../../components/common/search/SearchBar";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -66,47 +66,10 @@ const HomeButton = styled(Link)`
     }
 `;
 
-const SearchWrapper = styled.div`
-    position: relative;
-    display: flex;
-    align-items: center;
+const SearchContainer = styled.div`
     flex-grow: 1;
     max-width: 364px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 500px;
-    padding: 6px 12px;
-`;
-
-const SearchIcon = styled.div`
-    display: flex;
-    align-items: center;
-    margin-right: 16px;
-    color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const Input = styled.input`
-    width: 100%;
-    background: none;
-    border: none;
-    color: ${({ theme }) => theme.colors.text};
-    font-size: 14px;
-    outline: none;
-
-    &::placeholder {
-        color: ${({ theme }) => theme.colors.textSecondary};
-    }
-`;
-
-const SearchResultDiv = styled.div`
-    position: absolute;
-    max-width: 400px;
-    top:50px;
-    background-color: #262626;
-    
-
-`;
-const SearchResultList = styled.ul`
-
+    position: relative;
 `;
 
 const BrowseButton = styled.button`
@@ -128,124 +91,6 @@ const BrowseButton = styled.button`
 export default function Header() {
     const router = useRouter();
 
-    function SetSessionStorageValues(){ // pour verifier si la dernière requête date d'il ya plus de 3 secondes
-        sessionStorage.setItem("lastRequestTime", 0)
-    }
-    SetSessionStorageValues();
-    
-   async function SearchMusic(){
-        const searchInput = document.querySelector("#searchInput");
-        const minInputValueLengthRequired = 3; // nombre de caractères minimum pour lancer la recherche
-        let requestResponse = undefined;
-
-        if(searchInput.value.length == 0){ // Si on vide l'input alors on fait disparaitre la liste
-            document.querySelector("#SearchResultList").innerHTML =""; 
-            document.querySelector("#SearchResultDiv").style.display = "none" 
-            
-        } 
-
-
-        if((searchInput.value.length >= minInputValueLengthRequired) ){ // si on a minimum 3 caractère dans la barre de recherche
-            
-            // vérifcation de l'heure de la dernière requête vers l'api (minimum 2 secondes) entre chaque appel
-            if( parseInt(sessionStorage.getItem("lastRequestTime")) + 3000 < Date.now()){
-                
-                //lancement de la reqûete
-                await musicApi.globalSearch(searchInput.value.trim())
-                .then( res => requestResponse = res  )
-                
-                //console.log(requestResponse);
-
-                //un fois la requête lancé je tag l'heure de cette dernière requête et je renseigne la pécedente valeur recherché
-                sessionStorage.setItem("lastRequestTime", parseInt(Date.now()));
-                document.querySelector("#SearchResultList").innerHTML =""; // vide la liste pour éviter les resultat en doublons
-                generateSearchResultDiv(requestResponse);
-                //sessionStorage.setItem("searchInputLastValue", searchInput.value);
-
-            }else{ // on attends arbitrairement 2 secondes avant de lancer le prochain call
-
-                setTimeout(async ()=>{
-                    
-                    await musicApi.globalSearch(searchInput.value.trim())
-                    .then( res => requestResponse = res  );
-                    document.querySelector("#SearchResultList").innerHTML =""; // vide la liste pour éviter les resultat en doublons
-                    generateSearchResultDiv(requestResponse);
-
-
-                },2000)                
-            }
-            
-        }           
-
-    }
-
-    function generateSearchResultDiv(requestResult){
-        if (!requestResult || !requestResult.data) {
-            return;
-        }
-        
-        const { tracks = [], artists = [], albums = [] } = requestResult.data;
-        
-        console.log(document.querySelector("#SearchResultWrapper"))
-        let searchResultList = document.querySelector("#SearchResultList"); //ul
-        if (!searchResultList) {
-            return;
-        }
-
-        const listElemTemplate = (type, string, trackId, albumId, artistId) => {
-            return `<li class="searchListElem" 
-                        type=${type} 
-                        trackId=${trackId || 'undefined'} 
-                        artistId=${artistId || 'undefined'} 
-                        albumId=${albumId || 'undefined'}>
-                        ${string} 
-                        <span> (${type})</span>
-                    </li>`;
-        };
-
-        // Clear existing results
-        searchResultList.innerHTML = "";
-
-        if (tracks.length > 0) {
-            tracks.forEach((elem) => {
-                if (elem && elem.title) {
-                    searchResultList.insertAdjacentHTML(
-                        'beforeend', 
-                        listElemTemplate("Track", elem.title, elem._id, elem.albumId, elem.artistId)
-                    );
-                }
-            });
-        }
-        
-        if (artists.length > 0) {
-            artists.forEach((elem) => {
-                if (elem && elem.name) {
-                    searchResultList.insertAdjacentHTML(
-                        'beforeend', 
-                        listElemTemplate("Artist", elem.name, undefined, undefined, elem._id)
-                    );
-                }
-            });
-        }
-        
-        if (albums.length > 0) {
-            albums.forEach((elem) => {
-                if (elem && elem.title) {
-                    searchResultList.insertAdjacentHTML(
-                        'beforeend', 
-                        listElemTemplate("Album", elem.title, undefined, elem._id, elem.artistId)
-                    );
-                }
-            });
-        }
-
-        // Show the results container if we have any results
-        const hasResults = tracks.length > 0 || artists.length > 0 || albums.length > 0;
-        document.querySelector("#SearchResultDiv").style.display = hasResults ? "block" : "none";
-    }
-        
-    
-
     return (
         <HeaderContainer>
             <NavigationSection>
@@ -260,20 +105,9 @@ export default function Header() {
                 </HomeButton>
             </NavigationSection>
 
-            <SearchWrapper>
-                <SearchIcon>
-                    <Search size={20} />
-            <SearchResultDiv id="SearchResultWrapper">
-                <SearchResultList id="SearchResultList"></SearchResultList>{/*Rempli dynamiquement*/}
-            </SearchResultDiv>
-                </SearchIcon>
-                <Input
-                    id="searchInput"
-                    type="text"
-                    placeholder="Que souhaitez-vous écouter ou regarder ?"
-                    onChange={SearchMusic}
-                />
-            </SearchWrapper>
+            <SearchContainer>
+                <SearchBar />
+            </SearchContainer>
 
             <NavigationSection>
                 <BrowseButton>
@@ -281,8 +115,6 @@ export default function Header() {
                 </BrowseButton>
                 <UserMenu />
             </NavigationSection>
-
         </HeaderContainer>
-        
     );
 }

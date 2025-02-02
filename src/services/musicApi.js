@@ -131,53 +131,23 @@ export const musicApi = {
         return response.blob();
     },
 
-    // Recherche
+    // Regular search
     search: async (query) => {
         try {
-            const response = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
-            return handleResponse(response);
+            return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
         } catch (error) {
             console.error("Erreur lors de la recherche:", error);
             throw error;
         }
     },
 
-    // Global search for tracks, artists, and albums
-    globalSearch: async (searchTerm) => {
+    // Global search across tracks, artists, and albums
+    globalSearch: async (query) => {
         try {
-            if (!searchTerm || searchTerm.trim().length < 2) {
-                return {
-                    success: true,
-                    data: {
-                        tracks: [],
-                        artists: [],
-                        albums: []
-                    }
-                };
-            }
-
-            const response = await fetch(`${BASE_URL}/search/${encodeURIComponent(searchTerm.trim())}`);
-            const data = await handleResponse(response);
-            
-            return {
-                success: true,
-                data: {
-                    tracks: data.data.tracks || [],
-                    artists: data.data.artists || [],
-                    albums: data.data.albums || []
-                }
-            };
+            return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
         } catch (error) {
-            console.error("Échec de la recherche globale:", error);
-            return {
-                success: false,
-                data: {
-                    tracks: [],
-                    artists: [],
-                    albums: []
-                },
-                error: error.message
-            };
+            console.error('Error in global search:', error);
+            throw error;
         }
     },
 

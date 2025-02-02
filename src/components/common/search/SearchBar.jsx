@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import styled from 'styled-components';
 import { musicApi } from '../../../services/musicApi';
 import SearchResults from './SearchResults';
 import { FiSearch } from 'react-icons/fi';
@@ -7,11 +8,93 @@ import { IoMdClose } from 'react-icons/io';
 
 const DEBOUNCE_DELAY = 300; // milliseconds
 
+const SearchContainer = styled.div`
+    position: relative;
+    width: 100%;
+    max-width: 36rem;
+`;
+
+const SearchForm = styled.form`
+    position: relative;
+`;
+
+const InputWrapper = styled.div`
+    position: relative;
+    transition: all 0.3s ease;
+    ${props => props.$isFocused && `
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    `}
+`;
+
+const SearchIcon = styled.div`
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s ease;
+    color: ${props => props.$isFocused ? '#fff' : '#9ca3af'};
+`;
+
+const SearchInput = styled.input`
+    width: 100%;
+    padding: 0.75rem 2.75rem;
+    background-color: #242424;
+    color: white;
+    border-radius: 9999px;
+    border: none;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+
+    &:focus {
+        outline: none;
+        background-color: #2a2a2a;
+    }
+
+    &:hover {
+        background-color: #2a2a2a;
+    }
+
+    &::placeholder {
+        color: #9ca3af;
+    }
+`;
+
+const ClearButton = styled.button`
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    padding: 0.25rem;
+    border-radius: 9999px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        color: white;
+        background-color: #333333;
+    }
+`;
+
+const ResultsWrapper = styled.div`
+    position: absolute;
+    width: 100%;
+    top: 100%;
+    margin-top: 0.5rem;
+    z-index: 50;
+`;
+
 const SearchBar = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const searchRef = useRef(null);
     const router = useRouter();
 
@@ -20,6 +103,7 @@ const SearchBar = () => {
         const handleClickOutside = (event) => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
                 setShowResults(false);
+                setIsFocused(false);
             }
         };
 
@@ -89,41 +173,44 @@ const SearchBar = () => {
     };
 
     return (
-        <div className="relative w-full max-w-xl" ref={searchRef}>
-            <form onSubmit={handleSubmit} className="relative">
-                <div className="relative group">
-                    <input
+        <SearchContainer ref={searchRef}>
+            <SearchForm onSubmit={handleSubmit}>
+                <InputWrapper $isFocused={isFocused}>
+                    <SearchIcon $isFocused={isFocused}>
+                        <FiSearch size={18} />
+                    </SearchIcon>
+                    <SearchInput
                         type="text"
                         value={searchTerm}
                         onChange={handleInputChange}
-                        onFocus={() => searchTerm.trim() && setShowResults(true)}
+                        onFocus={() => {
+                            setIsFocused(true);
+                            if (searchTerm.trim()) setShowResults(true);
+                        }}
+                        onBlur={() => setIsFocused(false)}
                         placeholder="Rechercher des titres, artistes ou albums..."
-                        className="w-full px-4 py-2.5 pl-11 pr-10 bg-white/10 text-white rounded-full 
-                                 focus:outline-none focus:bg-white/20 focus:ring-2 focus:ring-white/20
-                                 hover:bg-white/20 transition-all duration-200"
                         spellCheck="false"
                     />
-                    <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
                     {searchTerm && (
-                        <button
+                        <ClearButton
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 
-                                     hover:text-white transition-colors duration-200"
                         >
-                            <IoMdClose className="text-xl" />
-                        </button>
+                            <IoMdClose size={20} />
+                        </ClearButton>
                     )}
-                </div>
-            </form>
+                </InputWrapper>
+            </SearchForm>
             {showResults && (
-                <SearchResults
-                    results={results}
-                    isLoading={isLoading}
-                    onResultClick={() => setShowResults(false)}
-                />
+                <ResultsWrapper>
+                    <SearchResults
+                        results={results}
+                        isLoading={isLoading}
+                        onResultClick={() => setShowResults(false)}
+                    />
+                </ResultsWrapper>
             )}
-        </div>
+        </SearchContainer>
     );
 };
 
