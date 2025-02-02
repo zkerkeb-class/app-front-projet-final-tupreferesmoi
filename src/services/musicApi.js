@@ -52,8 +52,12 @@ export const musicApi = {
             const response = await fetch(`${BASE_URL}/artists?page=${page}&limit=${limit}`);
             return handleResponse(response);
         } catch (error) {
-            console.error("Erreur lors de la récupération des artistes:", error);
-            return { artists: [], total: 0 };
+            return {
+                success: false,
+                data: [],
+                pagination: { totalItems: 0 },
+                error: error.message,
+            };
         }
     },
 
@@ -81,13 +85,8 @@ export const musicApi = {
     },
 
     // Récupération des pistes d'un artiste
-    getArtistTracks: async (artistId = null, albumId = null, trackId = null) => {
-        const params = new URLSearchParams();
-        if (artistId) params.append('artistId', artistId);
-        if (albumId) params.append('albumId', albumId);
-        if (trackId) params.append('trackId', trackId);
-
-        const response = await fetch(`${BASE_URL}/tracks?${params.toString()}`);
+    getArtistTracks: async (artistId) => {
+        const response = await fetch(`${BASE_URL}/artists/${artistId}/top-tracks`);
         return handleResponse(response);
     },
 
@@ -127,10 +126,24 @@ export const musicApi = {
         return response.blob();
     },
 
-    // Recherche
+    // Regular search
     search: async (query) => {
-        const response = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
-        return handleResponse(response);
+        try {
+            return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
+        } catch (error) {
+            console.error("Erreur lors de la recherche:", error);
+            throw error;
+        }
+    },
+
+    // Global search across tracks, artists, and albums
+    globalSearch: async (query) => {
+        try {
+            return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
+        } catch (error) {
+            console.error('Error in global search:', error);
+            throw error;
+        }
     },
 
     // Gestion des likes

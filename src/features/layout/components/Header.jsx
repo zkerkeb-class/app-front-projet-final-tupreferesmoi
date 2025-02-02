@@ -2,10 +2,11 @@
 
 import React from "react";
 import styled from "styled-components";
-import { Search, Home, Grid, ChevronLeft, ChevronRight } from "react-feather";
+import { Home, Grid, ChevronLeft, ChevronRight } from "react-feather";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import UserMenu from "../../../components/common/UserMenu";
+import SearchBar from "../../../components/common/search/SearchBar";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -65,35 +66,10 @@ const HomeButton = styled(Link)`
     }
 `;
 
-const SearchWrapper = styled.div`
-    position: relative;
-    display: flex;
-    align-items: center;
+const SearchContainer = styled.div`
     flex-grow: 1;
     max-width: 364px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 500px;
-    padding: 6px 12px;
-`;
-
-const SearchIcon = styled.div`
-    display: flex;
-    align-items: center;
-    margin-right: 16px;
-    color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const Input = styled.input`
-    width: 100%;
-    background: none;
-    border: none;
-    color: ${({ theme }) => theme.colors.text};
-    font-size: 14px;
-    outline: none;
-
-    &::placeholder {
-        color: ${({ theme }) => theme.colors.textSecondary};
-    }
+    position: relative;
 `;
 
 const BrowseButton = styled.button`
@@ -129,15 +105,9 @@ export default function Header() {
                 </HomeButton>
             </NavigationSection>
 
-            <SearchWrapper>
-                <SearchIcon>
-                    <Search size={20} />
-                </SearchIcon>
-                <Input
-                    type="text"
-                    placeholder="Que souhaitez-vous écouter ou regarder ?"
-                />
-            </SearchWrapper>
+            <SearchContainer>
+                <SearchBar />
+            </SearchContainer>
 
             <NavigationSection>
                 <BrowseButton>
