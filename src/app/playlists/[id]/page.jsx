@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause, Clock, Trash2, Globe, Lock } from "react-feather";
+import { Play, Pause, Clock, Trash2, Globe, Lock, Plus, Music } from "react-feather";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,59 +10,117 @@ import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
 import { getAudioInstance } from "@/utils/audioInstance";
 import playlistApi from "@/services/playlistApi";
 import { formatTime } from '@/utils/formatTime';
+import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 
 const Container = styled.div`
-    padding: 60px 24px 24px;
+    padding: 0;
+    background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
 `;
 
 const PlaylistHeader = styled.div`
+    padding: 60px 24px 24px;
     display: flex;
-    flex-direction: column;
-    margin-bottom: 32px;
-    background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
-    padding: 20px;
+    gap: 24px;
+    align-items: flex-end;
+    min-height: 340px;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 340px;
+        background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.7) 100%);
+        pointer-events: none;
+    }
+`;
+
+const PlaylistCover = styled.div`
+    width: 232px;
+    height: 232px;
+    position: relative;
+    box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
+    background: ${({ theme }) => theme.colors.surface};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+
+    svg {
+        width: 64px;
+        height: 64px;
+        color: ${({ theme }) => theme.colors.textSecondary};
+    }
 `;
 
 const PlaylistInfo = styled.div`
     flex: 1;
+    z-index: 1;
+    position: relative;
 
     .playlist-type {
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 500;
         text-transform: uppercase;
         margin-bottom: 8px;
         color: ${({ theme }) => theme.colors.textSecondary};
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
     }
 
     h1 {
-        font-size: 72px;
+        font-size: 96px;
         font-weight: 900;
         margin: 0;
         padding: 0;
         color: ${({ theme }) => theme.colors.text};
-        line-height: 1.1;
+        line-height: 1;
     }
 
     .description {
         font-size: 16px;
-        color: ${({ theme }) => theme.colors.textSecondary};
+        color: ${({ theme }) => theme.colors.text};
         margin: 16px 0;
+        opacity: 0.7;
     }
 
     .details {
         font-size: 14px;
         color: ${({ theme }) => theme.colors.textSecondary};
-        margin: 8px 0;
+        margin: 24px 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
 
         span:not(:last-child)::after {
             content: "•";
             margin: 0 8px;
+            opacity: 0.7;
+        }
+
+        .username {
+            color: ${({ theme }) => theme.colors.text};
+            font-weight: 700;
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 `;
 
 const TracksSection = styled.div`
-    margin-top: 32px;
+    padding: 24px;
+    position: relative;
+    background: linear-gradient(rgba(0, 0, 0, 0.7) 0%, ${({ theme }) => theme.colors.background} 100%);
 `;
 
 const TrackList = styled.div`
@@ -71,7 +129,7 @@ const TrackList = styled.div`
 
 const TrackHeader = styled.div`
     display: grid;
-    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr);
+    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr) 40px;
     padding: 8px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: ${({ theme }) => theme.colors.textSecondary};
@@ -83,7 +141,7 @@ const TrackHeader = styled.div`
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr);
+    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr) 40px;
     padding: 8px 16px;
     color: ${({ theme }) => theme.colors.textSecondary};
     border-radius: 4px;
@@ -122,6 +180,13 @@ const TrackItem = styled.div`
     }
 `;
 
+const ControlsContainer = styled.div`
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 24px;
+`;
+
 const PlayButton = styled.button`
     background: ${({ theme }) => theme.colors.primary};
     border: none;
@@ -133,7 +198,6 @@ const PlayButton = styled.button`
     justify-content: center;
     cursor: pointer;
     color: ${({ theme }) => theme.colors.text};
-    margin-top: 32px;
     transition: all 0.3s ease;
     box-shadow: 0 8px 16px rgba(0,0,0,.3);
 
@@ -141,36 +205,59 @@ const PlayButton = styled.button`
         transform: scale(1.06);
         background: ${({ theme }) => theme.colors.primaryHover};
     }
-`;
 
-const ControlsContainer = styled.div`
-    display: flex;
-    gap: 16px;
-    margin-top: 24px;
+    svg {
+        width: 24px;
+        height: 24px;
+    }
 `;
 
 const IconButton = styled.button`
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    color: ${({ theme }) => theme.colors.text};
+    padding: 8px;
+    color: ${({ theme }) => theme.colors.textSecondary};
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
+    border-radius: 4px;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.2);
+        color: ${({ theme }) => theme.colors.text};
     }
 
-    &.danger {
+    &.danger:hover {
         color: ${({ theme }) => theme.colors.error};
-        &:hover {
-            background: rgba(255, 0, 0, 0.2);
-        }
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
+const AddToPlaylistButton = styled.button`
+    opacity: 0;
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+        transform: scale(1.1);
+    }
+
+    ${TrackItem}:hover & {
+        opacity: 1;
     }
 `;
 
@@ -183,6 +270,8 @@ export default function PlaylistPage() {
     const [loading, setLoading] = useState(true);
     const dispatch = useDispatch();
     const [isUpdating, setIsUpdating] = useState(false);
+    const [selectedTrackId, setSelectedTrackId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -305,14 +394,20 @@ export default function PlaylistPage() {
     return (
         <Container>
             <PlaylistHeader>
+                <PlaylistCover>
+                    <Music size={64} />
+                </PlaylistCover>
                 <PlaylistInfo>
-                    <div className="playlist-type">Playlist {playlist.isPublic ? "publique" : "privée"}</div>
+                    <div className="playlist-type">
+                        {playlist.isPublic ? <Globe size={14} /> : <Lock size={14} />}
+                        Playlist
+                    </div>
                     <h1>{playlist.name}</h1>
                     {playlist.description && (
                         <div className="description">{playlist.description}</div>
                     )}
                     <div className="details">
-                        <span>Créée par {playlist.userId?.username || "Utilisateur inconnu"}</span>
+                        <span>Créée par <span className="username">{playlist.userId?.username || "Utilisateur inconnu"}</span></span>
                         <span>{playlist.tracks?.length || 0} titres</span>
                         <span>{formatTime(playlist.tracks?.reduce((acc, track) => acc + track.duration, 0) || 0)}</span>
                     </div>
@@ -320,28 +415,17 @@ export default function PlaylistPage() {
                         {playlist.tracks?.length > 0 && (
                             <PlayButton onClick={() => handlePlay(playlist.tracks[0])}>
                                 {currentTrack?.id === playlist.tracks[0].id && isPlaying ? (
-                                    <Pause size={24} />
+                                    <Pause />
                                 ) : (
-                                    <Play size={24} />
+                                    <Play />
                                 )}
                             </PlayButton>
                         )}
                         <IconButton onClick={toggleVisibility} disabled={isUpdating}>
-                            {playlist.isPublic ? (
-                                <>
-                                    <Globe size={16} />
-                                    Rendre privée
-                                </>
-                            ) : (
-                                <>
-                                    <Lock size={16} />
-                                    Rendre publique
-                                </>
-                            )}
+                            {playlist.isPublic ? <Globe /> : <Lock />}
                         </IconButton>
                         <IconButton onClick={handleDeletePlaylist} className="danger">
-                            <Trash2 size={16} />
-                            Supprimer la playlist
+                            <Trash2 />
                         </IconButton>
                     </ControlsContainer>
                 </PlaylistInfo>
@@ -356,15 +440,15 @@ export default function PlaylistPage() {
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Clock size={16} />
                     </div>
+                    <div></div>
                 </TrackHeader>
                 <TrackList>
                     {playlist.tracks?.map((track, index) => (
                         <TrackItem
                             key={track._id}
-                            onClick={() => handlePlay(track)}
                         >
                             <div className="track-number">{index + 1}</div>
-                            <div className="track-title">{track.title}</div>
+                            <div className="track-title" onClick={() => handlePlay(track)}>{track.title}</div>
                             <Link
                                 href={`/albums/${track.albumId?._id}`}
                                 className="track-album"
@@ -380,10 +464,28 @@ export default function PlaylistPage() {
                                 {track.artistId?.name || "Artiste inconnu"}
                             </Link>
                             <div>{formatTime(track.duration)}</div>
+                            <AddToPlaylistButton
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedTrackId(track._id);
+                                    setIsModalOpen(true);
+                                }}
+                            >
+                                <Plus size={20} />
+                            </AddToPlaylistButton>
                         </TrackItem>
                     ))}
                 </TrackList>
             </TracksSection>
+
+            <AddToPlaylistModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedTrackId(null);
+                }}
+                trackId={selectedTrackId}
+            />
         </Container>
     );
 } 

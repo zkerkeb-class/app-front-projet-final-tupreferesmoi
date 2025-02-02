@@ -285,7 +285,7 @@ export default function TrackPage({ params }) {
             <AddToPlaylistModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                trackId={track?._id}
+                trackId={track?.id || track?._id || params.id}
             />
         </Container>
     );
