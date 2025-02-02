@@ -2,106 +2,129 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import MediaCard from "../../components/media/MediaCard";
-import { musicApi } from "../../services/musicApi";
+import { useRouter } from "next/navigation";
+import { musicApi } from "@services/musicApi";
+import { GridLoader } from "@components/common/loaders";
+import { Card } from "@components/common";
+import Pagination from "@components/common/Pagination";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
-    max-width: 1800px;
-    margin: 0 auto;
 `;
 
-const Title = styled.h1`
-    color: ${({ theme }) => theme.colors.text};
-    font-size: 2rem;
+const Header = styled.div`
     margin-bottom: ${({ theme }) => theme.spacing.xl};
+
+    h1 {
+        font-size: 2rem;
+        color: ${({ theme }) => theme.colors.text};
+        margin: 0;
+    }
 `;
 
 const Grid = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: ${({ theme }) => theme.spacing.md};
-
-    @media (min-width: 640px) {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
-
-    @media (min-width: 1024px) {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    }
-
-    @media (min-width: 1440px) {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
+    gap: 24px;
 `;
 
-const ErrorMessage = styled.div`
-    color: ${({ theme }) => theme.colors.error};
-    text-align: center;
-    padding: ${({ theme }) => theme.spacing.xl};
-`;
-
-const LoadingMessage = styled.div`
-    color: ${({ theme }) => theme.colors.textSecondary};
-    text-align: center;
-    padding: ${({ theme }) => theme.spacing.xl};
-`;
+const ITEMS_PER_PAGE = 20;
 
 export default function ArtistsPage() {
+    const router = useRouter();
     const [artists, setArtists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [page, setPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
+    const loadArtists = async (pageNumber) => {
+        try {
+            setLoading(true);
+            const response = await musicApi.getAllArtists(
+                pageNumber,
+                ITEMS_PER_PAGE
+            );
+
+            if (!response.success) {
+                throw new Error("Réponse invalide du serveur");
+            }
+
+            setArtists(response.data || []);
+            setTotalItems(response.pagination?.totalItems || 0);
+            setTotalPages(response.pagination?.totalPages || 0);
+        } catch (error) {
+            console.error("Erreur lors du chargement des artistes:", error);
+            setError("Impossible de charger les artistes");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const artistsData = await musicApi.getPopularArtists();
-                if (Array.isArray(artistsData)) {
-                    setArtists(
-                        artistsData.filter((artist) => artist && artist.id)
-                    );
-                } else {
-                    throw new Error("Format de données invalide");
-                }
-            } catch (error) {
-                console.error("Erreur lors du chargement des artistes:", error);
-                setError("Impossible de charger les artistes");
-            } finally {
-                setLoading(false);
-            }
-        };
+        loadArtists(page);
+    }, [page]);
 
-        fetchData();
-    }, []);
+    const handlePreviousPage = () => {
+        if (page > 1) {
+            setPage((p) => p - 1);
+        }
+    };
 
-    if (loading) {
-        return <LoadingMessage>Chargement des artistes...</LoadingMessage>;
+    const handleNextPage = () => {
+        if (page < totalPages) {
+            setPage((p) => p + 1);
+        }
+    };
+
+    if (loading && artists.length === 0) {
+        return (
+            <Container>
+                <Header>
+                    <h1>Tous les artistes</h1>
+                </Header>
+                <GridLoader count={ITEMS_PER_PAGE} />
+            </Container>
+        );
     }
 
-    if (error) {
-        return <ErrorMessage>{error}</ErrorMessage>;
+    if (error && artists.length === 0) {
+        return (
+            <Container>
+                <Header>
+                    <h1>Tous les artistes</h1>
+                </Header>
+                <p>{error}</p>
+            </Container>
+        );
     }
 
     return (
         <Container>
-            <Title>Artistes populaires</Title>
+            <Header>
+                <h1>Tous les artistes</h1>
+            </Header>
             <Grid>
-                {artists.map(
-                    (artist) =>
-                        artist &&
-                        artist.id && (
-                            <MediaCard
-                                key={artist.id}
-                                id={artist.id}
-                                title={artist.name}
-                                description={`${artist.followers || 0} followers`}
-                                imageUrl={artist.imageUrl}
-                                type="artist"
-                            />
-                        )
-                )}
+                {artists.map((artist) => (
+                    <Card
+                        key={artist.id}
+                        title={artist.name}
+                        subtitle={artist.genres?.join(", ")}
+                        imageUrl={artist.imageUrl}
+                        type="artist"
+                        onClick={() => router.push(`/artists/${artist.id}`)}
+                    />
+                ))}
             </Grid>
+            <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                onPreviousPage={handlePreviousPage}
+                onNextPage={handleNextPage}
+                itemsLabel="artistes"
+            />
         </Container>
     );
 }

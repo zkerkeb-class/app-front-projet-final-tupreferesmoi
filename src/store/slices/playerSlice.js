@@ -1,10 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { VOLUME_STORAGE_KEY } from "@features/player/constants";
+
+// Récupérer le volume sauvegardé ou utiliser la valeur par défaut
+const getInitialVolume = () => {
+    if (typeof window === "undefined") return 1;
+    const savedVolume = localStorage.getItem(VOLUME_STORAGE_KEY);
+    return savedVolume !== null ? parseFloat(savedVolume) : 1;
+};
 
 const initialState = {
     currentTrack: null,
     isPlaying: false,
     queue: [],
-    volume: 1,
+    volume: getInitialVolume(),
     progress: 0,
     mode: "normal", // "normal" | "repeat" | "repeat-one" | "shuffle"
     currentTrackIndex: -1,

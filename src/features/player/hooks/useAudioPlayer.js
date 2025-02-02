@@ -7,10 +7,14 @@ import {
     setVolume,
     playNext,
     playPrevious,
-    setProgress
+    setProgress,
 } from "@store/slices/playerSlice";
 import { getAudioInstance } from "@utils/audioInstance";
-import { SKIP_THRESHOLD, FORWARD_SKIP_TIME } from "../constants";
+import {
+    SKIP_THRESHOLD,
+    FORWARD_SKIP_TIME,
+    VOLUME_STORAGE_KEY,
+} from "../constants";
 
 export const useAudioPlayer = () => {
     const dispatch = useDispatch();
@@ -26,6 +30,14 @@ export const useAudioPlayer = () => {
     } = useSelector((state) => state.player);
 
     const [isMuted, setIsMuted] = useState(false);
+
+    // Charger le volume depuis le localStorage au démarrage
+    useEffect(() => {
+        const savedVolume = localStorage.getItem(VOLUME_STORAGE_KEY);
+        if (savedVolume !== null) {
+            dispatch(setVolume(parseFloat(savedVolume)));
+        }
+    }, [dispatch]);
 
     // Init audio et gestion des événements
     useEffect(() => {
@@ -87,6 +99,8 @@ export const useAudioPlayer = () => {
         const audio = getAudioInstance();
         if (!audio) return;
         audio.volume = volume;
+        // Sauvegarder le volume dans le localStorage
+        localStorage.setItem(VOLUME_STORAGE_KEY, volume.toString());
     }, [volume]);
 
     // Gestion du changement de piste
