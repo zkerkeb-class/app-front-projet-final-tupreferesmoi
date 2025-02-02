@@ -1,52 +1,63 @@
-import axios from "axios";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
-// Création d'une instance axios avec la configuration de base
-const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
-
-// Intercepteur pour ajouter le token aux requêtes
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+// Fonction utilitaire pour gérer les erreurs
+const handleResponse = async (response) => {
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Une erreur est survenue');
     }
-    return config;
-});
+    return response.json();
+};
+
+// Fonction utilitaire pour les requêtes avec authentification
+const fetchWithAuth = async (endpoint, options = {}) => {
+    const token = localStorage.getItem("token");
+    const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+    };
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    return handleResponse(response);
+};
 
 const authService = {
     async register(userData) {
         try {
-            const response = await api.post("/auth/register", userData);
-            if (response.data.token) {
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("user", JSON.stringify(response.data));
+            const data = await fetchWithAuth("/auth/register", {
+                method: "POST",
+                body: JSON.stringify(userData),
+            });
+            
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data));
             }
-            return response.data;
+            return data;
         } catch (error) {
-            throw error.response
-                ? error
-                : new Error("Erreur de connexion au serveur");
+            throw new Error(error.message || "Erreur de connexion au serveur");
         }
     },
 
     async login(credentials) {
         try {
-            const response = await api.post("/auth/login", credentials);
-            if (response.data.token) {
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("user", JSON.stringify(response.data));
+            const data = await fetchWithAuth("/auth/login", {
+                method: "POST",
+                body: JSON.stringify(credentials),
+            });
+            
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data));
             }
-            return response.data;
+            return data;
         } catch (error) {
-            throw error.response
-                ? error
-                : new Error("Erreur de connexion au serveur");
+            throw new Error(error.message || "Erreur de connexion au serveur");
         }
     },
 

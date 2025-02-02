@@ -12,7 +12,6 @@ export const useFullscreenPlayer = () => {
         if (mouseTimeout) {
             clearTimeout(mouseTimeout);
         }
-        document.body.style.cursor = "default";
     }, [mouseTimeout]);
 
     useEffect(() => {
@@ -20,7 +19,6 @@ export const useFullscreenPlayer = () => {
             if (mouseTimeout) {
                 clearTimeout(mouseTimeout);
             }
-            document.body.style.cursor = "default";
         };
     }, [mouseTimeout]);
 
@@ -39,7 +37,6 @@ export const useFullscreenPlayer = () => {
 
     const handleMouseMove = () => {
         setShowControls(true);
-        document.body.style.cursor = "default";
 
         if (mouseTimeout) {
             clearTimeout(mouseTimeout);
@@ -48,7 +45,6 @@ export const useFullscreenPlayer = () => {
         if (showFullscreen) {
             const timeout = setTimeout(() => {
                 setShowControls(false);
-                document.body.style.cursor = "none";
             }, CONTROLS_HIDE_DELAY);
             setMouseTimeout(timeout);
         }
@@ -60,7 +56,6 @@ export const useFullscreenPlayer = () => {
         } else {
             setShowFullscreen(true);
             setShowControls(true);
-            document.body.style.cursor = "default";
         }
     };
 

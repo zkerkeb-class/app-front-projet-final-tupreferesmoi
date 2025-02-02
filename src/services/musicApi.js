@@ -1,36 +1,42 @@
-import axios from "axios";
+const BASE_URL = '/api';
 
-const api = axios.create({
-    baseURL: "http://localhost:3000/api",
-    timeout: 5000,
-});
+// Fonction utilitaire pour gérer les erreurs
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Une erreur est survenue');
+  }
+  return response.json();
+};
 
-// Intercepteur pour ajouter le token d'authentification
-api.interceptors.request.use((config) => {
+// Fonction utilitaire pour les requêtes avec authentification
+const fetchWithAuth = async (endpoint, options = {}) => {
     const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+    const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+    };
+
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    return handleResponse(response);
+};
 
 export const musicApi = {
     // Récupération de tous les morceaux avec pagination
     getAllTracks: async (page = 1, limit = 10) => {
         try {
-            console.log(
-                `Appel API getAllTracks - page: ${page}, limit: ${limit}`
-            );
-            const response = await api.get(
-                `/tracks?page=${page}&limit=${limit}`
-            );
-            console.log("Réponse brute de l'API:", response.data);
-            return response.data;
+            console.log(`Appel API getAllTracks - page: ${page}, limit: ${limit}`);
+            const response = await fetch(`${BASE_URL}/tracks?page=${page}&limit=${limit}`);
+            const data = await handleResponse(response);
+            console.log("Réponse brute de l'API:", data);
+            return data;
         } catch (error) {
-            console.error(
-                "Erreur lors de la récupération des morceaux:",
-                error
-            );
+            console.error("Erreur lors de la récupération des morceaux:", error);
             return {
                 success: false,
                 data: [],
@@ -40,229 +46,165 @@ export const musicApi = {
         }
     },
 
-    // Récupération des morceaux récents (pour la home)
-    getRecentTracks: async () => {
-        try {
-            const response = await api.get("/tracks/recent");
-            return response.data;
-        } catch (error) {
-            console.error(
-                "Erreur lors de la récupération des morceaux récents:",
-                error
-            );
-            return [];
-        }
-    },
-
     // Récupération de tous les artistes avec pagination
     getAllArtists: async (page = 1, limit = 10) => {
         try {
-            const response = await api.get(
-                `/artists?page=${page}&limit=${limit}`
-            );
-            return response.data;
+            const response = await fetch(`${BASE_URL}/artists?page=${page}&limit=${limit}`);
+            return handleResponse(response);
         } catch (error) {
-            console.error(
-                "Erreur lors de la récupération des artistes:",
-                error
-            );
+            console.error("Erreur lors de la récupération des artistes:", error);
             return { artists: [], total: 0 };
-        }
-    },
-
-    // Récupération des artistes populaires (pour la home)
-    getPopularArtists: async () => {
-        try {
-            const response = await api.get("/artists/popular");
-            return response.data;
-        } catch (error) {
-            console.error(
-                "Erreur lors de la récupération des artistes populaires:",
-                error
-            );
-            return [];
         }
     },
 
     // Récupération de tous les albums avec pagination
     getAllAlbums: async (page = 1, limit = 10) => {
         try {
-            const response = await api.get(
-                `/albums?page=${page}&limit=${limit}`
-            );
-            return response.data;
+            const response = await fetch(`${BASE_URL}/albums?page=${page}&limit=${limit}`);
+            return handleResponse(response);
         } catch (error) {
             console.error("Erreur lors de la récupération des albums:", error);
             return { albums: [], total: 0 };
         }
     },
 
-    // Récupération des albums récents (pour la home)
-    getRecentAlbums: async () => {
-        try {
-            const response = await api.get("/albums/recent");
-            return response.data;
-        } catch (error) {
-            console.error(
-                "Erreur lors de la récupération des albums récents:",
-                error
-            );
-            return [];
-        }
-    },
-
     // Récupération d'une piste spécifique
     getTrack: async (trackId) => {
-        try {
-            const response = await api.get(`/tracks/${trackId}`);
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors de la récupération de la piste:", error);
-            throw error;
-        }
-    },
-
-    // Récupération d'un morceau pour le streaming
-    getTrackStream: async (trackId) => {
-        try {
-            const response = await api.get(`/tracks/${trackId}/stream`, {
-                responseType: "blob",
-            });
-            return response;
-        } catch (error) {
-            console.error("Erreur lors de la récupération du stream:", error);
-            throw error;
-        }
-    },
-
-    // Recherche
-    search: async (query) => {
-        try {
-            const response = await api.get(
-                `/search?q=${encodeURIComponent(query)}`
-            );
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors de la recherche:", error);
-            return { tracks: [], artists: [], albums: [] };
-        }
-    },
-
-    // Gestion des likes
-    likeTrack: async (trackId) => {
-        try {
-            const response = await api.post(`/tracks/${trackId}/like`);
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors du like:", error);
-            throw error;
-        }
-    },
-
-    unlikeTrack: async (trackId) => {
-        try {
-            const response = await api.delete(`/tracks/${trackId}/like`);
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors du unlike:", error);
-            throw error;
-        }
-    },
-
-    // Gestion des playlists
-    createPlaylist: async (name) => {
-        try {
-            const response = await api.post("/playlists", { name });
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors de la création de la playlist:", error);
-            throw error;
-        }
-    },
-
-    addToPlaylist: async (playlistId, trackId) => {
-        try {
-            const response = await api.post(`/playlists/${playlistId}/tracks`, {
-                trackId,
-            });
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors de l'ajout à la playlist:", error);
-            throw error;
-        }
-    },
-
-    removeFromPlaylist: async (playlistId, trackId) => {
-        try {
-            const response = await api.delete(
-                `/playlists/${playlistId}/tracks/${trackId}`
-            );
-            return response.data;
-        } catch (error) {
-            console.error(
-                "Erreur lors de la suppression de la playlist:",
-                error
-            );
-            throw error;
-        }
+        const response = await fetch(`${BASE_URL}/tracks/${trackId}`);
+        return handleResponse(response);
     },
 
     // Récupération d'un artiste
     getArtist: async (artistId) => {
-        try {
-            const response = await api.get(`/artists/${artistId}`);
-            return response.data;
-        } catch (error) {
-            console.error(
-                "Erreur lors de la récupération de l'artiste:",
-                error
-            );
-            throw error;
-        }
+        const response = await fetch(`${BASE_URL}/artists/${artistId}`);
+        return handleResponse(response);
     },
 
     // Récupération des pistes d'un artiste
-    getArtistTracks: async (
-        artistId = null,
-        albumId = null,
-        trackId = null
-    ) => {
-        try {
-            const params = {};
-            if (artistId) params.artistId = artistId;
-            if (albumId) params.albumId = albumId;
-            if (trackId) params.trackId = trackId;
+    getArtistTracks: async (artistId = null, albumId = null, trackId = null) => {
+        const params = new URLSearchParams();
+        if (artistId) params.append('artistId', artistId);
+        if (albumId) params.append('albumId', albumId);
+        if (trackId) params.append('trackId', trackId);
 
-            const response = await api.get(`/tracks`, { params });
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors de la récupération des pistes:", error);
-            throw error;
-        }
+        const response = await fetch(`${BASE_URL}/tracks?${params.toString()}`);
+        return handleResponse(response);
     },
 
     // Récupération d'un album spécifique
     getAlbum: async (albumId) => {
-        try {
-            const response = await api.get(`/albums/${albumId}`);
-            return response.data;
-        } catch (error) {
-            console.error("Erreur lors de la récupération de l'album:", error);
-            throw error;
-        }
+        const response = await fetch(`${BASE_URL}/albums/${albumId}`);
+        return handleResponse(response);
     },
 
     // Récupération des pistes d'un album
     getAlbumTracks: async (albumId) => {
-        try {
-            const response = await api.get(`/albums/${albumId}/tracks`);
-            return response.data;
-        } catch (error) {
-            console.error(
-                "Erreur lors de la récupération des pistes de l'album:",
-                error
-            );
-            throw error;
-        }
+        const response = await fetch(`${BASE_URL}/albums/${albumId}/tracks`);
+        return handleResponse(response);
+    },
+
+    // Récupération des morceaux récents (pour la home)
+    getRecentTracks: async () => {
+        const response = await fetch(`${BASE_URL}/tracks/recent`);
+        return handleResponse(response);
+    },
+
+    // Récupération des artistes populaires (pour la home)
+    getPopularArtists: async () => {
+        const response = await fetch(`${BASE_URL}/artists/popular`);
+        return handleResponse(response);
+    },
+
+    // Récupération des albums récents (pour la home)
+    getRecentAlbums: async () => {
+        const response = await fetch(`${BASE_URL}/albums/recent`);
+        return handleResponse(response);
+    },
+
+    // Récupération d'un morceau pour le streaming
+    getTrackStream: async (trackId) => {
+        const response = await fetch(`${BASE_URL}/tracks/${trackId}/stream`);
+        return response.blob();
+    },
+
+    // Recherche
+    search: async (query) => {
+        const response = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
+        return handleResponse(response);
+    },
+
+    // Gestion des likes
+    likeTrack: async (trackId) => {
+        const response = await fetch(`${BASE_URL}/tracks/${trackId}/like`, {
+            method: 'POST',
+        });
+        return handleResponse(response);
+    },
+
+    unlikeTrack: async (trackId) => {
+        const response = await fetch(`${BASE_URL}/tracks/${trackId}/like`, {
+            method: 'DELETE',
+        });
+        return handleResponse(response);
+    },
+
+    // Gestion des playlists
+    getPlaylist: async (playlistId) => {
+        const response = await fetch(`${BASE_URL}/playlists/${playlistId}`);
+        return handleResponse(response);
+    },
+
+    createPlaylist: async (data) => {
+        const response = await fetch(`${BASE_URL}/playlists`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    },
+
+    updatePlaylist: async (playlistId, data) => {
+        const response = await fetch(`${BASE_URL}/playlists/${playlistId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    },
+
+    // Lecteur audio
+    getTrackMetadata: async (trackId) => {
+        const response = await fetch(`${BASE_URL}/tracks/${trackId}/metadata`);
+        return handleResponse(response);
+    },
+
+    // Sessions d'écoute
+    createListeningSession: async () => {
+        const response = await fetch(`${BASE_URL}/sessions`, {
+            method: 'POST',
+        });
+        return handleResponse(response);
+    },
+
+    joinListeningSession: async (sessionId) => {
+        const response = await fetch(`${BASE_URL}/sessions/${sessionId}/join`, {
+            method: 'POST',
+        });
+        return handleResponse(response);
+    },
+
+    syncListeningSession: async (sessionId, data) => {
+        const response = await fetch(`${BASE_URL}/sessions/${sessionId}/sync`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
     },
 };
