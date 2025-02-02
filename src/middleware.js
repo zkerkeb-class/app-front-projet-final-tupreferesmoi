@@ -24,9 +24,21 @@ export function middleware(request) {
         return NextResponse.redirect(new URL("/", request.url));
     }
 
+    // Ajouter le token aux headers si présent
+    if (token) {
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set('Authorization', `Bearer ${token.value}`);
+        
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        });
+    }
+
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/profile/:path*", "/settings/:path*", "/login", "/register"],
+    matcher: ["/profile/:path*", "/settings/:path*", "/login", "/register", "/api/:path*"],
 };
