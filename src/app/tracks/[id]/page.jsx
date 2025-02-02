@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause } from "react-feather";
+import { Play, Pause, Plus } from "react-feather";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
 import { getAudioInstance } from "@/utils/audioInstance";
+import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 
 const Container = styled.div`
     padding: 60px 24px 24px;
@@ -82,11 +83,11 @@ const PlayButton = styled.button`
     justify-content: center;
     cursor: pointer;
     color: ${({ theme }) => theme.colors.text};
-    margin-top: 32px;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0,0,0,.3);
 
     &:hover {
-        transform: scale(1.1);
+        transform: scale(1.06);
         background: ${({ theme }) => theme.colors.primaryHover};
     }
 `;
@@ -100,12 +101,45 @@ const StyledLink = styled(Link)`
     }
 `;
 
+const ActionButtons = styled.div`
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    align-items: center;
+`;
+
+const AddToPlaylistButton = styled.button`
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.text};
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: scale(1.06);
+        border-color: ${({ theme }) => theme.colors.text};
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
 export default function TrackPage({ params }) {
     const router = useRouter();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [track, setTrack] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -226,22 +260,33 @@ export default function TrackPage({ params }) {
                     </div>
                     <div className="details">
                         <span>
-                            De l&apos;album{" "}
+                            De l'album{" "}
                             <StyledLink href={`/albums/${track.albumId?._id}`}>
                                 {track.albumId?.title || "Album inconnu"}
                             </StyledLink>
                         </span>
                         <span>{formatDuration(track.duration || 0)}</span>
                     </div>
-                    <PlayButton onClick={handlePlay}>
-                        {currentTrack?.id === track.id && isPlaying ? (
-                            <Pause size={24} />
-                        ) : (
-                            <Play size={24} />
-                        )}
-                    </PlayButton>
+                    <ActionButtons>
+                        <PlayButton onClick={handlePlay}>
+                            {currentTrack?.id === track.id && isPlaying ? (
+                                <Pause size={24} />
+                            ) : (
+                                <Play size={24} />
+                            )}
+                        </PlayButton>
+                        <AddToPlaylistButton onClick={() => setIsModalOpen(true)}>
+                            <Plus size={24} />
+                        </AddToPlaylistButton>
+                    </ActionButtons>
                 </TrackInfo>
             </TrackHeader>
+
+            <AddToPlaylistModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                trackId={track?._id}
+            />
         </Container>
     );
 }
