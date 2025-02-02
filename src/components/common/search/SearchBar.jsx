@@ -158,23 +158,28 @@ const SearchBar = () => {
         }
     };
 
-    const handleClearSearch = () => {
+    const handleClearSearch = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         setSearchTerm('');
         setResults(null);
         setShowResults(false);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (searchTerm.trim()) {
-            router.push(`/search/${encodeURIComponent(searchTerm.trim())}`);
-            setShowResults(false);
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
         }
     };
 
+    const handleResultClick = useCallback(() => {
+        setShowResults(false);
+        setIsFocused(false);
+    }, []);
+
     return (
         <SearchContainer ref={searchRef}>
-            <SearchForm onSubmit={handleSubmit}>
+            <SearchForm onSubmit={e => e.preventDefault()}>
                 <InputWrapper $isFocused={isFocused}>
                     <SearchIcon $isFocused={isFocused}>
                         <FiSearch size={18} />
@@ -183,6 +188,7 @@ const SearchBar = () => {
                         type="text"
                         value={searchTerm}
                         onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                         onFocus={() => {
                             setIsFocused(true);
                             if (searchTerm.trim()) setShowResults(true);
@@ -206,7 +212,7 @@ const SearchBar = () => {
                     <SearchResults
                         results={results}
                         isLoading={isLoading}
-                        onResultClick={() => setShowResults(false)}
+                        onResultClick={handleResultClick}
                     />
                 </ResultsWrapper>
             )}

@@ -157,6 +157,21 @@ const ItemSubtitle = styled.p`
     white-space: nowrap;
 `;
 
+const IconFallback = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333333;
+    color: #666666;
+    transition: all 0.2s ease;
+
+    ${ResultItem}:hover & {
+        color: #888888;
+    }
+`;
+
 const SearchResults = ({ results, onResultClick, isLoading }) => {
     const router = useRouter();
 
@@ -205,6 +220,19 @@ const SearchResults = ({ results, onResultClick, isLoading }) => {
         );
     };
 
+    const renderFallbackIcon = (type, size = 20) => {
+        switch (type) {
+            case 'track':
+                return <FiMusic size={size} />;
+            case 'artist':
+                return <FiUser size={size} />;
+            case 'album':
+                return <FiDisc size={size} />;
+            default:
+                return null;
+        }
+    };
+
     return (
         <ResultsContainer>
             <ScrollContainer>
@@ -219,13 +247,20 @@ const SearchResults = ({ results, onResultClick, isLoading }) => {
                             onClick={() => handleItemClick('tracks', track._id)}
                         >
                             <ImageWrapper>
-                                <Image
-                                    src={track.albumId?.cover || DEFAULT_IMAGES}
-                                    alt={track.title}
-                                    width={40}
-                                    height={40}
-                                    style={{ objectFit: 'cover' }}
-                                />
+                                {track.albumId?.coverImage?.medium ? (
+                                    <Image
+                                        src={track.albumId.coverImage.medium}
+                                        alt={track.title}
+                                        width={40}
+                                        height={40}
+                                        style={{ objectFit: 'cover' }}
+                                        priority
+                                    />
+                                ) : (
+                                    <IconFallback>
+                                        {renderFallbackIcon('track')}
+                                    </IconFallback>
+                                )}
                             </ImageWrapper>
                             <ItemContent>
                                 <ItemTitle>{track.title}</ItemTitle>
@@ -248,13 +283,20 @@ const SearchResults = ({ results, onResultClick, isLoading }) => {
                             onClick={() => handleItemClick('artists', artist._id)}
                         >
                             <ImageWrapper $isArtist>
-                                <Image
-                                    src={artist.photo || DEFAULT_IMAGES}
-                                    alt={artist.name}
-                                    width={40}
-                                    height={40}
-                                    style={{ objectFit: 'cover' }}
-                                />
+                                {artist.image?.medium ? (
+                                    <Image
+                                        src={artist.image.medium}
+                                        alt={artist.name}
+                                        width={40}
+                                        height={40}
+                                        style={{ objectFit: 'cover' }}
+                                        priority
+                                    />
+                                ) : (
+                                    <IconFallback>
+                                        {renderFallbackIcon('artist')}
+                                    </IconFallback>
+                                )}
                             </ImageWrapper>
                             <ItemContent>
                                 <ItemTitle>{artist.name}</ItemTitle>
@@ -275,13 +317,20 @@ const SearchResults = ({ results, onResultClick, isLoading }) => {
                             onClick={() => handleItemClick('albums', album._id)}
                         >
                             <ImageWrapper>
-                                <Image
-                                    src={album.cover || DEFAULT_IMAGES}
-                                    alt={album.title}
-                                    width={40}
-                                    height={40}
-                                    style={{ objectFit: 'cover' }}
-                                />
+                                {album.coverImage?.medium ? (
+                                    <Image
+                                        src={album.coverImage.medium}
+                                        alt={album.title}
+                                        width={40}
+                                        height={40}
+                                        style={{ objectFit: 'cover' }}
+                                        priority
+                                    />
+                                ) : (
+                                    <IconFallback>
+                                        {renderFallbackIcon('album')}
+                                    </IconFallback>
+                                )}
                             </ImageWrapper>
                             <ItemContent>
                                 <ItemTitle>{album.title}</ItemTitle>
