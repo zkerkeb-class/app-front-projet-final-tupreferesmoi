@@ -59,7 +59,7 @@ export default function RegisterPage() {
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                    "Une erreur est survenue lors de l'inscription"
+                    "Une erreur est survenue lors de l&apos;inscription"
             );
         } finally {
             setIsLoading(false);

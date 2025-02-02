@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CONTROLS_HIDE_DELAY } from "../constants";
 
 export const useFullscreenPlayer = () => {
     const [showFullscreen, setShowFullscreen] = useState(false);
     const [showControls, setShowControls] = useState(true);
     const [mouseTimeout, setMouseTimeout] = useState(null);
+
+    const handleExitFullscreen = useCallback(() => {
+        setShowFullscreen(false);
+        setShowControls(true);
+        if (mouseTimeout) {
+            clearTimeout(mouseTimeout);
+        }
+        document.body.style.cursor = "default";
+    }, [mouseTimeout]);
 
     useEffect(() => {
         return () => {
@@ -18,9 +27,7 @@ export const useFullscreenPlayer = () => {
     useEffect(() => {
         const handleEscape = (event) => {
             if (event.key === "Escape" && showFullscreen) {
-                setShowFullscreen(false);
-                setShowControls(true);
-                document.body.style.cursor = "default";
+                handleExitFullscreen();
             }
         };
 
@@ -28,7 +35,7 @@ export const useFullscreenPlayer = () => {
         return () => {
             document.removeEventListener("keydown", handleEscape);
         };
-    }, [showFullscreen]);
+    }, [showFullscreen, handleExitFullscreen]);
 
     const handleMouseMove = () => {
         setShowControls(true);
@@ -48,15 +55,11 @@ export const useFullscreenPlayer = () => {
     };
 
     const toggleFullscreen = () => {
-        const newShowFullscreen = !showFullscreen;
-        setShowFullscreen(newShowFullscreen);
-        setShowControls(true);
-        document.body.style.cursor = "default";
-
-        if (!newShowFullscreen) {
-            if (mouseTimeout) {
-                clearTimeout(mouseTimeout);
-            }
+        if (showFullscreen) {
+            handleExitFullscreen();
+        } else {
+            setShowFullscreen(true);
+            setShowControls(true);
             document.body.style.cursor = "default";
         }
     };

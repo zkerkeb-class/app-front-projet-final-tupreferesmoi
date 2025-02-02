@@ -1,9 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentTrack, setIsPlaying } from "../store/slices/playerSlice";
-import { musicApi } from "../services/musicApi";
+import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
+import { musicApi } from "@/services/musicApi";
 import { useEffect, useRef, useState } from "react";
-
-const DEFAULT_IMAGE = "/logo192.png";
+import { DEFAULT_IMAGE } from "@/features/player/constants";
 
 export const useTrackPlayer = () => {
     const dispatch = useDispatch();
@@ -46,7 +45,7 @@ export const useTrackPlayer = () => {
                 URL.revokeObjectURL(audio.src);
             }
         };
-    }, [dispatch]);
+    }, [dispatch, volume]);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -70,6 +69,12 @@ export const useTrackPlayer = () => {
         }
     }, [isPlaying, dispatch]);
 
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = volume;
+        }
+    }, [audioRef, volume]);
+
     const handlePlayTrack = async (track) => {
         try {
             if (currentTrack?.id === track.id) {
@@ -83,48 +88,37 @@ export const useTrackPlayer = () => {
                 URL.revokeObjectURL(audioRef.current.src);
             }
 
-            let audioUrl;
-            if (track.audioUrl) {
-                audioUrl = track.audioUrl;
-                audioRef.current.src = audioUrl;
-
-                // Attendre que l'audio soit chargé avant de jouer
-                await new Promise((resolve, reject) => {
-                    const handleLoad = () => {
-                        audioRef.current.removeEventListener(
-                            "loadeddata",
-                            handleLoad
-                        );
-                        audioRef.current.removeEventListener(
-                            "error",
-                            handleError
-                        );
-                        resolve();
-                    };
-
-                    const handleError = (error) => {
-                        audioRef.current.removeEventListener(
-                            "loadeddata",
-                            handleLoad
-                        );
-                        audioRef.current.removeEventListener(
-                            "error",
-                            handleError
-                        );
-                        reject(error);
-                    };
-
-                    audioRef.current.addEventListener("loadeddata", handleLoad);
-                    audioRef.current.addEventListener("error", handleError);
-                });
-            } else {
-                const response = await musicApi.getTrackStream(track.id);
-                if (!response?.data) {
-                    throw new Error("Impossible de récupérer le stream audio");
-                }
-                audioUrl = URL.createObjectURL(response.data);
-                audioRef.current.src = audioUrl;
+            // Récupérer les données de la piste avec l'URL audio signée
+            const response = await musicApi.getTrack(track.id);
+            if (!response?.data?.audioUrl) {
+                throw new Error("Impossible de récupérer l'URL audio");
             }
+
+            audioRef.current.src = response.data.audioUrl;
+
+            // Attendre que l'audio soit chargé avant de jouer
+            await new Promise((resolve, reject) => {
+                const handleLoad = () => {
+                    audioRef.current.removeEventListener(
+                        "loadeddata",
+                        handleLoad
+                    );
+                    audioRef.current.removeEventListener("error", handleError);
+                    resolve();
+                };
+
+                const handleError = (error) => {
+                    audioRef.current.removeEventListener(
+                        "loadeddata",
+                        handleLoad
+                    );
+                    audioRef.current.removeEventListener("error", handleError);
+                    reject(error);
+                };
+
+                audioRef.current.addEventListener("loadeddata", handleLoad);
+                audioRef.current.addEventListener("error", handleError);
+            });
 
             const trackData = {
                 id: track.id,
@@ -132,7 +126,7 @@ export const useTrackPlayer = () => {
                 artist: track.artist,
                 album: track.album,
                 coverUrl: track.coverUrl || DEFAULT_IMAGE,
-                audioUrl: audioUrl,
+                audioUrl: response.data.audioUrl,
             };
 
             dispatch(setCurrentTrack(trackData));

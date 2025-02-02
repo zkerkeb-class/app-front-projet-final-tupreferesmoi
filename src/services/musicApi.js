@@ -15,7 +15,32 @@ api.interceptors.request.use((config) => {
 });
 
 export const musicApi = {
-    // Récupération des morceaux récents
+    // Récupération de tous les morceaux avec pagination
+    getAllTracks: async (page = 1, limit = 10) => {
+        try {
+            console.log(
+                `Appel API getAllTracks - page: ${page}, limit: ${limit}`
+            );
+            const response = await api.get(
+                `/tracks?page=${page}&limit=${limit}`
+            );
+            console.log("Réponse brute de l'API:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error(
+                "Erreur lors de la récupération des morceaux:",
+                error
+            );
+            return {
+                success: false,
+                data: [],
+                pagination: { totalItems: 0 },
+                error: error.message,
+            };
+        }
+    },
+
+    // Récupération des morceaux récents (pour la home)
     getRecentTracks: async () => {
         try {
             const response = await api.get("/tracks/recent");
@@ -29,7 +54,23 @@ export const musicApi = {
         }
     },
 
-    // Récupération des artistes populaires
+    // Récupération de tous les artistes avec pagination
+    getAllArtists: async (page = 1, limit = 10) => {
+        try {
+            const response = await api.get(
+                `/artists?page=${page}&limit=${limit}`
+            );
+            return response.data;
+        } catch (error) {
+            console.error(
+                "Erreur lors de la récupération des artistes:",
+                error
+            );
+            return { artists: [], total: 0 };
+        }
+    },
+
+    // Récupération des artistes populaires (pour la home)
     getPopularArtists: async () => {
         try {
             const response = await api.get("/artists/popular");
@@ -43,7 +84,20 @@ export const musicApi = {
         }
     },
 
-    // Récupération des albums récents
+    // Récupération de tous les albums avec pagination
+    getAllAlbums: async (page = 1, limit = 10) => {
+        try {
+            const response = await api.get(
+                `/albums?page=${page}&limit=${limit}`
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Erreur lors de la récupération des albums:", error);
+            return { albums: [], total: 0 };
+        }
+    },
+
+    // Récupération des albums récents (pour la home)
     getRecentAlbums: async () => {
         try {
             const response = await api.get("/albums/recent");
@@ -57,12 +111,24 @@ export const musicApi = {
         }
     },
 
+    // Récupération d'une piste spécifique
+    getTrack: async (trackId) => {
+        try {
+            const response = await api.get(`/tracks/${trackId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Erreur lors de la récupération de la piste:", error);
+            throw error;
+        }
+    },
+
     // Récupération d'un morceau pour le streaming
     getTrackStream: async (trackId) => {
         try {
-            return await api.get(`/tracks/${trackId}/stream`, {
+            const response = await api.get(`/tracks/${trackId}/stream`, {
                 responseType: "blob",
             });
+            return response;
         } catch (error) {
             console.error("Erreur lors de la récupération du stream:", error);
             throw error;
@@ -156,11 +222,16 @@ export const musicApi = {
     },
 
     // Récupération des pistes d'un artiste
-    getArtistTracks: async (artistId, albumId = null) => {
+    getArtistTracks: async (
+        artistId = null,
+        albumId = null,
+        trackId = null
+    ) => {
         try {
             const params = {};
             if (artistId) params.artistId = artistId;
             if (albumId) params.albumId = albumId;
+            if (trackId) params.trackId = trackId;
 
             const response = await api.get(`/tracks`, { params });
             return response.data;
