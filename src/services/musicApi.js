@@ -52,8 +52,12 @@ export const musicApi = {
             const response = await fetch(`${BASE_URL}/artists?page=${page}&limit=${limit}`);
             return handleResponse(response);
         } catch (error) {
-            console.error("Erreur lors de la récupération des artistes:", error);
-            return { artists: [], total: 0 };
+            return {
+                success: false,
+                data: [],
+                pagination: { totalItems: 0 },
+                error: error.message,
+            };
         }
     },
 
@@ -129,20 +133,51 @@ export const musicApi = {
 
     // Recherche
     search: async (query) => {
-        const response = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
-        return handleResponse(response);
+        try {
+            const response = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
+            return handleResponse(response);
+        } catch (error) {
+            console.error("Erreur lors de la recherche:", error);
+            throw error;
+        }
     },
 
-    globalSearch: async (query) => {
-        try{
-            const response = await api.get(`/globalSearchs/${encodeURIComponent(query)}`)
-            .then(function (response) {
-                return response.data;
-              });
-            return response.data
+    // Global search for tracks, artists, and albums
+    globalSearch: async (searchTerm) => {
+        try {
+            if (!searchTerm || searchTerm.trim().length < 2) {
+                return {
+                    success: true,
+                    data: {
+                        tracks: [],
+                        artists: [],
+                        albums: []
+                    }
+                };
+            }
+
+            const response = await fetch(`${BASE_URL}/search/${encodeURIComponent(searchTerm.trim())}`);
+            const data = await handleResponse(response);
             
-        } catch(error){
-            console.error("Echec de la rechereche global");
+            return {
+                success: true,
+                data: {
+                    tracks: data.data.tracks || [],
+                    artists: data.data.artists || [],
+                    albums: data.data.albums || []
+                }
+            };
+        } catch (error) {
+            console.error("Échec de la recherche globale:", error);
+            return {
+                success: false,
+                data: {
+                    tracks: [],
+                    artists: [],
+                    albums: []
+                },
+                error: error.message
+            };
         }
     },
 

@@ -180,52 +180,68 @@ export default function Header() {
     }
 
     function generateSearchResultDiv(requestResult){
+        if (!requestResult || !requestResult.data) {
+            return;
+        }
+        
+        const { tracks = [], artists = [], albums = [] } = requestResult.data;
         
         console.log(document.querySelector("#SearchResultWrapper"))
         let searchResultList = document.querySelector("#SearchResultList"); //ul
-        const listElemTemplate = (type , string, trackId, albumId, artistId )=>{// string = titre /  type = album, track , artist
+        if (!searchResultList) {
+            return;
+        }
+
+        const listElemTemplate = (type, string, trackId, albumId, artistId) => {
             return `<li class="searchListElem" 
                         type=${type} 
-                        trackId=${trackId} 
-                        artistId=${artistId} 
-                        albumId=${albumId}>
+                        trackId=${trackId || 'undefined'} 
+                        artistId=${artistId || 'undefined'} 
+                        albumId=${albumId || 'undefined'}>
                         ${string} 
                         <span> (${type})</span>
-                    </li>`
-        }
-        console.log(searchResultList);
+                    </li>`;
+        };
 
-        //searchResultList.removeChild(document.querySelectorAll(".searchListElem"));
-        
+        // Clear existing results
+        searchResultList.innerHTML = "";
 
-        //console.log(getBoundingClientRect()); //emeplacement de l'element ciblé (ici la navbar)
-        if(requestResult.tracks.length > 0 ){
-            //console.log("on as des pistes");
-            requestResult.tracks.forEach((elem) =>{ // générer une ligne de de menu pour élement chaque tracks trouver
-                //console.log(elem);
-                searchResultList.insertAdjacentHTML('afterbegin', listElemTemplate("Track" ,elem.title, elem._id, elem.albumId, elem.artistId))
-                
-            }) 
-            
-        }
-        
-        if(requestResult.artists.length > 0 ){
-
-            requestResult.artists.forEach((elem)=> {// générer une ligne de de menu pour élement  chaque artist trouver                
-                searchResultList.insertAdjacentHTML('afterbegin', listElemTemplate("Artist", elem.name, undefined, undefined, elem._id))
-             })
-        }
-                                
-        
-        if(requestResult.albums.length > 0 ){
-            requestResult.albums.forEach((elem)=> {   // générer une ligne de de menu pour élement chaque albums trouver
-                //console.log(elem.title);
-                searchResultList.insertAdjacentHTML('afterbegin', listElemTemplate("Album", elem.title, undefined, elem._id, elem.artistId))
-                
+        if (tracks.length > 0) {
+            tracks.forEach((elem) => {
+                if (elem && elem.title) {
+                    searchResultList.insertAdjacentHTML(
+                        'beforeend', 
+                        listElemTemplate("Track", elem.title, elem._id, elem.albumId, elem.artistId)
+                    );
+                }
             });
-            
         }
         
+        if (artists.length > 0) {
+            artists.forEach((elem) => {
+                if (elem && elem.name) {
+                    searchResultList.insertAdjacentHTML(
+                        'beforeend', 
+                        listElemTemplate("Artist", elem.name, undefined, undefined, elem._id)
+                    );
+                }
+            });
+        }
+        
+        if (albums.length > 0) {
+            albums.forEach((elem) => {
+                if (elem && elem.title) {
+                    searchResultList.insertAdjacentHTML(
+                        'beforeend', 
+                        listElemTemplate("Album", elem.title, undefined, elem._id, elem.artistId)
+                    );
+                }
+            });
+        }
+
+        // Show the results container if we have any results
+        const hasResults = tracks.length > 0 || artists.length > 0 || albums.length > 0;
+        document.querySelector("#SearchResultDiv").style.display = hasResults ? "block" : "none";
     }
         
     
