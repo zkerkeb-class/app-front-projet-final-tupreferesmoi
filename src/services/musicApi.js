@@ -85,13 +85,8 @@ export const musicApi = {
     },
 
     // Récupération des pistes d'un artiste
-    getArtistTracks: async (artistId = null, albumId = null, trackId = null) => {
-        const params = new URLSearchParams();
-        if (artistId) params.append('artistId', artistId);
-        if (albumId) params.append('albumId', albumId);
-        if (trackId) params.append('trackId', trackId);
-
-        const response = await fetch(`${BASE_URL}/tracks?${params.toString()}`);
+    getArtistTracks: async (artistId) => {
+        const response = await fetch(`${BASE_URL}/artists/${artistId}/top-tracks`);
         return handleResponse(response);
     },
 
