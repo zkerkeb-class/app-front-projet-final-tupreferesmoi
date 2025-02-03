@@ -87,10 +87,6 @@ const PlaylistCard = styled.div`
         background: ${({ theme }) => theme.colors.surfaceHover};
         transform: translateY(-5px);
 
-        .delete-button {
-            opacity: 1;
-        }
-
         .icon-container {
             transform: scale(1.1);
         }
@@ -187,14 +183,13 @@ export default function PlaylistsPage() {
     const fetchPlaylists = async () => {
         try {
             const response = await playlistApi.getUserPlaylists();
-            console.log('Playlists récupérées:', response);
             if (response.data) {
                 setPlaylists(response.data);
             } else {
                 setPlaylists(response);
             }
         } catch (error) {
-            console.error("Erreur lors du chargement des playlists:", error);
+            setPlaylists([]);
         } finally {
             setLoading(false);
         }
@@ -286,13 +281,6 @@ export default function PlaylistsPage() {
                                 {playlist.isPublic ? 'Public' : 'Privé'}
                             </VisibilityBadge>
                         </PlaylistLink>
-                        <DeleteButton
-                            onClick={(e) => handleDeletePlaylist(e, playlist._id)}
-                            className="delete-button"
-                            title="Supprimer la playlist"
-                        >
-                            <Trash2 size={16} />
-                        </DeleteButton>
                     </PlaylistCard>
                 ))}
             </PlaylistGrid>

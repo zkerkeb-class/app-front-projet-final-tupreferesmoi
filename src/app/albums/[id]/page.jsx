@@ -226,10 +226,7 @@ export default function AlbumPage({ params }) {
                 const albumData = albumResponse.data;
                 const tracksData = tracksResponse.data.tracks || [];
 
-                console.log("Album Data:", albumData);
-                console.log("Tracks Data:", tracksData);
 
-                console.log("Album Response:", albumResponse.AlbumCover);
                 setAlbum(albumData);
                 setTracks(tracksData);
             } catch (error) {
