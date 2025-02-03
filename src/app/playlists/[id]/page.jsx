@@ -130,7 +130,7 @@ const TrackList = styled.div`
 
 const TrackHeader = styled.div`
     display: grid;
-    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px;
+    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px 40px;
     padding: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: ${({ theme }) => theme.colors.textSecondary};
@@ -144,7 +144,7 @@ const TrackHeader = styled.div`
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px;
+    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px 40px;
     padding: 8px;
     border-radius: 4px;
     align-items: center;
@@ -307,6 +307,28 @@ const SmallPlayButton = styled.button`
     }
 `;
 
+const ActionButton = styled.button`
+    opacity: 0;
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.error};
+        transform: scale(1.1);
+    }
+
+    ${TrackItem}:hover & {
+        opacity: 1;
+    }
+`;
+
 export default function PlaylistPage() {
     const dispatch = useDispatch();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
@@ -394,6 +416,23 @@ export default function PlaylistPage() {
         }
     };
 
+    const handleRemoveTrack = async (trackId) => {
+        if (!window.confirm("Êtes-vous sûr de vouloir retirer ce morceau de la playlist ?")) {
+            return;
+        }
+
+        try {
+            await playlistApi.removeTrackFromPlaylist(params.id, trackId);
+            const response = await playlistApi.getPlaylist(params.id);
+            setPlaylist(response.data);
+            if (response.data.tracks) {
+                setTracks(response.data.tracks);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la suppression du morceau:", error);
+        }
+    };
+
     if (loading) {
         return <Container>Chargement...</Container>;
     }
@@ -467,6 +506,7 @@ export default function PlaylistPage() {
                     <div>TITRE</div>
                     <div>DURÉE</div>
                     <div></div>
+                    <div></div>
                 </TrackHeader>
 
                 <TrackList>
@@ -501,6 +541,12 @@ export default function PlaylistPage() {
                             >
                                 <Plus size={20} />
                             </AddToPlaylistButton>
+                            <ActionButton
+                                onClick={() => handleRemoveTrack(track._id)}
+                                title="Retirer de la playlist"
+                            >
+                                <Trash2 size={20} />
+                            </ActionButton>
                         </TrackItem>
                     ))}
                 </TrackList>
