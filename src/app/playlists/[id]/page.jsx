@@ -6,11 +6,12 @@ import { Play, Pause, Clock, Trash2, Globe, Lock, Plus, Music } from "react-feat
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
-import { getAudioInstance } from "@/utils/audioInstance";
+import { setCurrentTrack, setIsPlaying, setQueue, setCurrentTrackIndex } from "@/store/slices/playerSlice";
 import playlistApi from "@/services/playlistApi";
+import { musicApi } from "../../../services/musicApi";
 import { formatTime } from '@/utils/formatTime';
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
+import { DEFAULT_IMAGE } from "@/features/player/constants";
 
 const Container = styled.div`
     padding: 0;
@@ -129,54 +130,82 @@ const TrackList = styled.div`
 
 const TrackHeader = styled.div`
     display: grid;
-    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr) 40px;
-    padding: 8px 16px;
+    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px;
+    padding: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: ${({ theme }) => theme.colors.textSecondary};
     font-size: 12px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    gap: 16px;
+    align-items: center;
 `;
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 16px 4fr 3fr 2fr minmax(120px, 1fr) 40px;
-    padding: 8px 16px;
-    color: ${({ theme }) => theme.colors.textSecondary};
+    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px;
+    padding: 8px;
     border-radius: 4px;
-    cursor: pointer;
+    align-items: center;
+    gap: 16px;
 
     &:hover {
         background: rgba(255, 255, 255, 0.1);
-        color: ${({ theme }) => theme.colors.text};
     }
 
     .track-number {
-        color: inherit;
+        color: ${({ theme }) => theme.colors.textSecondary};
+        font-size: 14px;
+    }
+
+    .track-play {
+        opacity: 0;
+    }
+
+    &:hover .track-number {
+        opacity: 0;
+    }
+
+    &:hover .track-play {
+        opacity: 1;
     }
 
     .track-title {
-        color: ${({ theme }) => theme.colors.text};
-        font-weight: 500;
-    }
+        display: flex;
+        align-items: center;
+        gap: 12px;
 
-    .track-artist {
-        color: inherit;
-        text-decoration: none;
-        &:hover {
-            color: ${({ theme }) => theme.colors.text};
-            text-decoration: underline;
+        .title-text {
+            display: flex;
+            flex-direction: column;
+
+            .title {
+                color: ${({ theme }) => theme.colors.text};
+                font-size: 16px;
+            }
+
+            .artist {
+                color: ${({ theme }) => theme.colors.textSecondary};
+                font-size: 14px;
+
+                a {
+                    color: inherit;
+                    text-decoration: none;
+                    
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
         }
     }
 
-    .track-album {
-        color: inherit;
-        text-decoration: none;
-        &:hover {
-            color: ${({ theme }) => theme.colors.text};
-            text-decoration: underline;
-        }
+    .track-duration {
+        color: ${({ theme }) => theme.colors.textSecondary};
+        font-size: 14px;
+        text-align: right;
+        margin-right: 8px;
     }
 `;
 
@@ -261,75 +290,80 @@ const AddToPlaylistButton = styled.button`
     }
 `;
 
+const SmallPlayButton = styled.button`
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: ${({ theme }) => theme.colors.primary};
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.text};
+
+    &:hover {
+        transform: scale(1.1);
+    }
+`;
+
 export default function PlaylistPage() {
-    const router = useRouter();
-    const { id } = useParams();
+    const dispatch = useDispatch();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [playlist, setPlaylist] = useState(null);
+    const [tracks, setTracks] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const dispatch = useDispatch();
-    const [isUpdating, setIsUpdating] = useState(false);
+    const router = useRouter();
+    const params = useParams();
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
-                setError(null);
-
-                if (!id || id === "undefined") {
-                    throw new Error("ID de playlist invalide");
-                }
-
-                const response = await playlistApi.getPlaylist(id);
-                if (!response?.data) {
-                    throw new Error("Données de playlist invalides");
-                }
-
+                const response = await playlistApi.getPlaylist(params.id);
                 setPlaylist(response.data);
+                if (response.data.tracks) {
+                    setTracks(response.data.tracks);
+                }
             } catch (error) {
-                console.error("Erreur:", error);
-                setError("Erreur lors de la récupération des données");
+                console.error("Erreur lors de la récupération de la playlist:", error);
+                setError("Erreur lors de la récupération de la playlist");
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [id]);
+    }, [params.id]);
 
-    const handlePlay = async (track) => {
-        if (!track) return;
-
-        const audio = getAudioInstance();
-        if (!audio) return;
-
-        // Formater les données de la piste pour le player
-        const trackData = {
+    const handlePlay = (track, index) => {
+        const transformedTrack = {
             ...track,
-            artist: track.artistId?.name || "Artiste inconnu",
+            id: track._id,
+            coverUrl: track?.albumId?.coverImage?.medium || track?.albumId?.coverImage?.large || track?.albumId?.coverImage?.thumbnail || DEFAULT_IMAGE,
+            artist: track?.artistId?.name || "Artiste inconnu",
+            audioUrl: track.audioUrl
         };
 
-        if (currentTrack?.id === track.id) {
-            if (isPlaying) {
-                audio.pause();
-            } else {
-                await audio.play();
-            }
-            dispatch(setIsPlaying(!isPlaying));
-            return;
-        }
+        const transformedTracks = tracks.map(t => ({
+            ...t,
+            id: t._id,
+            coverUrl: t?.albumId?.coverImage?.medium || t?.albumId?.coverImage?.large || t?.albumId?.coverImage?.thumbnail || DEFAULT_IMAGE,
+            artist: t?.artistId?.name || "Artiste inconnu",
+            audioUrl: t.audioUrl
+        }));
 
-        // Nouvelle piste
-        audio.src = track.audioUrl;
-        dispatch(setCurrentTrack(trackData));
-        try {
-            await audio.play();
-            dispatch(setIsPlaying(true));
-        } catch (error) {
-            console.error("Erreur lors de la lecture:", error);
+        dispatch(setQueue(transformedTracks));
+        dispatch(setCurrentTrackIndex(index));
+        dispatch(setCurrentTrack(transformedTrack));
+        dispatch(setIsPlaying(true));
+    };
+
+    const handleMainPlay = () => {
+        if (tracks.length > 0) {
+            handlePlay(tracks[0], 0);
         }
     };
 
@@ -339,7 +373,7 @@ export default function PlaylistPage() {
         }
 
         try {
-            await playlistApi.deletePlaylist(id);
+            await playlistApi.deletePlaylist(params.id);
             router.push("/playlists");
         } catch (error) {
             console.error("Erreur lors de la suppression de la playlist:", error);
@@ -350,16 +384,13 @@ export default function PlaylistPage() {
         if (!playlist) return;
 
         try {
-            setIsUpdating(true);
-            await playlistApi.updatePlaylist(id, {
+            await playlistApi.updatePlaylist(params.id, {
                 isPublic: !playlist.isPublic
             });
-            const response = await playlistApi.getPlaylist(id);
+            const response = await playlistApi.getPlaylist(params.id);
             setPlaylist(response.data);
         } catch (error) {
             console.error("Erreur lors de la modification de la visibilité:", error);
-        } finally {
-            setIsUpdating(false);
         }
     };
 
@@ -395,34 +426,32 @@ export default function PlaylistPage() {
         <Container>
             <PlaylistHeader>
                 <PlaylistCover>
-                    <Music size={64} />
+                    <Music />
                 </PlaylistCover>
                 <PlaylistInfo>
                     <div className="playlist-type">
-                        {playlist.isPublic ? <Globe size={14} /> : <Lock size={14} />}
+                        {playlist?.isPublic ? <Globe size={14} /> : <Lock size={14} />}
                         Playlist
                     </div>
-                    <h1>{playlist.name}</h1>
-                    {playlist.description && (
-                        <div className="description">{playlist.description}</div>
-                    )}
+                    <h1>{playlist?.name}</h1>
+                    <div className="description">{playlist?.description}</div>
                     <div className="details">
-                        <span>Créée par <span className="username">{playlist.userId?.username || "Utilisateur inconnu"}</span></span>
-                        <span>{playlist.tracks?.length || 0} titres</span>
-                        <span>{formatTime(playlist.tracks?.reduce((acc, track) => acc + track.duration, 0) || 0)}</span>
+                        <span className="username">
+                            {playlist?.userId?.username || "Utilisateur inconnu"}
+                        </span>
+                        <span>{playlist?.totalTracks} titres</span>
+                        <span>{formatTime(playlist?.totalDuration)}</span>
                     </div>
                     <ControlsContainer>
-                        {playlist.tracks?.length > 0 && (
-                            <PlayButton onClick={() => handlePlay(playlist.tracks[0])}>
-                                {currentTrack?.id === playlist.tracks[0].id && isPlaying ? (
-                                    <Pause />
-                                ) : (
-                                    <Play />
-                                )}
-                            </PlayButton>
-                        )}
-                        <IconButton onClick={toggleVisibility} disabled={isUpdating}>
-                            {playlist.isPublic ? <Globe /> : <Lock />}
+                        <PlayButton onClick={handleMainPlay}>
+                            {isPlaying && currentTrack && tracks.length > 0 && tracks[0]._id === currentTrack._id ? (
+                                <Pause size={24} />
+                            ) : (
+                                <Play size={24} />
+                            )}
+                        </PlayButton>
+                        <IconButton onClick={toggleVisibility}>
+                            {playlist?.isPublic ? <Globe /> : <Lock />}
                         </IconButton>
                         <IconButton onClick={handleDeletePlaylist} className="danger">
                             <Trash2 />
@@ -434,39 +463,38 @@ export default function PlaylistPage() {
             <TracksSection>
                 <TrackHeader>
                     <div>#</div>
-                    <div>Titre</div>
-                    <div>Album</div>
-                    <div>Artiste</div>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Clock size={16} />
-                    </div>
+                    <div></div>
+                    <div>TITRE</div>
+                    <div>DURÉE</div>
                     <div></div>
                 </TrackHeader>
+
                 <TrackList>
-                    {playlist.tracks?.map((track, index) => (
-                        <TrackItem
-                            key={track._id}
-                        >
-                            <div className="track-number">{index + 1}</div>
-                            <div className="track-title" onClick={() => handlePlay(track)}>{track.title}</div>
-                            <Link
-                                href={`/albums/${track.albumId?._id}`}
-                                className="track-album"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {track.albumId?.title || "Album inconnu"}
-                            </Link>
-                            <Link
-                                href={`/artists/${track.artistId?._id}`}
-                                className="track-artist"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {track.artistId?.name || "Artiste inconnu"}
-                            </Link>
-                            <div>{formatTime(track.duration)}</div>
+                    {tracks.map((track, index) => (
+                        <TrackItem key={track._id}>
+                            <span className="track-number">{index + 1}</span>
+                            <div className="track-play">
+                                <SmallPlayButton onClick={() => handlePlay(track, index)}>
+                                    {currentTrack?.id === track._id && isPlaying ? (
+                                        <Pause size={12} />
+                                    ) : (
+                                        <Play size={12} />
+                                    )}
+                                </SmallPlayButton>
+                            </div>
+                            <div className="track-title">
+                                <div className="title-text">
+                                    <span className="title">{track.title}</span>
+                                    <span className="artist">
+                                        <Link href={`/artists/${track.artistId?._id}`}>
+                                            {track.artistId?.name || "Artiste inconnu"}
+                                        </Link>
+                                    </span>
+                                </div>
+                            </div>
+                            <span className="track-duration">{formatTime(track.duration)}</span>
                             <AddToPlaylistButton
-                                onClick={(e) => {
-                                    e.stopPropagation();
+                                onClick={() => {
                                     setSelectedTrackId(track._id);
                                     setIsModalOpen(true);
                                 }}
