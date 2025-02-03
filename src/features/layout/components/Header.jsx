@@ -88,6 +88,8 @@ const BrowseButton = styled.button`
     }
 `;
 
+export const searchBarRef = React.createRef();
+
 export default function Header() {
     const router = useRouter();
 
@@ -106,7 +108,7 @@ export default function Header() {
             </NavigationSection>
 
             <SearchContainer>
-                <SearchBar />
+                <SearchBar ref={searchBarRef} />
             </SearchContainer>
 
             <NavigationSection>

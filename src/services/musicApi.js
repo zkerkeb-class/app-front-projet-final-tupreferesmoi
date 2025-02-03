@@ -30,13 +30,10 @@ export const musicApi = {
     // Récupération de tous les morceaux avec pagination
     getAllTracks: async (page = 1, limit = 10) => {
         try {
-            console.log(`Appel API getAllTracks - page: ${page}, limit: ${limit}`);
             const response = await fetch(`${BASE_URL}/tracks?page=${page}&limit=${limit}`);
             const data = await handleResponse(response);
-            console.log("Réponse brute de l'API:", data);
             return data;
         } catch (error) {
-            console.error("Erreur lors de la récupération des morceaux:", error);
             return {
                 success: false,
                 data: [],
@@ -67,7 +64,6 @@ export const musicApi = {
             const response = await fetch(`${BASE_URL}/albums?page=${page}&limit=${limit}`);
             return handleResponse(response);
         } catch (error) {
-            console.error("Erreur lors de la récupération des albums:", error);
             return { albums: [], total: 0 };
         }
     },
@@ -131,7 +127,6 @@ export const musicApi = {
         try {
             return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
         } catch (error) {
-            console.error("Erreur lors de la recherche:", error);
             throw error;
         }
     },
@@ -141,7 +136,6 @@ export const musicApi = {
         try {
             return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
         } catch (error) {
-            console.error('Error in global search:', error);
             throw error;
         }
     },

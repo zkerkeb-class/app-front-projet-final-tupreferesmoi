@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Link from "next/link";
 import { Home, Search, BookOpen, PlusSquare, Heart } from "react-feather";
 import playlistApi from "@/services/playlistApi";
+import { searchBarRef } from "./Header";
 
 const SidebarContainer = styled.aside`
     background-color: ${({ theme }) => theme.colors.background};
@@ -175,6 +176,37 @@ const Input = styled.input`
     }
 `;
 
+const SearchButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: ${({ theme }) => theme.spacing.md};
+    color: ${({ theme }) => theme.colors.textSecondary};
+    text-decoration: none;
+    padding: ${({ theme }) => theme.spacing.sm};
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+    }
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+`;
+
+const SearchContainer = styled.div`
+    position: relative;
+    padding: ${({ theme }) => theme.spacing.sm};
+`;
+
 export default function Sidebar() {
     const [playlists, setPlaylists] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
@@ -187,10 +219,8 @@ export default function Sidebar() {
     const loadPlaylists = async () => {
         try {
             const response = await playlistApi.getUserPlaylists();
-            console.log("Playlists chargées:", response);
             setPlaylists(response);
         } catch (error) {
-            console.error("Erreur lors du chargement des playlists:", error);
             setPlaylists([]);
         }
     };
@@ -205,10 +235,14 @@ export default function Sidebar() {
             });
             setNewPlaylistName("");
             setIsCreating(false);
-            await loadPlaylists(); // Recharger les playlists après la création
+            await loadPlaylists();
         } catch (error) {
-            console.error("Erreur lors de la création de la playlist:", error);
+            // Gérer l'erreur silencieusement
         }
+    };
+
+    const handleSearchClick = () => {
+        searchBarRef.current?.focus();
     };
 
     return (
@@ -220,10 +254,10 @@ export default function Sidebar() {
                     <Home />
                     Accueil
                 </NavLink>
-                <NavLink href="/search">
+                <SearchButton onClick={handleSearchClick}>
                     <Search />
                     Rechercher
-                </NavLink>
+                </SearchButton>
             </NavigationSection>
 
             <LibrarySection>
@@ -263,11 +297,6 @@ export default function Sidebar() {
                         Créer une playlist
                     </CreatePlaylistButton>
                 )}
-
-                <NavLink href="/liked">
-                    <Heart />
-                    Titres likés
-                </NavLink>
 
                 <NavLink href="/playlists">
                     <BookOpen />
