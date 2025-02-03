@@ -21,8 +21,9 @@ const SearchForm = styled.form`
 const InputWrapper = styled.div`
     position: relative;
     transition: all 0.3s ease;
+    border-radius: 9999px;
     ${props => props.$isFocused && `
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        background-color: #2a2a2a;
     `}
 `;
 
@@ -48,6 +49,8 @@ const SearchInput = styled.input`
     &:focus {
         outline: none;
         background-color: #2a2a2a;
+        box-shadow: none;
+        -webkit-appearance: none;
     }
 
     &:hover {
@@ -89,14 +92,22 @@ const ResultsWrapper = styled.div`
     z-index: 50;
 `;
 
-const SearchBar = () => {
+const SearchBar = React.forwardRef((props, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const searchRef = useRef(null);
+    const inputRef = useRef(null);
     const router = useRouter();
+
+    // Expose the focus method
+    React.useImperativeHandle(ref, () => ({
+        focus: () => {
+            inputRef.current?.focus();
+        }
+    }));
 
     // Handle click outside to close results
     useEffect(() => {
@@ -104,12 +115,15 @@ const SearchBar = () => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
                 setShowResults(false);
                 setIsFocused(false);
+                if (props.onClose) {
+                    props.onClose();
+                }
             }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [props.onClose]);
 
     // Debounced search function
     const debouncedSearch = useCallback(
@@ -164,6 +178,9 @@ const SearchBar = () => {
         setSearchTerm('');
         setResults(null);
         setShowResults(false);
+        if (props.onClose) {
+            props.onClose();
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -185,6 +202,7 @@ const SearchBar = () => {
                         <FiSearch size={18} />
                     </SearchIcon>
                     <SearchInput
+                        ref={inputRef}
                         type="text"
                         value={searchTerm}
                         onChange={handleInputChange}
@@ -218,6 +236,6 @@ const SearchBar = () => {
             )}
         </SearchContainer>
     );
-};
+});
 
 export default SearchBar; 

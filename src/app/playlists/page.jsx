@@ -21,7 +21,7 @@ const Header = styled.div`
     }
 `;
 
-const CreateButton = styled(Link)`
+const CreateButton = styled.button`
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -40,6 +40,33 @@ const CreateButton = styled(Link)`
         transform: scale(1.04);
         background: ${({ theme }) => theme.colors.primaryHover};
     }
+`;
+
+const Input = styled.input`
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 500px;
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 14px;
+    font-weight: 700;
+    margin-right: 12px;
+    width: 300px;
+
+    &:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    &::placeholder {
+        color: ${({ theme }) => theme.colors.textSecondary};
+    }
+`;
+
+const CreateSection = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 12px;
 `;
 
 const PlaylistGrid = styled.div`
@@ -154,6 +181,8 @@ export default function PlaylistsPage() {
     const router = useRouter();
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isCreating, setIsCreating] = useState(false);
+    const [newPlaylistName, setNewPlaylistName] = useState("");
 
     const fetchPlaylists = async () => {
         try {
@@ -174,6 +203,22 @@ export default function PlaylistsPage() {
     useEffect(() => {
         fetchPlaylists();
     }, []);
+
+    const handleCreatePlaylist = async () => {
+        if (!newPlaylistName.trim()) return;
+
+        try {
+            await playlistApi.createPlaylist({
+                name: newPlaylistName,
+                description: "",
+            });
+            setNewPlaylistName("");
+            setIsCreating(false);
+            await fetchPlaylists();
+        } catch (error) {
+            console.error("Erreur lors de la création de la playlist:", error);
+        }
+    };
 
     const handleDeletePlaylist = async (e, playlistId) => {
         e.preventDefault();
@@ -198,10 +243,32 @@ export default function PlaylistsPage() {
         <Container>
             <Header>
                 <h1>Mes Playlists</h1>
-                <CreateButton href="/playlists/create">
-                    <Plus size={20} />
-                    Créer une playlist
-                </CreateButton>
+                <CreateSection>
+                    {isCreating ? (
+                        <>
+                            <Input
+                                type="text"
+                                placeholder="Nom de la playlist"
+                                value={newPlaylistName}
+                                onChange={(e) => setNewPlaylistName(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleCreatePlaylist();
+                                    }
+                                }}
+                                autoFocus
+                            />
+                            <CreateButton onClick={handleCreatePlaylist}>
+                                Créer
+                            </CreateButton>
+                        </>
+                    ) : (
+                        <CreateButton onClick={() => setIsCreating(true)}>
+                            <Plus size={20} />
+                            Créer une playlist
+                        </CreateButton>
+                    )}
+                </CreateSection>
             </Header>
             
             <PlaylistGrid>

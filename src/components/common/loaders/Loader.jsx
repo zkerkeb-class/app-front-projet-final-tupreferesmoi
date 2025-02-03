@@ -7,7 +7,12 @@ import { LoaderContainer, Spinner } from "./styles/Loader.styles";
  * @example
  * <Loader size="medium" variant="primary" fullscreen />
  */
-export const Loader = ({ size, variant, fullscreen, className }) => {
+export const Loader = ({ 
+    size = "medium", 
+    variant = "primary", 
+    fullscreen = false, 
+    className = "" 
+}) => {
     return (
         <LoaderContainer $fullscreen={fullscreen} className={className}>
             <Spinner $size={size} $variant={variant} />
@@ -26,13 +31,6 @@ Loader.propTypes = {
     className: PropTypes.string,
 };
 
-Loader.defaultProps = {
-    size: "medium",
-    variant: "primary",
-    fullscreen: false,
-    className: "",
-};
-
 /**
  * HOC pour ajouter un lazy loading à un composant
  * @example
@@ -43,7 +41,12 @@ Loader.defaultProps = {
  * </LazyComponent>
  */
 export const withLazyLoading = (WrappedComponent) => {
-    const WithLazyLoading = ({ loading, loaderProps, children, ...props }) => {
+    const WithLazyLoading = ({ 
+        loading = false, 
+        loaderProps = {}, 
+        children, 
+        ...props 
+    }) => {
         if (loading) {
             return <Loader {...loaderProps} />;
         }
@@ -58,11 +61,6 @@ export const withLazyLoading = (WrappedComponent) => {
         loaderProps: PropTypes.object,
         /** Contenu du composant */
         children: PropTypes.node,
-    };
-
-    WithLazyLoading.defaultProps = {
-        loading: false,
-        loaderProps: {},
     };
 
     return WithLazyLoading;
