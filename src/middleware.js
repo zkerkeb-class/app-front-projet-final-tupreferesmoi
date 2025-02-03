@@ -4,6 +4,14 @@ export function middleware(request) {
     const token = request.cookies.get("token");
     const { pathname } = request.nextUrl;
 
+    // Gérer les requêtes API
+    if (pathname.startsWith('/api/')) {
+        const url = new URL(request.url);
+        const backendUrl = new URL(process.env.API_URL + pathname + url.search);
+        
+        return NextResponse.rewrite(backendUrl);
+    }
+
     // Liste des routes protégées qui nécessitent une authentification
     const protectedRoutes = [
         "/profile",
