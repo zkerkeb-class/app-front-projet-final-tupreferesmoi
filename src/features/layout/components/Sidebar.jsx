@@ -261,17 +261,6 @@ export default function Sidebar() {
             </NavigationSection>
 
             <LibrarySection>
-                <LibraryHeader>
-                    <LibraryHeaderLeft>
-                        <BookOpen />
-                        Bibliothèque
-                    </LibraryHeaderLeft>
-                    <PlusSquare 
-                        size={24} 
-                        style={{ cursor: "pointer" }}
-                        onClick={() => setIsCreating(true)}
-                    />
-                </LibraryHeader>
 
                 {isCreating ? (
                     <>
