@@ -7,7 +7,7 @@ export function middleware(request) {
     // Gérer les requêtes API
     if (pathname.startsWith('/api/')) {
         const url = new URL(request.url);
-        const backendUrl = new URL(process.env.API_URL + pathname + url.search);
+        const backendUrl = new URL(process.env.NEXT_PUBLIC_API_URL + pathname + url.search);
         
         return NextResponse.rewrite(backendUrl);
     }
