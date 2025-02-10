@@ -95,7 +95,7 @@ export default function Home() {
                             title={track.title}
                             subtitle={track.artist}
                             imageUrl={track.coverUrl}
-                            type="track"
+                            type="playlist"
                             onClick={() => handleCardClick("playlist", track.id)}
                             onPlay={() => handlePlay(track, { tracks: recentTracks, index: recentTracks.indexOf(track) })}
                             isPlaying={isCurrentTrack(track) && isPlaying}
