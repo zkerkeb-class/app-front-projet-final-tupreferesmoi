@@ -104,10 +104,15 @@ const SectionHeader = styled.div`
     font-weight: bold;
     margin-bottom: 0.5rem;
     padding: 0 0.5rem;
+    line-height: 1;
 `;
 
 const SectionIcon = styled.div`
     color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16px;
 `;
 
 const ItemsContainer = styled.div`
@@ -317,6 +322,34 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
         }
     };
 
+    const renderPlaylistItem = (playlist) => (
+        <ResultItem
+            key={playlist._id}
+            onClick={() => handleItemClick('playlists', playlist._id)}
+        >
+            <ImageWrapper>
+                {playlist.coverImage?.medium ? (
+                    <Image
+                        src={playlist.coverImage.medium}
+                        alt={playlist.name}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                    />
+                ) : (
+                    <IconFallback>
+                        {renderFallbackIcon('playlist')}
+                    </IconFallback>
+                )}
+            </ImageWrapper>
+            <ItemContent>
+                <ItemTitle>{playlist.name}</ItemTitle>
+                <ItemSubtitle>
+                    {playlist.userId?.username || 'Utilisateur inconnu'} • Playlist
+                </ItemSubtitle>
+            </ItemContent>
+        </ResultItem>
+    );
+
     return (
         <ResultsContainer>
             <FilterPills>
@@ -449,33 +482,7 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
                             icon={FiList}
                             items={results.playlists}
                             type="playlists"
-                            renderItem={(playlist) => (
-                                <ResultItem
-                                    key={playlist._id}
-                                    onClick={() => handleItemClick('playlists', playlist._id)}
-                                >
-                                    <ImageWrapper>
-                                        {playlist.coverImage?.medium ? (
-                                            <Image
-                                                src={playlist.coverImage.medium}
-                                                alt={playlist.name}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                            />
-                                        ) : (
-                                            <IconFallback>
-                                                {renderFallbackIcon('playlist')}
-                                            </IconFallback>
-                                        )}
-                                    </ImageWrapper>
-                                    <ItemContent>
-                                        <ItemTitle>{playlist.name}</ItemTitle>
-                                        <ItemSubtitle>
-                                            {playlist.owner?.username || 'Utilisateur inconnu'} • Playlist
-                                        </ItemSubtitle>
-                                    </ItemContent>
-                                </ResultItem>
-                            )}
+                            renderItem={renderPlaylistItem}
                         />
                     )}
                 </ScrollContainer>
