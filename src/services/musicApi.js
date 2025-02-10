@@ -131,10 +131,41 @@ export const musicApi = {
         }
     },
 
-    // Global search across tracks, artists, and albums
-    globalSearch: async (query) => {
+    // Global search across tracks, artists, albums and playlists
+    globalSearch: async (query, filter = 'Tout') => {
         try {
-            return await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
+            const response = await fetchWithAuth(`/search?q=${encodeURIComponent(query)}`);
+            if (response.success) {
+                // Filtrer les résultats en fonction du filtre actif
+                const filteredData = { ...response.data };
+                switch (filter) {
+                    case 'Titres':
+                        filteredData.artists = [];
+                        filteredData.albums = [];
+                        filteredData.playlists = [];
+                        break;
+                    case 'Artistes':
+                        filteredData.tracks = [];
+                        filteredData.albums = [];
+                        filteredData.playlists = [];
+                        break;
+                    case 'Albums':
+                        filteredData.tracks = [];
+                        filteredData.artists = [];
+                        filteredData.playlists = [];
+                        break;
+                    case 'Playlists':
+                        filteredData.tracks = [];
+                        filteredData.artists = [];
+                        filteredData.albums = [];
+                        break;
+                    default:
+                        // Garder tous les résultats pour 'Tout'
+                        break;
+                }
+                return { success: true, data: filteredData };
+            }
+            return response;
         } catch (error) {
             throw error;
         }

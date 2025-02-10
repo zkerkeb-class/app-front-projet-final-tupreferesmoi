@@ -98,6 +98,7 @@ const SearchBar = React.forwardRef((props, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const [activeFilter, setActiveFilter] = useState('Tout');
     const searchRef = useRef(null);
     const inputRef = useRef(null);
     const router = useRouter();
@@ -141,7 +142,7 @@ const SearchBar = React.forwardRef((props, ref) => {
                 setIsLoading(true);
                 timeoutId = setTimeout(async () => {
                     try {
-                        const response = await musicApi.globalSearch(value);
+                        const response = await musicApi.globalSearch(value, activeFilter);
                         if (response.success) {
                             setResults(response.data);
                             setShowResults(true);
@@ -158,8 +159,15 @@ const SearchBar = React.forwardRef((props, ref) => {
                 }, DEBOUNCE_DELAY);
             };
         })(),
-        []
+        [activeFilter]
     );
+
+    // Mettre à jour la recherche quand le filtre change
+    useEffect(() => {
+        if (searchTerm.trim()) {
+            debouncedSearch(searchTerm);
+        }
+    }, [activeFilter, debouncedSearch, searchTerm]);
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -194,6 +202,10 @@ const SearchBar = React.forwardRef((props, ref) => {
         setIsFocused(false);
     }, []);
 
+    const handleFilterChange = useCallback((filter) => {
+        setActiveFilter(filter);
+    }, []);
+
     return (
         <SearchContainer ref={searchRef}>
             <SearchForm onSubmit={e => e.preventDefault()}>
@@ -212,7 +224,7 @@ const SearchBar = React.forwardRef((props, ref) => {
                             if (searchTerm.trim()) setShowResults(true);
                         }}
                         onBlur={() => setIsFocused(false)}
-                        placeholder="Rechercher des titres, artistes ou albums..."
+                        placeholder="Rechercher des titres, artistes, albums ou playlists..."
                         spellCheck="false"
                     />
                     {searchTerm && (
@@ -231,11 +243,15 @@ const SearchBar = React.forwardRef((props, ref) => {
                         results={results}
                         isLoading={isLoading}
                         onResultClick={handleResultClick}
+                        activeFilter={activeFilter}
+                        onFilterChange={handleFilterChange}
                     />
                 </ResultsWrapper>
             )}
         </SearchContainer>
     );
 });
+
+SearchBar.displayName = 'SearchBar';
 
 export default SearchBar; 
