@@ -3,7 +3,16 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled, { keyframes } from 'styled-components';
 import { DEFAULT_IMAGES } from '../../../features/player/constants';
-import { FiMusic, FiUser, FiDisc } from 'react-icons/fi';
+import { FiMusic, FiUser, FiDisc, FiList } from 'react-icons/fi';
+
+// Types de filtres disponibles
+const FILTER_TYPES = {
+    ALL: 'Tout',
+    TRACKS: 'Titres',
+    ARTISTS: 'Artistes',
+    ALBUMS: 'Albums',
+    PLAYLISTS: 'Playlists'
+};
 
 const fadeIn = keyframes`
     from {
@@ -172,13 +181,60 @@ const IconFallback = styled.div`
     }
 `;
 
-const SearchResults = ({ results, onResultClick, isLoading }) => {
+const FilterPills = styled.div`
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border-bottom: 1px solid #333333;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+`;
+
+const FilterPill = styled.button`
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid ${props => props.$isActive ? '#1DB954' : '#727272'};
+    background-color: ${props => props.$isActive ? '#1DB954' : 'transparent'};
+    color: ${props => props.$isActive ? '#000' : '#fff'};
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+        border-color: #fff;
+    }
+`;
+
+const NoResults = styled.div`
+    padding: 2rem;
+    text-align: center;
+    color: #9ca3af;
+`;
+
+const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilterChange }) => {
     const router = useRouter();
 
     if (isLoading) {
         return (
             <LoadingContainer>
-                <div>
+                <FilterPills>
+                    {Object.values(FILTER_TYPES).map((filter) => (
+                        <FilterPill
+                            key={filter}
+                            $isActive={activeFilter === filter}
+                            onClick={() => onFilterChange(filter)}
+                        >
+                            {filter}
+                        </FilterPill>
+                    ))}
+                </FilterPills>
+                <div style={{ padding: '1rem' }}>
                     {[1, 2, 3].map((i) => (
                         <LoadingItem key={i}>
                             <LoadingImage />
@@ -193,7 +249,16 @@ const SearchResults = ({ results, onResultClick, isLoading }) => {
         );
     }
 
-    if (!results || (!results.tracks?.length && !results.artists?.length && !results.albums?.length)) {
+    const hasResults = results && (results.tracks?.length > 0 || results.artists?.length > 0 || results.albums?.length > 0 || results.playlists?.length > 0);
+    const hasFilteredResults = activeFilter === 'Tout' ? hasResults :
+        results && (
+            (activeFilter === 'Titres' && results.tracks?.length > 0) ||
+            (activeFilter === 'Artistes' && results.artists?.length > 0) ||
+            (activeFilter === 'Albums' && results.albums?.length > 0) ||
+            (activeFilter === 'Playlists' && results.playlists?.length > 0)
+        );
+
+    if (!results) {
         return null;
     }
 
@@ -228,120 +293,193 @@ const SearchResults = ({ results, onResultClick, isLoading }) => {
                 return <FiUser size={size} />;
             case 'album':
                 return <FiDisc size={size} />;
+            case 'playlist':
+                return <FiList size={size} />;
             default:
                 return null;
         }
     };
 
+    // Filtrer les sections à afficher en fonction du filtre actif
+    const shouldShowSection = (sectionType) => {
+        if (activeFilter === 'Tout') return true;
+        switch (sectionType) {
+            case 'tracks':
+                return activeFilter === 'Titres';
+            case 'artists':
+                return activeFilter === 'Artistes';
+            case 'albums':
+                return activeFilter === 'Albums';
+            case 'playlists':
+                return activeFilter === 'Playlists';
+            default:
+                return false;
+        }
+    };
+
     return (
         <ResultsContainer>
-            <ScrollContainer>
-                <ResultSection
-                    title="Titres"
-                    icon={FiMusic}
-                    items={results.tracks}
-                    type="tracks"
-                    renderItem={(track) => (
-                        <ResultItem
-                            key={track._id}
-                            onClick={() => handleItemClick('tracks', track._id)}
-                        >
-                            <ImageWrapper>
-                                {track.albumId?.coverImage?.medium ? (
-                                    <Image
-                                        src={track.albumId.coverImage.medium}
-                                        alt={track.title}
-                                        width={40}
-                                        height={40}
-                                        style={{ objectFit: 'cover' }}
-                                        priority
-                                    />
-                                ) : (
-                                    <IconFallback>
-                                        {renderFallbackIcon('track')}
-                                    </IconFallback>
-                                )}
-                            </ImageWrapper>
-                            <ItemContent>
-                                <ItemTitle>{track.title}</ItemTitle>
-                                <ItemSubtitle>
-                                    {track.featuring?.map(artist => artist.name).join(', ')}
-                                </ItemSubtitle>
-                            </ItemContent>
-                        </ResultItem>
+            <FilterPills>
+                {Object.values(FILTER_TYPES).map((filter) => (
+                    <FilterPill
+                        key={filter}
+                        $isActive={activeFilter === filter}
+                        onClick={() => onFilterChange(filter)}
+                    >
+                        {filter}
+                    </FilterPill>
+                ))}
+            </FilterPills>
+            
+            {!hasFilteredResults ? (
+                <NoResults>
+                    Aucun résultat trouvé {activeFilter !== 'Tout' ? `dans ${activeFilter.toLowerCase()}` : ''}
+                </NoResults>
+            ) : (
+                <ScrollContainer>
+                    {shouldShowSection('tracks') && (
+                        <ResultSection
+                            title="Titres"
+                            icon={FiMusic}
+                            items={results.tracks}
+                            type="tracks"
+                            renderItem={(track) => (
+                                <ResultItem
+                                    key={track._id}
+                                    onClick={() => handleItemClick('tracks', track._id)}
+                                >
+                                    <ImageWrapper>
+                                        {track.albumId?.coverImage?.medium ? (
+                                            <Image
+                                                src={track.albumId.coverImage.medium}
+                                                alt={track.title}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <IconFallback>
+                                                {renderFallbackIcon('track')}
+                                            </IconFallback>
+                                        )}
+                                    </ImageWrapper>
+                                    <ItemContent>
+                                        <ItemTitle>{track.title}</ItemTitle>
+                                        <ItemSubtitle>
+                                            {track.artistId?.name || 'Artiste inconnu'} • {track.albumId?.title || 'Album inconnu'}
+                                        </ItemSubtitle>
+                                    </ItemContent>
+                                </ResultItem>
+                            )}
+                        />
                     )}
-                />
 
-                <ResultSection
-                    title="Artistes"
-                    icon={FiUser}
-                    items={results.artists}
-                    type="artists"
-                    renderItem={(artist) => (
-                        <ResultItem
-                            key={artist._id}
-                            onClick={() => handleItemClick('artists', artist._id)}
-                        >
-                            <ImageWrapper $isArtist>
-                                {artist.image?.medium ? (
-                                    <Image
-                                        src={artist.image.medium}
-                                        alt={artist.name}
-                                        width={40}
-                                        height={40}
-                                        style={{ objectFit: 'cover' }}
-                                        priority
-                                    />
-                                ) : (
-                                    <IconFallback>
-                                        {renderFallbackIcon('artist')}
-                                    </IconFallback>
-                                )}
-                            </ImageWrapper>
-                            <ItemContent>
-                                <ItemTitle>{artist.name}</ItemTitle>
-                                <ItemSubtitle>Artiste</ItemSubtitle>
-                            </ItemContent>
-                        </ResultItem>
+                    {shouldShowSection('artists') && (
+                        <ResultSection
+                            title="Artistes"
+                            icon={FiUser}
+                            items={results.artists}
+                            type="artists"
+                            renderItem={(artist) => (
+                                <ResultItem
+                                    key={artist._id}
+                                    onClick={() => handleItemClick('artists', artist._id)}
+                                >
+                                    <ImageWrapper $isArtist>
+                                        {artist.image?.medium ? (
+                                            <Image
+                                                src={artist.image.medium}
+                                                alt={artist.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <IconFallback>
+                                                {renderFallbackIcon('artist')}
+                                            </IconFallback>
+                                        )}
+                                    </ImageWrapper>
+                                    <ItemContent>
+                                        <ItemTitle>{artist.name}</ItemTitle>
+                                        <ItemSubtitle>Artiste</ItemSubtitle>
+                                    </ItemContent>
+                                </ResultItem>
+                            )}
+                        />
                     )}
-                />
 
-                <ResultSection
-                    title="Albums"
-                    icon={FiDisc}
-                    items={results.albums}
-                    type="albums"
-                    renderItem={(album) => (
-                        <ResultItem
-                            key={album._id}
-                            onClick={() => handleItemClick('albums', album._id)}
-                        >
-                            <ImageWrapper>
-                                {album.coverImage?.medium ? (
-                                    <Image
-                                        src={album.coverImage.medium}
-                                        alt={album.title}
-                                        width={40}
-                                        height={40}
-                                        style={{ objectFit: 'cover' }}
-                                        priority
-                                    />
-                                ) : (
-                                    <IconFallback>
-                                        {renderFallbackIcon('album')}
-                                    </IconFallback>
-                                )}
-                            </ImageWrapper>
-                            <ItemContent>
-                                <ItemTitle>{album.title}</ItemTitle>
-                                <ItemSubtitle>
-                                    {album.artistId?.name || 'Album'}
-                                </ItemSubtitle>
-                            </ItemContent>
-                        </ResultItem>
+                    {shouldShowSection('albums') && (
+                        <ResultSection
+                            title="Albums"
+                            icon={FiDisc}
+                            items={results.albums}
+                            type="albums"
+                            renderItem={(album) => (
+                                <ResultItem
+                                    key={album._id}
+                                    onClick={() => handleItemClick('albums', album._id)}
+                                >
+                                    <ImageWrapper>
+                                        {album.coverImage?.medium ? (
+                                            <Image
+                                                src={album.coverImage.medium}
+                                                alt={album.title}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <IconFallback>
+                                                {renderFallbackIcon('album')}
+                                            </IconFallback>
+                                        )}
+                                    </ImageWrapper>
+                                    <ItemContent>
+                                        <ItemTitle>{album.title}</ItemTitle>
+                                        <ItemSubtitle>
+                                            {album.artistId?.name || 'Artiste inconnu'} • Album
+                                        </ItemSubtitle>
+                                    </ItemContent>
+                                </ResultItem>
+                            )}
+                        />
                     )}
-                />
-            </ScrollContainer>
+
+                    {shouldShowSection('playlists') && (
+                        <ResultSection
+                            title="Playlists"
+                            icon={FiList}
+                            items={results.playlists}
+                            type="playlists"
+                            renderItem={(playlist) => (
+                                <ResultItem
+                                    key={playlist._id}
+                                    onClick={() => handleItemClick('playlists', playlist._id)}
+                                >
+                                    <ImageWrapper>
+                                        {playlist.coverImage?.medium ? (
+                                            <Image
+                                                src={playlist.coverImage.medium}
+                                                alt={playlist.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <IconFallback>
+                                                {renderFallbackIcon('playlist')}
+                                            </IconFallback>
+                                        )}
+                                    </ImageWrapper>
+                                    <ItemContent>
+                                        <ItemTitle>{playlist.name}</ItemTitle>
+                                        <ItemSubtitle>
+                                            {playlist.owner?.username || 'Utilisateur inconnu'} • Playlist
+                                        </ItemSubtitle>
+                                    </ItemContent>
+                                </ResultItem>
+                            )}
+                        />
+                    )}
+                </ScrollContainer>
+            )}
         </ResultsContainer>
     );
 };
