@@ -14,7 +14,8 @@ const initialState = {
     queue: [],
     volume: getInitialVolume(),
     progress: 0,
-    mode: "normal", // "normal" | "repeat" | "repeat-one" | "shuffle"
+    mode: "normal", // "normal" | "repeat" | "repeat-one"
+    shuffleEnabled: false,
     currentTrackIndex: -1,
     currentTime: 0,
     duration: 0,
@@ -41,6 +42,9 @@ const playerSlice = createSlice({
         },
         setMode: (state, action) => {
             state.mode = action.payload;
+        },
+        setShuffleMode: (state, action) => {
+            state.shuffleEnabled = action.payload;
         },
         setCurrentTime: (state, action) => {
             state.currentTime = action.payload;
@@ -72,7 +76,7 @@ const playerSlice = createSlice({
             }
         },
         playNext: (state) => {
-            if (state.mode === "shuffle") {
+            if (state.shuffleEnabled && state.queue.length > 1) {
                 const availableIndices = state.queue
                     .map((_, index) => index)
                     .filter((index) => index !== state.currentTrackIndex);
@@ -109,6 +113,7 @@ export const {
     setVolume,
     setProgress,
     setMode,
+    setShuffleMode,
     setCurrentTime,
     setDuration,
     addToQueue,

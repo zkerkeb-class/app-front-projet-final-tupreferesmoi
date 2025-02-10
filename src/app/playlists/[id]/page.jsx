@@ -14,6 +14,7 @@ import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
+import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
 
 const Container = styled.div`
     padding: 0;
@@ -142,6 +143,11 @@ const TrackHeader = styled.div`
     letter-spacing: 0.1em;
     gap: 16px;
     align-items: center;
+
+    .duration-header {
+        text-align: right;
+        margin-right: 8px;
+    }
 `;
 
 const TrackItem = styled.div`
@@ -422,18 +428,18 @@ export default function PlaylistPage() {
                         <span>{playlist?.totalTracks} titres</span>
                         <span>{formatTime(playlist?.totalDuration)}</span>
                     </div>
-                    <ControlsContainer>
-                        <PlayButton 
-                            onClick={handleMainPlay}
-                            isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
-                        />
+                    <PlaybackControls 
+                        onPlay={handleMainPlay}
+                        isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
+                        hasMultipleTracks={tracks.length > 1}
+                    >
                         <IconButton onClick={toggleVisibility}>
                             {playlist?.isPublic ? <Globe /> : <Lock />}
                         </IconButton>
                         <IconButton onClick={handleDeletePlaylist} className="danger">
                             <Trash2 />
                         </IconButton>
-                    </ControlsContainer>
+                    </PlaybackControls>
                 </PlaylistInfo>
             </PlaylistHeader>
 
@@ -442,7 +448,7 @@ export default function PlaylistPage() {
                     <div>#</div>
                     <div></div>
                     <div>TITRE</div>
-                    <div>DURÉE</div>
+                    <div className="duration-header">DURÉE</div>
                     <div></div>
                     <div></div>
                 </TrackHeader>
