@@ -16,6 +16,8 @@ import {
 } from "../../../store/slices/playerSlice";
 import { DEFAULT_IMAGE } from "../../../features/player/constants";
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
+import { useTrackPlayback } from "@/hooks/useTrackPlayback";
+import { PlayButton } from "@/components/common/buttons/PlayButton";
 
 const AlbumHeader = styled.div`
     padding: 60px 24px 24px;
@@ -152,23 +154,6 @@ const TrackItem = styled.div`
     }
 `;
 
-const PlayButton = styled.button`
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: ${({ theme }) => theme.colors.primary};
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.text};
-
-    &:hover {
-        transform: scale(1.1);
-    }
-`;
-
 const AddToPlaylistButton = styled.button`
     opacity: 0;
     background: transparent;
@@ -191,6 +176,12 @@ const AddToPlaylistButton = styled.button`
     }
 `;
 
+const ControlsContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 16px;
+`;
+
 export default function AlbumPage({ params }) {
     const dispatch = useDispatch();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
@@ -201,6 +192,7 @@ export default function AlbumPage({ params }) {
     const router = useRouter();
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { handlePlay, isCurrentTrack } = useTrackPlayback();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -246,32 +238,14 @@ export default function AlbumPage({ params }) {
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
 
-    const handlePlay = (track, index) => {
-        // Transform track data to include coverUrl
-        const transformedTrack = {
-            ...track,
-            coverUrl: track?.coverImage?.medium || track?.coverImage?.large || track?.coverImage?.thumbnail || album?.coverImage?.medium || album?.coverImage?.large || album?.coverImage?.thumbnail || DEFAULT_IMAGE,
-            artist: album?.artistId?.name || "Unknown Artist",
-        };
-        
-        // Transform all tracks in the queue to include coverUrl
-        const transformedTracks = tracks.map(t => ({
-            ...t,
-            coverUrl:
-                t?.coverImage?.medium ||
-                t?.coverImage?.large ||
-                t?.coverImage?.thumbnail ||
-                album?.coverImage?.medium ||
-                album?.coverImage?.large ||
-                album?.coverImage?.thumbnail ||
-                DEFAULT_IMAGE,
-            artist: album?.artistId?.name || "Unknown Artist",
-        }));
+    const handleTrackPlay = (track, index) => {
+        handlePlay(track, { tracks, index });
+    };
 
-        dispatch(setQueue(transformedTracks));
-        dispatch(setCurrentTrackIndex(index));
-        dispatch(setCurrentTrack(transformedTrack));
-        dispatch(setIsPlaying(true));
+    const handleMainPlay = () => {
+        if (tracks.length > 0) {
+            handleTrackPlay(tracks[0], 0);
+        }
     };
 
     if (loading) {
@@ -345,6 +319,12 @@ export default function AlbumPage({ params }) {
                                 minutes
                             </span>
                         </div>
+                        <ControlsContainer>
+                            <PlayButton 
+                                onClick={handleMainPlay}
+                                isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
+                            />
+                        </ControlsContainer>
                     </AlbumInfo>
                 </AlbumHeader>
 
@@ -354,13 +334,11 @@ export default function AlbumPage({ params }) {
                             <TrackItem key={track._id || track.id}>
                                 <span className="track-number">{index + 1}</span>
                                 <div className="track-play">
-                                    <PlayButton onClick={() => handlePlay(track, index)}>
-                                        {currentTrack?.id === track.id && isPlaying ? (
-                                            <Pause size={12} />
-                                        ) : (
-                                            <Play size={12} />
-                                        )}
-                                    </PlayButton>
+                                    <PlayButton 
+                                        onClick={() => handleTrackPlay(track, index)}
+                                        isPlaying={isCurrentTrack(track) && isPlaying}
+                                        size="small"
+                                    />
                                 </div>
                                 <div className="track-title">
                                     <div className="title-text">

@@ -9,6 +9,7 @@ import { musicApi } from "@services/musicApi";
 import { GridLoader } from "@components/common/loaders";
 import { Card } from "@components/common";
 import { Section } from "@components/common/sections/Section";
+import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
@@ -27,6 +28,7 @@ export default function Home() {
     const [recentTracks, setRecentTracks] = useState([]);
     const [popularArtists, setPopularArtists] = useState([]);
     const [recentAlbums, setRecentAlbums] = useState([]);
+    const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,11 +51,6 @@ export default function Home() {
 
         fetchData();
     }, []);
-
-    const handlePlay = (track) => {
-        dispatch(setCurrentTrack(track));
-        dispatch(setIsPlaying(true));
-    };
 
     const handleCardClick = (type, id) => {
         if (!id) return;
@@ -98,11 +95,10 @@ export default function Home() {
                             title={track.title}
                             subtitle={track.artist}
                             imageUrl={track.coverUrl}
-                            type="playlist"
-                            onClick={() =>
-                                handleCardClick("playlist", track.id)
-                            }
-                            onPlay={() => handlePlay(track)}
+                            type="track"
+                            onClick={() => handleCardClick("playlist", track.id)}
+                            onPlay={() => handlePlay(track, { tracks: recentTracks, index: recentTracks.indexOf(track) })}
+                            isPlaying={isCurrentTrack(track) && isPlaying}
                         />
                     ))}
                 </Grid>

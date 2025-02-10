@@ -15,6 +15,8 @@ import {
 } from "../../../store/slices/playerSlice";
 import Link from "next/link";
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
+import { PlayButton } from "@/components/common/buttons/PlayButton";
+import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 
 const ArtistHeader = styled.div`
     padding: 60px 24px 24px;
@@ -126,23 +128,6 @@ const TrackItem = styled.div`
     }
 `;
 
-const PlayButton = styled.button`
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: ${({ theme }) => theme.colors.primary};
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.text};
-
-    &:hover {
-        transform: scale(1.1);
-    }
-`;
-
 const AddToPlaylistButton = styled.button`
     opacity: 0;
     background: transparent;
@@ -177,6 +162,7 @@ export default function ArtistPage({ params }) {
     const router = useRouter();
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { handlePlay, isCurrentTrack, isPlaying: useTrackPlaybackPlaying } = useTrackPlayback();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -251,14 +237,8 @@ export default function ArtistPage({ params }) {
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
 
-    const handlePlay = (track) => {
-        // On définit la liste complète des pistes comme queue
-        dispatch(setQueue(tracks));
-        // On trouve l'index de la piste sélectionnée
-        const trackIndex = tracks.findIndex((t) => t.id === track.id);
-        dispatch(setCurrentTrackIndex(trackIndex));
-        dispatch(setCurrentTrack(track));
-        dispatch(setIsPlaying(true));
+    const handleTrackPlay = (track, index) => {
+        handlePlay(track, { tracks, index });
     };
 
     if (loading) {
@@ -306,13 +286,11 @@ export default function ArtistPage({ params }) {
                         <TrackItem key={track._id || track.id}>
                             <span className="track-number">{index + 1}</span>
                             <div className="track-play">
-                                <PlayButton onClick={() => handlePlay(track)}>
-                                    {currentTrack?.id === track.id && isPlaying ? (
-                                        <Pause size={12} />
-                                    ) : (
-                                        <Play size={12} />
-                                    )}
-                                </PlayButton>
+                                <PlayButton 
+                                    onClick={() => handleTrackPlay(track, index)}
+                                    isPlaying={isCurrentTrack(track) && useTrackPlaybackPlaying}
+                                    size="small"
+                                />
                             </div>
                             <div className="track-title">
                                 <div className="title-text">
