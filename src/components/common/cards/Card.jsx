@@ -2,8 +2,7 @@ import React, { memo, useCallback } from "react";
 import PropTypes from "prop-types";
 import Image from "next/image";
 import { CardContainer, ImageWrapper, Content } from "./styles/Card.styles";
-import IconButton from "../buttons/IconButton";
-import { Play } from "react-feather";
+import { PlayButton } from "@/components/common/buttons/PlayButton";
 
 const MemoizedImage = memo(({ src, alt, type }) => (
     <Image
@@ -63,14 +62,10 @@ const Card = memo(({
                 />
                 {onPlay && (
                     <div className="play-button">
-                        <IconButton
-                            variant="primary"
-                            size="large"
+                        <PlayButton
                             onClick={handlePlayClick}
-                            title={isPlaying ? "En lecture" : "Lecture"}
-                        >
-                            <Play />
-                        </IconButton>
+                            isPlaying={isPlaying}
+                        />
                     </div>
                 )}
             </ImageWrapper>

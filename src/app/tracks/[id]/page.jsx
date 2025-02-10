@@ -12,6 +12,7 @@ import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
 import { getAudioInstance } from "@/utils/audioInstance";
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
+import { PlayButton } from "@/components/common/buttons/PlayButton";
 
 const Container = styled.div`
     padding: 60px 24px 24px;
@@ -69,26 +70,6 @@ const TrackInfo = styled.div`
             content: "•";
             margin: 0 8px;
         }
-    }
-`;
-
-const PlayButton = styled.button`
-    background: ${({ theme }) => theme.colors.primary};
-    border: none;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.text};
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 16px rgba(0,0,0,.3);
-
-    &:hover {
-        transform: scale(1.06);
-        background: ${({ theme }) => theme.colors.primaryHover};
     }
 `;
 
@@ -268,15 +249,12 @@ export default function TrackPage({ params }) {
                         <span>{formatDuration(track.duration || 0)}</span>
                     </div>
                     <ActionButtons>
-                        <PlayButton onClick={handlePlay}>
-                            {currentTrack?.id === track.id && isPlaying ? (
-                                <Pause size={24} />
-                            ) : (
-                                <Play size={24} />
-                            )}
-                        </PlayButton>
+                        <PlayButton 
+                            onClick={handlePlay}
+                            isPlaying={currentTrack?.id === track.id && isPlaying}
+                        />
                         <AddToPlaylistButton onClick={() => setIsModalOpen(true)}>
-                            <Plus size={24} />
+                            <Plus size={20} />
                         </AddToPlaylistButton>
                     </ActionButtons>
                 </TrackInfo>

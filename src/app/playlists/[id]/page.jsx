@@ -12,6 +12,8 @@ import { musicApi } from "../../../services/musicApi";
 import { formatTime } from '@/utils/formatTime';
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
+import { useTrackPlayback } from "@/hooks/useTrackPlayback";
+import { PlayButton } from "@/components/common/buttons/PlayButton";
 
 const Container = styled.div`
     padding: 0;
@@ -216,31 +218,6 @@ const ControlsContainer = styled.div`
     margin-top: 24px;
 `;
 
-const PlayButton = styled.button`
-    background: ${({ theme }) => theme.colors.primary};
-    border: none;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.text};
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 16px rgba(0,0,0,.3);
-
-    &:hover {
-        transform: scale(1.06);
-        background: ${({ theme }) => theme.colors.primaryHover};
-    }
-
-    svg {
-        width: 24px;
-        height: 24px;
-    }
-`;
-
 const IconButton = styled.button`
     display: flex;
     align-items: center;
@@ -290,23 +267,6 @@ const AddToPlaylistButton = styled.button`
     }
 `;
 
-const SmallPlayButton = styled.button`
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: ${({ theme }) => theme.colors.primary};
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.text};
-
-    &:hover {
-        transform: scale(1.1);
-    }
-`;
-
 const ActionButton = styled.button`
     opacity: 0;
     background: transparent;
@@ -331,7 +291,6 @@ const ActionButton = styled.button`
 
 export default function PlaylistPage() {
     const dispatch = useDispatch();
-    const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [playlist, setPlaylist] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [error, setError] = useState(null);
@@ -340,6 +299,7 @@ export default function PlaylistPage() {
     const params = useParams();
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -360,32 +320,13 @@ export default function PlaylistPage() {
         fetchData();
     }, [params.id]);
 
-    const handlePlay = (track, index) => {
-        const transformedTrack = {
-            ...track,
-            id: track._id,
-            coverUrl: track?.albumId?.coverImage?.medium || track?.albumId?.coverImage?.large || track?.albumId?.coverImage?.thumbnail || DEFAULT_IMAGE,
-            artist: track?.artistId?.name || "Artiste inconnu",
-            audioUrl: track.audioUrl
-        };
-
-        const transformedTracks = tracks.map(t => ({
-            ...t,
-            id: t._id,
-            coverUrl: t?.albumId?.coverImage?.medium || t?.albumId?.coverImage?.large || t?.albumId?.coverImage?.thumbnail || DEFAULT_IMAGE,
-            artist: t?.artistId?.name || "Artiste inconnu",
-            audioUrl: t.audioUrl
-        }));
-
-        dispatch(setQueue(transformedTracks));
-        dispatch(setCurrentTrackIndex(index));
-        dispatch(setCurrentTrack(transformedTrack));
-        dispatch(setIsPlaying(true));
+    const handleTrackPlay = (track, index) => {
+        handlePlay(track, { tracks, index });
     };
 
     const handleMainPlay = () => {
         if (tracks.length > 0) {
-            handlePlay(tracks[0], 0);
+            handleTrackPlay(tracks[0], 0);
         }
     };
 
@@ -482,13 +423,10 @@ export default function PlaylistPage() {
                         <span>{formatTime(playlist?.totalDuration)}</span>
                     </div>
                     <ControlsContainer>
-                        <PlayButton onClick={handleMainPlay}>
-                            {isPlaying && currentTrack && tracks.length > 0 && tracks[0]._id === currentTrack._id ? (
-                                <Pause size={24} />
-                            ) : (
-                                <Play size={24} />
-                            )}
-                        </PlayButton>
+                        <PlayButton 
+                            onClick={handleMainPlay}
+                            isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
+                        />
                         <IconButton onClick={toggleVisibility}>
                             {playlist?.isPublic ? <Globe /> : <Lock />}
                         </IconButton>
@@ -514,13 +452,11 @@ export default function PlaylistPage() {
                         <TrackItem key={track._id}>
                             <span className="track-number">{index + 1}</span>
                             <div className="track-play">
-                                <SmallPlayButton onClick={() => handlePlay(track, index)}>
-                                    {currentTrack?.id === track._id && isPlaying ? (
-                                        <Pause size={12} />
-                                    ) : (
-                                        <Play size={12} />
-                                    )}
-                                </SmallPlayButton>
+                                <PlayButton 
+                                    onClick={() => handleTrackPlay(track, index)}
+                                    isPlaying={isCurrentTrack(track) && isPlaying}
+                                    size="small"
+                                />
                             </div>
                             <div className="track-title">
                                 <div className="title-text">

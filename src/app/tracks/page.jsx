@@ -11,6 +11,7 @@ import Pagination from "@components/common/Pagination";
 import { useRouter } from "next/navigation";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { getAudioInstance } from "@/utils/audioInstance";
+import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
@@ -43,8 +44,7 @@ export default function TracksPage() {
     const [page, setPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [currentTrack, setCurrentTrack] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
 
     const loadTracks = async (pageNumber) => {
         try {
@@ -85,37 +85,8 @@ export default function TracksPage() {
         }
     };
 
-    const handlePlay = async (track) => {
-        if (!track) return;
-
-        const audio = getAudioInstance();
-        if (!audio) return;
-
-        // Formater les données de la piste pour le player
-        const trackData = {
-            ...track,
-            artist: track.artist || "Artiste inconnu",
-        };
-
-        if (currentTrack?.id === track.id) {
-            if (isPlaying) {
-                audio.pause();
-            } else {
-                await audio.play();
-            }
-            dispatch(setIsPlaying(!isPlaying));
-            return;
-        }
-
-        // Nouvelle piste
-        audio.src = track.audioUrl;
-        dispatch(setCurrentTrack(trackData));
-        try {
-            await audio.play();
-            dispatch(setIsPlaying(true));
-        } catch (error) {
-            console.error("Erreur lors de la lecture:", error);
-        }
+    const handleTrackPlay = (track) => {
+        handlePlay(track, { tracks, index: tracks.findIndex(t => t.id === track.id || t._id === track._id) });
     };
 
     if (loading && tracks.length === 0) {
@@ -152,10 +123,10 @@ export default function TracksPage() {
                         title={track.title}
                         subtitle={track.artist}
                         imageUrl={track.coverUrl || DEFAULT_IMAGE}
-                        type="album"
+                        type="track"
                         onClick={() => router.push(`/tracks/${track.id}`)}
-                        onPlay={() => handlePlay(track)}
-                        isPlaying={currentTrack?.id === track.id && isPlaying}
+                        onPlay={() => handleTrackPlay(track)}
+                        isPlaying={isCurrentTrack(track) && isPlaying}
                     />
                 ))}
             </Grid>
