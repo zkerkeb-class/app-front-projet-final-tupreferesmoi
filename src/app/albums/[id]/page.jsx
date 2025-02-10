@@ -18,6 +18,7 @@ import { DEFAULT_IMAGE } from "../../../features/player/constants";
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
+import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
 
 const AlbumHeader = styled.div`
     padding: 60px 24px 24px;
@@ -319,12 +320,11 @@ export default function AlbumPage({ params }) {
                                 minutes
                             </span>
                         </div>
-                        <ControlsContainer>
-                            <PlayButton 
-                                onClick={handleMainPlay}
-                                isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
-                            />
-                        </ControlsContainer>
+                        <PlaybackControls 
+                            onPlay={handleMainPlay}
+                            isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
+                            hasMultipleTracks={tracks.length > 1}
+                        />
                     </AlbumInfo>
                 </AlbumHeader>
 

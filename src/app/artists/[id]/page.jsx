@@ -17,6 +17,7 @@ import Link from "next/link";
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
+import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
 
 const ArtistHeader = styled.div`
     padding: 60px 24px 24px;
@@ -241,6 +242,12 @@ export default function ArtistPage({ params }) {
         handlePlay(track, { tracks, index });
     };
 
+    const handleMainPlay = () => {
+        if (tracks.length > 0) {
+            handleTrackPlay(tracks[0], 0);
+        }
+    };
+
     if (loading) {
         return <div style={{ padding: "24px" }}>Chargement...</div>;
     }
@@ -276,6 +283,11 @@ export default function ArtistPage({ params }) {
                     <p>Artiste vérifié</p>
                     <h1>{artist.name}</h1>
                     <p>{tracks.length} titres</p>
+                    <PlaybackControls 
+                        onPlay={handleMainPlay}
+                        isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
+                        hasMultipleTracks={tracks.length > 1}
+                    />
                 </ArtistInfo>
             </ArtistHeader>
 

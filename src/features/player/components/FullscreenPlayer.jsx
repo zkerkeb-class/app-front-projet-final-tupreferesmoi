@@ -1,10 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { Minimize } from "react-feather";
-import {
-    FullscreenContainer,
-    MinimizeButton,
-} from "../styles/fullscreenPlayer.styles";
+import { FullscreenContainer } from "../styles/fullscreenPlayer.styles";
 import { PlaybackControls } from "./PlaybackControls";
 import { VolumeControl } from "./VolumeControl";
 import { DEFAULT_IMAGE } from "../constants";
@@ -17,6 +13,13 @@ export const FullscreenPlayer = ({
     playerProps,
     volumeProps,
 }) => {
+    // On passe la fonction onToggleFullscreen aux contrôles
+    const playerPropsWithFullscreen = {
+        ...playerProps,
+        onToggleFullscreen,
+        isFullscreen: true // Pour indiquer qu'on est en mode plein écran
+    };
+
     return (
         <FullscreenContainer
             onMouseMove={onMouseMove}
@@ -29,13 +32,6 @@ export const FullscreenPlayer = ({
                 fill
                 priority
             />
-
-            <MinimizeButton
-                onClick={onToggleFullscreen}
-                $visible={showControls}
-            >
-                <Minimize />
-            </MinimizeButton>
 
             <div className="main-content">
                 <div className="content">
@@ -55,7 +51,7 @@ export const FullscreenPlayer = ({
 
             <div className="player-section">
                 <div className="controls-wrapper">
-                    <PlaybackControls {...playerProps} />
+                    <PlaybackControls {...playerPropsWithFullscreen} />
                 </div>
                 <VolumeControl {...volumeProps} />
             </div>

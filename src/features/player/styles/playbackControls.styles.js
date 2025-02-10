@@ -27,6 +27,12 @@ export const ControlsContainer = styled.div`
         min-width: 200px;
         width: 100%;
 
+        .main-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
         button {
             display: flex;
             align-items: center;
@@ -50,7 +56,7 @@ export const ControlsContainer = styled.div`
                 transform: scale(1.06);
             }
 
-            &.active {
+            &[data-active="true"] {
                 color: ${({ theme }) => theme.colors.primary};
             }
 
