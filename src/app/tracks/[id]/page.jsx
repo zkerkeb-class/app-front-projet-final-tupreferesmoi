@@ -14,6 +14,7 @@ import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
 import { getAudioInstance } from "@/utils/audioInstance";
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
+import authService from "@/services/authService";
 
 const Container = styled.div`
     padding: 60px 24px 24px;
@@ -185,6 +186,14 @@ export default function TrackPage({ params }) {
         }
     };
 
+    const handleAddToPlaylist = () => {
+        if (!authService.isAuthenticated()) {
+            router.push('/login');
+            return;
+        }
+        setIsModalOpen(true);
+    };
+
     if (loading) {
         return <Container $isRTL={isRTL}>{t('common.loading')}</Container>;
     }
@@ -255,7 +264,7 @@ export default function TrackPage({ params }) {
                             onClick={handlePlay}
                             isPlaying={currentTrack?.id === track.id && isPlaying}
                         />
-                        <AddToPlaylistButton onClick={() => setIsModalOpen(true)}>
+                        <AddToPlaylistButton onClick={handleAddToPlaylist}>
                             <Plus size={20} />
                         </AddToPlaylistButton>
                     </ActionButtons>

@@ -20,6 +20,7 @@ import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
 import { useTranslation } from "react-i18next";
+import authService from "@/services/authService";
 
 const AlbumHeader = styled.div`
     padding: 60px 24px 24px;
@@ -249,6 +250,15 @@ export default function AlbumPage({ params }) {
         }
     };
 
+    const handleAddToPlaylist = (trackId) => {
+        if (!authService.isAuthenticated()) {
+            router.push('/login');
+            return;
+        }
+        setSelectedTrackId(trackId);
+        setIsModalOpen(true);
+    };
+
     if (loading) {
         return <div style={{ padding: "24px" }}>{t('common.loading')}</div>;
     }
@@ -355,10 +365,7 @@ export default function AlbumPage({ params }) {
                                     {formatDuration(track.duration)}
                                 </span>
                                 <AddToPlaylistButton
-                                    onClick={() => {
-                                        setSelectedTrackId(track._id || track.id);
-                                        setIsModalOpen(true);
-                                    }}
+                                    onClick={() => handleAddToPlaylist(track._id || track.id)}
                                 >
                                     <Plus size={20} />
                                 </AddToPlaylistButton>
