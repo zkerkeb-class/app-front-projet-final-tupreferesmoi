@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { musicApi } from '../../../services/musicApi';
 import SearchResults from './SearchResults';
 import { FiSearch } from 'react-icons/fi';
@@ -34,6 +35,10 @@ const SearchIcon = styled.div`
     transform: translateY(-50%);
     transition: all 0.2s ease;
     color: ${props => props.$isFocused ? '#fff' : '#9ca3af'};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 18px;
 `;
 
 const SearchInput = styled.input`
@@ -93,158 +98,125 @@ const ResultsWrapper = styled.div`
 `;
 
 const SearchBar = React.forwardRef((props, ref) => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const { t } = useTranslation();
+    const [query, setQuery] = useState('');
     const [results, setResults] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
-    const [activeFilter, setActiveFilter] = useState('Tout');
+    const [activeFilter, setActiveFilter] = useState('ALL');
+    const searchTimeout = useRef(null);
     const searchRef = useRef(null);
-    const inputRef = useRef(null);
-    const router = useRouter();
 
-    // Expose the focus method
-    React.useImperativeHandle(ref, () => ({
-        focus: () => {
-            inputRef.current?.focus();
+    const handleSearch = useCallback(async (searchQuery) => {
+        if (!searchQuery.trim()) {
+            setResults(null);
+            return;
         }
-    }));
+
+        setIsLoading(true);
+        try {
+            const response = await musicApi.globalSearch(searchQuery);
+            if (response.success) {
+                setResults(response.data);
+            } else {
+                console.error('Search failed:', response.error);
+                setResults(null);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+            setResults(null);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (searchTimeout.current) {
+            clearTimeout(searchTimeout.current);
+        }
+
+        if (query) {
+            searchTimeout.current = setTimeout(() => {
+                handleSearch(query);
+            }, DEBOUNCE_DELAY);
+        } else {
+            setResults(null);
+        }
+
+        return () => {
+            if (searchTimeout.current) {
+                clearTimeout(searchTimeout.current);
+            }
+        };
+    }, [query, handleSearch]);
 
     // Handle click outside to close results
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
-                setShowResults(false);
                 setIsFocused(false);
-                if (props.onClose) {
-                    props.onClose();
-                }
             }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [props.onClose]);
-
-    // Debounced search function
-    const debouncedSearch = useCallback(
-        (() => {
-            let timeoutId;
-            return (value) => {
-                if (timeoutId) {
-                    clearTimeout(timeoutId);
-                }
-                if (!value.trim()) {
-                    setResults(null);
-                    setIsLoading(false);
-                    return;
-                }
-                setIsLoading(true);
-                timeoutId = setTimeout(async () => {
-                    try {
-                        const response = await musicApi.globalSearch(value, activeFilter);
-                        if (response.success) {
-                            setResults(response.data);
-                            setShowResults(true);
-                        } else {
-                            console.error('Search failed:', response.error);
-                            setResults(null);
-                        }
-                    } catch (error) {
-                        console.error('Search error:', error);
-                        setResults(null);
-                    } finally {
-                        setIsLoading(false);
-                    }
-                }, DEBOUNCE_DELAY);
-            };
-        })(),
-        [activeFilter]
-    );
-
-    // Mettre à jour la recherche quand le filtre change
-    useEffect(() => {
-        if (searchTerm.trim()) {
-            debouncedSearch(searchTerm);
-        }
-    }, [activeFilter, debouncedSearch, searchTerm]);
+    }, []);
 
     const handleInputChange = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
-        if (value.trim()) {
-            debouncedSearch(value);
-        } else {
-            setShowResults(false);
-            setResults(null);
-        }
+        setQuery(e.target.value);
     };
 
-    const handleClearSearch = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setSearchTerm('');
+    const handleClear = () => {
+        setQuery('');
         setResults(null);
-        setShowResults(false);
-        if (props.onClose) {
-            props.onClose();
-        }
+        setActiveFilter('ALL');
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-        }
-    };
-
-    const handleResultClick = useCallback(() => {
-        setShowResults(false);
-        setIsFocused(false);
-    }, []);
-
-    const handleFilterChange = useCallback((filter) => {
+    const handleFilterChange = (filter) => {
         setActiveFilter(filter);
-    }, []);
+    };
+
+    const handleResultClick = () => {
+        setQuery('');
+        setResults(null);
+        setIsFocused(false);
+    };
 
     return (
         <SearchContainer ref={searchRef}>
-            <SearchForm onSubmit={e => e.preventDefault()}>
+            <SearchForm onSubmit={(e) => e.preventDefault()}>
                 <InputWrapper $isFocused={isFocused}>
                     <SearchIcon $isFocused={isFocused}>
                         <FiSearch size={18} />
                     </SearchIcon>
                     <SearchInput
-                        ref={inputRef}
+                        ref={ref}
                         type="text"
-                        value={searchTerm}
+                        value={query}
                         onChange={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        onFocus={() => {
-                            setIsFocused(true);
-                            if (searchTerm.trim()) setShowResults(true);
-                        }}
-                        onBlur={() => setIsFocused(false)}
-                        placeholder="Rechercher des titres, artistes, albums ou playlists..."
-                        spellCheck="false"
+                        onFocus={() => setIsFocused(true)}
+                        placeholder={t('header.searchPlaceholder')}
+                        aria-label={t('header.searchPlaceholder')}
                     />
-                    {searchTerm && (
+                    {query && (
                         <ClearButton
                             type="button"
-                            onClick={handleClearSearch}
+                            onClick={handleClear}
+                            aria-label={t('common.cancel')}
                         >
                             <IoMdClose size={20} />
                         </ClearButton>
                     )}
                 </InputWrapper>
             </SearchForm>
-            {showResults && (
+            {(results || isLoading) && isFocused && (
                 <ResultsWrapper>
                     <SearchResults
                         results={results}
                         isLoading={isLoading}
-                        onResultClick={handleResultClick}
                         activeFilter={activeFilter}
                         onFilterChange={handleFilterChange}
+                        onResultClick={handleResultClick}
                     />
                 </ResultsWrapper>
             )}

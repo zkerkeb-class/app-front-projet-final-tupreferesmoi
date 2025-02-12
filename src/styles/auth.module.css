@@ -79,6 +79,11 @@
     transition: color 0.2s;
 }
 
+[dir="rtl"] .passwordToggle {
+    right: auto;
+    left: 0.75rem;
+}
+
 .passwordToggle:hover {
     color: #fff;
 }

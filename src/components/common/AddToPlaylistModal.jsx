@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Plus, X } from 'react-feather';
 import playlistApi from '@/services/playlistApi';
+import { useTranslation } from 'react-i18next';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -135,8 +136,37 @@ const Input = styled.input`
     }
 `;
 
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+`;
+
+const BackButton = styled.button`
+    flex: 1;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 500px;
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.02);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+`;
+
 const CreateButton = styled.button`
-    width: 100%;
+    flex: 1;
     padding: 14px;
     background: #1db954;
     border: none;
@@ -150,6 +180,11 @@ const CreateButton = styled.button`
     &:hover {
         background: #1ed760;
         transform: scale(1.02);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 `;
 
@@ -177,6 +212,7 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
     const [newPlaylistName, setNewPlaylistName] = useState('');
     const [message, setMessage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { t, i18n } = useTranslation();
 
     useEffect(() => {
         if (isOpen) {
@@ -190,8 +226,8 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
             const response = await playlistApi.getUserPlaylists();
             setPlaylists(Array.isArray(response) ? response : []);
         } catch (error) {
-            console.error('Erreur lors du chargement des playlists:', error);
-            setMessage({ type: 'error', text: 'Erreur lors du chargement des playlists' });
+            console.error(t('addToPlaylistModal.error.loadFailed'), error);
+            setMessage({ type: 'error', text: t('addToPlaylistModal.error.loadFailed') });
             setPlaylists([]);
         }
     };
@@ -201,15 +237,18 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
             setIsLoading(true);
             setMessage(null);
             const response = await playlistApi.addTrackToPlaylist(playlistId, trackId);
-            setMessage({ type: 'success', text: response.message || 'Piste ajoutée avec succès' });
+            setMessage({ 
+                type: 'success', 
+                text: response.message || t('addToPlaylistModal.success.trackAdded')
+            });
             setTimeout(() => {
                 onClose();
             }, 1500);
         } catch (error) {
-            console.error('Erreur lors de l\'ajout à la playlist:', error);
+            console.error(t('addToPlaylistModal.error.addFailed'), error);
             setMessage({ 
                 type: 'error', 
-                text: error.message || 'Erreur lors de l\'ajout à la playlist'
+                text: error.message || t('addToPlaylistModal.error.addFailed')
             });
         } finally {
             setIsLoading(false);
@@ -218,7 +257,7 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
 
     const handleCreatePlaylist = async () => {
         if (!newPlaylistName.trim()) {
-            setMessage({ type: 'error', text: 'Veuillez entrer un nom pour la playlist' });
+            setMessage({ type: 'error', text: t('addToPlaylistModal.error.enterName') });
             return;
         }
 
@@ -232,16 +271,19 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
 
             if (newPlaylist && newPlaylist._id) {
                 const response = await playlistApi.addTrackToPlaylist(newPlaylist._id, trackId);
-                setMessage({ type: 'success', text: response.message || 'Playlist créée et piste ajoutée avec succès' });
+                setMessage({ 
+                    type: 'success', 
+                    text: response.message || t('addToPlaylistModal.success.playlistCreated')
+                });
                 setTimeout(() => {
                     onClose();
                 }, 1500);
             }
         } catch (error) {
-            console.error('Erreur lors de la création de la playlist:', error);
+            console.error(t('addToPlaylistModal.error.createFailed'), error);
             setMessage({ 
                 type: 'error', 
-                text: error.message || 'Erreur lors de la création de la playlist'
+                text: error.message || t('addToPlaylistModal.error.createFailed')
             });
         } finally {
             setIsLoading(false);
@@ -256,7 +298,7 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
                 <CloseButton onClick={onClose} disabled={isLoading}>
                     <X size={24} />
                 </CloseButton>
-                <Title>Ajouter à une playlist</Title>
+                <Title>{t('addToPlaylistModal.title')}</Title>
                 
                 {message && (
                     <Message className={message.type}>
@@ -268,18 +310,30 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
                     <>
                         <Input
                             type="text"
-                            placeholder="Nom de la playlist"
+                            placeholder={t('addToPlaylistModal.newPlaylistName')}
                             value={newPlaylistName}
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             autoFocus
                             disabled={isLoading}
                         />
-                        <CreateButton 
-                            onClick={handleCreatePlaylist}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Création en cours...' : 'Créer et ajouter'}
-                        </CreateButton>
+                        <ButtonContainer>
+                            <BackButton 
+                                onClick={() => {
+                                    setIsCreating(false);
+                                    setNewPlaylistName('');
+                                    setMessage(null);
+                                }}
+                                disabled={isLoading}
+                            >
+                                {t('addToPlaylistModal.back')}
+                            </BackButton>
+                            <CreateButton 
+                                onClick={handleCreatePlaylist}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? t('addToPlaylistModal.creating') : t('addToPlaylistModal.createAndAdd')}
+                            </CreateButton>
+                        </ButtonContainer>
                     </>
                 ) : (
                     <>
@@ -299,7 +353,7 @@ const AddToPlaylistModal = ({ isOpen, onClose, trackId }) => {
                             disabled={isLoading}
                         >
                             <Plus size={24} />
-                            Créer une nouvelle playlist
+                            {t('addToPlaylistModal.createNew')}
                         </CreatePlaylistButton>
                     </>
                 )}

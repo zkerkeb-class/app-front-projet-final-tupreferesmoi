@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "react-feather";
 import { useAuth } from "@features/auth/AuthContext";
+import { useTranslation } from "react-i18next";
 import styles from "@styles/auth.module.css";
 
 export default function LoginPage() {
     const router = useRouter();
     const { login } = useAuth();
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -40,8 +42,7 @@ export default function LoginPage() {
             router.push("/");
         } catch (err) {
             setError(
-                err.response?.data?.message ||
-                    "Une erreur est survenue lors de la connexion"
+                err.response?.data?.message || t('auth.login.error')
             );
         } finally {
             setIsLoading(false);
@@ -51,11 +52,11 @@ export default function LoginPage() {
     return (
         <div className={styles.authContainer}>
             <div className={styles.authCard}>
-                <h1 className={styles.title}>Connexion</h1>
+                <h1 className={styles.title}>{t('auth.login.title')}</h1>
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.inputGroup}>
                         <label htmlFor="email" className={styles.label}>
-                            Adresse e-mail ou nom d&apos;utilisateur
+                            {t('auth.login.emailLabel')}
                         </label>
                         <input
                             type="text"
@@ -70,7 +71,7 @@ export default function LoginPage() {
 
                     <div className={styles.inputGroup}>
                         <label htmlFor="password" className={styles.label}>
-                            Mot de passe
+                            {t('auth.login.passwordLabel')}
                         </label>
                         <div className={styles.passwordInput}>
                             <input
@@ -103,12 +104,12 @@ export default function LoginPage() {
                         className={styles.button}
                         disabled={isLoading}
                     >
-                        {isLoading ? "Connexion en cours..." : "Se connecter"}
+                        {isLoading ? t('auth.login.loadingButton') : t('auth.login.submitButton')}
                     </button>
                 </form>
 
                 <Link href="/register" className={styles.link}>
-                    Pas encore de compte ? S&apos;inscrire
+                    {t('auth.login.noAccount')}
                 </Link>
             </div>
         </div>

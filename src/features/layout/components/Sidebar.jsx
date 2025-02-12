@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { Home, Search, BookOpen, PlusSquare, Heart } from "react-feather";
+import { useTranslation } from "react-i18next";
 import playlistApi from "@/services/playlistApi";
 import { searchBarRef } from "./Header";
 
@@ -207,10 +208,40 @@ const SearchContainer = styled.div`
     padding: ${({ theme }) => theme.spacing.sm};
 `;
 
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 8px;
+    padding: ${({ theme }) => theme.spacing.sm};
+`;
+
+const ActionButton = styled.button`
+    flex: 1;
+    padding: 8px 16px;
+    background: ${({ $primary }) => $primary ? '#1db954' : 'rgba(255, 255, 255, 0.1)'};
+    border: none;
+    border-radius: 500px;
+    color: ${({ $primary }) => $primary ? '#000' : '#fff'};
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: ${({ $primary }) => $primary ? '#1ed760' : 'rgba(255, 255, 255, 0.2)'};
+        transform: scale(1.02);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+`;
+
 export default function Sidebar() {
     const [playlists, setPlaylists] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newPlaylistName, setNewPlaylistName] = useState("");
+    const { t } = useTranslation();
 
     useEffect(() => {
         loadPlaylists();
@@ -252,21 +283,20 @@ export default function Sidebar() {
             <NavigationSection>
                 <NavLink href="/">
                     <Home />
-                    Accueil
+                    {t('sidebar.home')}
                 </NavLink>
                 <SearchButton onClick={handleSearchClick}>
                     <Search />
-                    Rechercher
+                    {t('sidebar.search')}
                 </SearchButton>
             </NavigationSection>
 
             <LibrarySection>
-
                 {isCreating ? (
                     <>
                         <Input
                             type="text"
-                            placeholder="Nom de la playlist"
+                            placeholder={t('sidebar.newPlaylistName')}
                             value={newPlaylistName}
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             onKeyPress={(e) => {
@@ -276,25 +306,38 @@ export default function Sidebar() {
                             }}
                             autoFocus
                         />
-                        <CreatePlaylistButton onClick={handleCreatePlaylist}>
-                            Créer
-                        </CreatePlaylistButton>
+                        <ButtonContainer>
+                            <ActionButton
+                                onClick={() => {
+                                    setIsCreating(false);
+                                    setNewPlaylistName('');
+                                }}
+                            >
+                                {t('addToPlaylistModal.back')}
+                            </ActionButton>
+                            <ActionButton
+                                $primary
+                                onClick={handleCreatePlaylist}
+                            >
+                                {t('sidebar.create')}
+                            </ActionButton>
+                        </ButtonContainer>
                     </>
                 ) : (
                     <CreatePlaylistButton onClick={() => setIsCreating(true)}>
                         <PlusSquare size={20} />
-                        Créer une playlist
+                        {t('sidebar.createPlaylist')}
                     </CreatePlaylistButton>
                 )}
 
                 <NavLink href="/playlists">
                     <BookOpen />
-                    Mes playlists
+                    {t('sidebar.myPlaylists')}
                 </NavLink>
 
                 <PlaylistsList>
                     <PlaylistsHeader>
-                        Playlists récentes
+                        {t('sidebar.recentPlaylists')}
                     </PlaylistsHeader>
                     {playlists && playlists.length > 0 ? (
                         playlists.slice(0, 5).map((playlist) => (
@@ -307,7 +350,7 @@ export default function Sidebar() {
                         ))
                     ) : (
                         <div style={{ color: 'rgba(255,255,255,0.5)', padding: '8px', fontSize: '14px' }}>
-                            Aucune playlist
+                            {t('sidebar.noPlaylists')}
                         </div>
                     )}
                 </PlaylistsList>

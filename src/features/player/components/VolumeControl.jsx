@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Volume2, VolumeX } from "react-feather";
+import { useTranslation } from "react-i18next";
 import { VolumeControlContainer } from "../styles/volumeControl.styles";
 import { ProgressBar } from "../../../styles/common/controls";
 import { IconButton } from "../../../components/common";
@@ -11,9 +12,15 @@ export const VolumeControl = ({
     onVolumeChange,
     onToggleMute,
 }) => {
+    const { t } = useTranslation();
+
     return (
         <VolumeControlContainer>
-            <IconButton onClick={onToggleMute} $active={isMuted}>
+            <IconButton 
+                onClick={onToggleMute} 
+                $active={isMuted}
+                title={isMuted ? t('player.unmute') : t('player.mute')}
+            >
                 {isMuted ? <VolumeX /> : <Volume2 />}
             </IconButton>
             <ProgressBar
@@ -23,6 +30,7 @@ export const VolumeControl = ({
                 onChange={onVolumeChange}
                 min={0}
                 max={100}
+                title={t('player.volume')}
             />
         </VolumeControlContainer>
     );

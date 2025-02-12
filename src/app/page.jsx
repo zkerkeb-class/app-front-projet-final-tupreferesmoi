@@ -10,9 +10,11 @@ import { GridLoader } from "@components/common/loaders";
 import { Card } from "@components/common";
 import { Section } from "@components/common/sections/Section";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const Grid = styled.div`
@@ -24,11 +26,13 @@ const Grid = styled.div`
 export default function Home() {
     const dispatch = useDispatch();
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const [isLoading, setIsLoading] = useState(true);
     const [recentTracks, setRecentTracks] = useState([]);
     const [popularArtists, setPopularArtists] = useState([]);
     const [recentAlbums, setRecentAlbums] = useState([]);
     const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
+    const isRTL = i18n.language === 'ar';
 
     useEffect(() => {
         const fetchData = async () => {
@@ -71,14 +75,14 @@ export default function Home() {
 
     if (isLoading) {
         return (
-            <Container>
-                <Section title="Morceaux récents" href="/tracks">
+            <Container $isRTL={isRTL}>
+                <Section title={t('home.recentTracks')} href="/tracks" showAllText={t('common.showAll')}>
                     <GridLoader count={8} />
                 </Section>
-                <Section title="Artistes populaires" href="/artists">
+                <Section title={t('home.popularArtists')} href="/artists" showAllText={t('common.showAll')}>
                     <GridLoader count={6} />
                 </Section>
-                <Section title="Albums récents" href="/albums">
+                <Section title={t('home.recentAlbums')} href="/albums" showAllText={t('common.showAll')}>
                     <GridLoader count={6} />
                 </Section>
             </Container>
@@ -86,8 +90,8 @@ export default function Home() {
     }
 
     return (
-        <Container>
-            <Section title="Morceaux récents" href="/tracks">
+        <Container $isRTL={isRTL}>
+            <Section title={t('home.recentTracks')} href="/tracks" showAllText={t('common.showAll')}>
                 <Grid>
                     {recentTracks.map((track) => (
                         <Card
@@ -104,7 +108,7 @@ export default function Home() {
                 </Grid>
             </Section>
 
-            <Section title="Artistes populaires" href="/artists">
+            <Section title={t('home.popularArtists')} href="/artists" showAllText={t('common.showAll')}>
                 <Grid>
                     {popularArtists.map((artist) => (
                         <Card
@@ -118,7 +122,7 @@ export default function Home() {
                 </Grid>
             </Section>
 
-            <Section title="Albums récents" href="/albums">
+            <Section title={t('home.recentAlbums')} href="/albums" showAllText={t('common.showAll')}>
                 <Grid>
                     {recentAlbums.map((album) => (
                         <Card

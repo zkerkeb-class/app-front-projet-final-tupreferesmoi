@@ -6,6 +6,7 @@ import { Play, Pause, Plus } from "react-feather";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { musicApi } from "@services/musicApi";
 import { useDispatch, useSelector } from "react-redux";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
@@ -16,6 +17,7 @@ import { PlayButton } from "@/components/common/buttons/PlayButton";
 
 const Container = styled.div`
     padding: 60px 24px 24px;
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const TrackHeader = styled.div`
@@ -116,12 +118,14 @@ const AddToPlaylistButton = styled.button`
 
 export default function TrackPage({ params }) {
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [track, setTrack] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const dispatch = useDispatch();
+    const isRTL = i18n.language === 'ar';
 
     useEffect(() => {
         const fetchData = async () => {
@@ -130,25 +134,25 @@ export default function TrackPage({ params }) {
                 setError(null);
 
                 if (!params?.id || params.id === "undefined") {
-                    throw new Error("ID de piste invalide");
+                    throw new Error(t('tracks.error.invalidId'));
                 }
 
                 const response = await musicApi.getTrack(params.id);
                 if (!response?.data) {
-                    throw new Error("Données de piste invalides");
+                    throw new Error(t('tracks.error.invalidData'));
                 }
 
                 setTrack(response.data);
             } catch (error) {
                 console.error("Erreur:", error);
-                setError("Erreur lors de la récupération des données");
+                setError(t('tracks.error.fetchFailed'));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [params?.id]);
+    }, [params?.id, t]);
 
     const handlePlay = async () => {
         if (!track) return;
@@ -156,10 +160,9 @@ export default function TrackPage({ params }) {
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // Formater les données de la piste pour le player
         const trackData = {
             ...track,
-            artist: track.artistId?.name || "Artiste inconnu",
+            artist: track.artistId?.name || t('common.unknownArtist'),
         };
 
         if (currentTrack?.id === track.id) {
@@ -172,7 +175,6 @@ export default function TrackPage({ params }) {
             return;
         }
 
-        // Nouvelle piste
         audio.src = track.audioUrl;
         dispatch(setCurrentTrack(trackData));
         try {
@@ -184,16 +186,16 @@ export default function TrackPage({ params }) {
     };
 
     if (loading) {
-        return <Container>Chargement...</Container>;
+        return <Container $isRTL={isRTL}>{t('common.loading')}</Container>;
     }
 
     if (error) {
         return (
-            <Container>
-                <h2>Erreur</h2>
+            <Container $isRTL={isRTL}>
+                <h2>{t('common.error')}</h2>
                 <p>{error}</p>
                 <button onClick={() => router.push("/")}>
-                    Retour à l&apos;accueil
+                    {t('common.backToHome')}
                 </button>
             </Container>
         );
@@ -201,11 +203,11 @@ export default function TrackPage({ params }) {
 
     if (!track) {
         return (
-            <Container>
-                <h2>Erreur</h2>
-                <p>Piste introuvable</p>
+            <Container $isRTL={isRTL}>
+                <h2>{t('common.error')}</h2>
+                <p>{t('tracks.error.notFound')}</p>
                 <button onClick={() => router.push("/")}>
-                    Retour à l&apos;accueil
+                    {t('common.backToHome')}
                 </button>
             </Container>
         );
@@ -218,12 +220,12 @@ export default function TrackPage({ params }) {
     };
 
     return (
-        <Container>
+        <Container $isRTL={isRTL}>
             <TrackHeader>
                 <CoverArt>
                     <Image
                         src={track.coverUrl || DEFAULT_IMAGE}
-                        alt={track.title || "Titre inconnu"}
+                        alt={track.title || t('common.unknownTitle')}
                         fill
                         sizes="232px"
                         style={{ objectFit: "cover" }}
@@ -232,18 +234,18 @@ export default function TrackPage({ params }) {
                     />
                 </CoverArt>
                 <TrackInfo>
-                    <div className="track-type">Titre</div>
-                    <h1>{track.title || "Titre inconnu"}</h1>
+                    <div className="track-type">{t('tracks.track')}</div>
+                    <h1>{track.title || t('common.unknownTitle')}</h1>
                     <div className="artist">
                         <StyledLink href={`/artists/${track.artistId?._id}`}>
-                            {track.artistId?.name || "Artiste inconnu"}
+                            {track.artistId?.name || t('common.unknownArtist')}
                         </StyledLink>
                     </div>
                     <div className="details">
                         <span>
-                            De l'album{" "}
+                            {t('tracks.fromAlbum')}{" "}
                             <StyledLink href={`/albums/${track.albumId?._id}`}>
-                                {track.albumId?.title || "Album inconnu"}
+                                {track.albumId?.title || t('common.unknownAlbum')}
                             </StyledLink>
                         </span>
                         <span>{formatDuration(track.duration || 0)}</span>

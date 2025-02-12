@@ -15,6 +15,7 @@ import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
     padding: 0;
@@ -297,6 +298,7 @@ const ActionButton = styled.button`
 
 export default function PlaylistPage() {
     const dispatch = useDispatch();
+    const { t, i18n } = useTranslation();
     const [playlist, setPlaylist] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [error, setError] = useState(null);
@@ -306,6 +308,7 @@ export default function PlaylistPage() {
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
+    const isRTL = i18n.language === 'ar';
 
     useEffect(() => {
         const fetchData = async () => {
@@ -316,15 +319,15 @@ export default function PlaylistPage() {
                     setTracks(response.data.tracks);
                 }
             } catch (error) {
-                console.error("Erreur lors de la récupération de la playlist:", error);
-                setError("Erreur lors de la récupération de la playlist");
+                console.error(t('playlists.error.loadFailed'), error);
+                setError(t('playlists.error.loadFailed'));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [params.id]);
+    }, [params.id, t]);
 
     const handleTrackPlay = (track, index) => {
         handlePlay(track, { tracks, index });
@@ -337,7 +340,7 @@ export default function PlaylistPage() {
     };
 
     const handleDeletePlaylist = async () => {
-        if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette playlist ?")) {
+        if (!window.confirm(t('playlists.confirmDelete'))) {
             return;
         }
 
@@ -345,7 +348,7 @@ export default function PlaylistPage() {
             await playlistApi.deletePlaylist(params.id);
             router.push("/playlists");
         } catch (error) {
-            console.error("Erreur lors de la suppression de la playlist:", error);
+            console.error(t('playlists.error.deleteFailed'), error);
         }
     };
 
@@ -364,7 +367,7 @@ export default function PlaylistPage() {
     };
 
     const handleRemoveTrack = async (trackId) => {
-        if (!window.confirm("Êtes-vous sûr de vouloir retirer ce morceau de la playlist ?")) {
+        if (!window.confirm(t('playlists.confirmRemoveTrack'))) {
             return;
         }
 
@@ -376,21 +379,21 @@ export default function PlaylistPage() {
                 setTracks(response.data.tracks);
             }
         } catch (error) {
-            console.error("Erreur lors de la suppression du morceau:", error);
+            console.error(t('playlists.error.updateFailed'), error);
         }
     };
 
     if (loading) {
-        return <Container>Chargement...</Container>;
+        return <Container>{t('common.loading')}</Container>;
     }
 
     if (error) {
         return (
             <Container>
-                <h2>Erreur</h2>
+                <h2>{t('common.error')}</h2>
                 <p>{error}</p>
                 <button onClick={() => router.push("/")}>
-                    Retour à l&apos;accueil
+                    {t('common.backToHome')}
                 </button>
             </Container>
         );
@@ -399,10 +402,10 @@ export default function PlaylistPage() {
     if (!playlist) {
         return (
             <Container>
-                <h2>Erreur</h2>
-                <p>Playlist introuvable</p>
+                <h2>{t('common.error')}</h2>
+                <p>{t('playlists.error.notFound')}</p>
                 <button onClick={() => router.push("/")}>
-                    Retour à l&apos;accueil
+                    {t('common.backToHome')}
                 </button>
             </Container>
         );
@@ -417,16 +420,16 @@ export default function PlaylistPage() {
                 <PlaylistInfo>
                     <div className="playlist-type">
                         {playlist?.isPublic ? <Globe size={14} /> : <Lock size={14} />}
-                        Playlist
+                        {playlist?.isPublic ? t('playlists.visibility.public') : t('playlists.visibility.private')}
                     </div>
                     <h1>{playlist?.name}</h1>
                     <div className="description">{playlist?.description}</div>
                     <div className="details">
                         <span className="username">
-                            {playlist?.userId?.username || "Utilisateur inconnu"}
+                            {playlist?.userId?.username || t('playlists.unknownUser')}
                         </span>
-                        <span>{playlist?.totalTracks} titres</span>
-                        <span>{formatTime(playlist?.totalDuration)}</span>
+                        <span>{t('playlists.trackCount', { count: playlist?.totalTracks || 0 })}</span>
+                        <span>{t('playlists.duration', { minutes: Math.floor((playlist?.totalDuration || 0) / 60) })}</span>
                     </div>
                     <PlaybackControls 
                         onPlay={handleMainPlay}
@@ -447,8 +450,8 @@ export default function PlaylistPage() {
                 <TrackHeader>
                     <div>#</div>
                     <div></div>
-                    <div>TITRE</div>
-                    <div className="duration-header">DURÉE</div>
+                    <div>{t('tracks.track')}</div>
+                    <div className="duration-header">{t('tracks.duration')}</div>
                     <div></div>
                     <div></div>
                 </TrackHeader>
@@ -466,10 +469,10 @@ export default function PlaylistPage() {
                             </div>
                             <div className="track-title">
                                 <div className="title-text">
-                                    <span className="title">{track.title}</span>
+                                    <span className="title">{track.title || t('common.unknownTitle')}</span>
                                     <span className="artist">
                                         <Link href={`/artists/${track.artistId?._id}`}>
-                                            {track.artistId?.name || "Artiste inconnu"}
+                                            {track.artistId?.name || t('common.unknownArtist')}
                                         </Link>
                                     </span>
                                 </div>
@@ -480,12 +483,13 @@ export default function PlaylistPage() {
                                     setSelectedTrackId(track._id);
                                     setIsModalOpen(true);
                                 }}
+                                title={t('track.addToPlaylist')}
                             >
                                 <Plus size={20} />
                             </AddToPlaylistButton>
                             <ActionButton
                                 onClick={() => handleRemoveTrack(track._id)}
-                                title="Retirer de la playlist"
+                                title={t('track.removeFromPlaylist')}
                             >
                                 <Trash2 size={20} />
                             </ActionButton>

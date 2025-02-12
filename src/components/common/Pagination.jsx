@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const PaginationContainer = styled.div`
     display: flex;
@@ -18,9 +21,6 @@ const PageInfo = styled.div`
 `;
 
 const NavigationButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -58,8 +58,10 @@ const Pagination = ({
     totalItems,
     onPreviousPage,
     onNextPage,
-    itemsLabel = "éléments",
+    itemsLabel,
 }) => {
+    const { t } = useTranslation();
+
     return (
         <PaginationContainer>
             <NavigationButton
@@ -70,7 +72,12 @@ const Pagination = ({
                 ‹
             </NavigationButton>
             <PageInfo>
-                Page {currentPage} sur {totalPages} ({totalItems} {itemsLabel})
+                {t('pagination.pageInfo', {
+                    current: currentPage,
+                    total: totalPages,
+                    count: totalItems,
+                    items: itemsLabel
+                })}
             </PageInfo>
             <NavigationButton
                 onClick={onNextPage}

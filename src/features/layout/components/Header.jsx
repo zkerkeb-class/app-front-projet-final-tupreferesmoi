@@ -2,11 +2,13 @@
 
 import React from "react";
 import styled from "styled-components";
-import { Home, Grid, ChevronLeft, ChevronRight } from "react-feather";
+import { Home, Grid, ChevronLeft, ChevronRight, Search } from "react-feather";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import UserMenu from "../../../components/common/UserMenu";
 import SearchBar from "../../../components/common/search/SearchBar";
+import LanguageSelector from "../../../components/common/LanguageSelector";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -18,12 +20,14 @@ const HeaderContainer = styled.header`
     position: sticky;
     top: 0;
     z-index: 100;
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const NavigationSection = styled.div`
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-direction: ${({ $isRTL }) => $isRTL ? 'row-reverse' : 'row'};
 `;
 
 const NavButton = styled.button`
@@ -38,17 +42,18 @@ const NavButton = styled.button`
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    transform: ${({ $isRTL }) => $isRTL ? 'rotate(180deg)' : 'none'};
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.8);
-        transform: scale(1.05);
+        transform: ${({ $isRTL }) => $isRTL ? 'rotate(180deg) scale(1.05)' : 'scale(1.05)'};
     }
 
     &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         &:hover {
-            transform: none;
+            transform: ${({ $isRTL }) => $isRTL ? 'rotate(180deg)' : 'none'};
         }
     }
 `;
@@ -88,18 +93,53 @@ const BrowseButton = styled.button`
     }
 `;
 
+const RightSection = styled(NavigationSection)`
+    gap: 1rem;
+`;
+
+const SearchInput = styled.input`
+    width: 100%;
+    padding: 8px 12px 8px 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 500px;
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 14px;
+
+    &:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    &::placeholder {
+        color: ${({ theme }) => theme.colors.textSecondary};
+    }
+`;
+
+const SearchIcon = styled(Search)`
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: ${({ theme }) => theme.colors.textSecondary};
+    width: 20px;
+    height: 20px;
+`;
+
 export const searchBarRef = React.createRef();
 
 export default function Header() {
     const router = useRouter();
+    const { i18n, t } = useTranslation();
+    const isRTL = i18n.language === 'ar';
 
     return (
-        <HeaderContainer>
-            <NavigationSection>
-                <NavButton onClick={() => router.back()}>
+        <HeaderContainer $isRTL={isRTL}>
+            <NavigationSection $isRTL={isRTL}>
+                <NavButton onClick={() => router.back()} $isRTL={isRTL}>
                     <ChevronLeft size={20} />
                 </NavButton>
-                <NavButton onClick={() => router.forward()}>
+                <NavButton onClick={() => router.forward()} $isRTL={isRTL}>
                     <ChevronRight size={20} />
                 </NavButton>
                 <HomeButton href="/">
@@ -108,15 +148,19 @@ export default function Header() {
             </NavigationSection>
 
             <SearchContainer>
-                <SearchBar ref={searchBarRef} />
+                <SearchBar 
+                    ref={searchBarRef}
+                    placeholder={t('header.searchPlaceholder')}
+                />
             </SearchContainer>
 
-            <NavigationSection>
+            <RightSection $isRTL={isRTL}>
                 <BrowseButton>
                     <Grid size={24} />
                 </BrowseButton>
+                <LanguageSelector />
                 <UserMenu />
-            </NavigationSection>
+            </RightSection>
         </HeaderContainer>
     );
 }

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { musicApi } from "@services/musicApi";
 import { GridLoader } from "@components/common/loaders";
 import { Card } from "@components/common";
@@ -10,6 +11,7 @@ import Pagination from "@components/common/Pagination";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const Header = styled.div`
@@ -32,12 +34,14 @@ const ITEMS_PER_PAGE = 20;
 
 export default function ArtistsPage() {
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const [artists, setArtists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const isRTL = i18n.language === 'ar';
 
     const loadArtists = async (pageNumber) => {
         try {
@@ -48,7 +52,7 @@ export default function ArtistsPage() {
             );
 
             if (!response.success) {
-                throw new Error("Réponse invalide du serveur");
+                throw new Error(t('common.error.invalidResponse'));
             }
 
             setArtists(response.data || []);
@@ -56,7 +60,7 @@ export default function ArtistsPage() {
             setTotalPages(response.pagination?.totalPages || 0);
         } catch (error) {
             console.error("Erreur lors du chargement des artistes:", error);
-            setError("Impossible de charger les artistes");
+            setError(t('artists.error.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -80,9 +84,9 @@ export default function ArtistsPage() {
 
     if (loading && artists.length === 0) {
         return (
-            <Container>
+            <Container $isRTL={isRTL}>
                 <Header>
-                    <h1>Tous les artistes</h1>
+                    <h1>{t('artists.allArtists')}</h1>
                 </Header>
                 <GridLoader count={ITEMS_PER_PAGE} />
             </Container>
@@ -91,9 +95,9 @@ export default function ArtistsPage() {
 
     if (error && artists.length === 0) {
         return (
-            <Container>
+            <Container $isRTL={isRTL}>
                 <Header>
-                    <h1>Tous les artistes</h1>
+                    <h1>{t('artists.allArtists')}</h1>
                 </Header>
                 <p>{error}</p>
             </Container>
@@ -101,9 +105,9 @@ export default function ArtistsPage() {
     }
 
     return (
-        <Container>
+        <Container $isRTL={isRTL}>
             <Header>
-                <h1>Tous les artistes</h1>
+                <h1>{t('artists.allArtists')}</h1>
             </Header>
             <Grid>
                 {artists.map((artist) => (
@@ -123,7 +127,7 @@ export default function ArtistsPage() {
                 totalItems={totalItems}
                 onPreviousPage={handlePreviousPage}
                 onNextPage={handleNextPage}
-                itemsLabel="artistes"
+                itemsLabel={t('artists.artistsLabel')}
             />
         </Container>
     );
