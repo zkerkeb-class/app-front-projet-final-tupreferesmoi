@@ -4,6 +4,94 @@ import React, { useState, useRef, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@features/auth/AuthContext";
+import styled from 'styled-components';
+import { ChevronDown } from 'react-feather';
+
+const Container = styled.div`
+    position: relative;
+    display: inline-block;
+`;
+
+const UserButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 50px;
+    color: ${({ theme }) => theme.colors.text};
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 700;
+    height: 32px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    ${({ $isOpen }) => !$isOpen && `
+        &:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background-color: #282828;
+            color: white;
+            font-size: 0.875rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+    `}
+`;
+
+const Avatar = styled.div`
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #535353;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 0.875rem;
+    font-weight: 700;
+`;
+
+const Menu = styled.div`
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: #282828;
+    border-radius: 4px;
+    padding: 4px;
+    min-width: 180px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+`;
+
+const MenuItem = styled.button`
+    width: 100%;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    color: ${({ theme }) => theme.colors.text};
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.875rem;
+    border-radius: 2px;
+    font-weight: 400;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+`;
 
 const UserMenu = memo(() => {
     const [isOpen, setIsOpen] = useState(false);
@@ -17,119 +105,46 @@ const UserMenu = memo(() => {
         router.refresh();
     }, [logout, router]);
 
-    const toggleMenu = useCallback(() => {
-        setIsOpen(prev => !prev);
+    const handleClickOutside = useCallback((event) => {
+        if (menuRef.current && !menuRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
     }, []);
 
-    const styles = {
-        container: {
-            position: "relative",
-            display: "inline-block",
-        },
-        button: {
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#282828",
-            border: "none",
-            borderRadius: "500px",
-            color: "#fff",
-            cursor: "pointer",
-            fontSize: "0.875rem",
-            fontWeight: "600",
-        },
-        menu: {
-            position: "absolute",
-            top: "100%",
-            right: 0,
-            marginTop: "0.5rem",
-            backgroundColor: "#282828",
-            borderRadius: "4px",
-            padding: "0.5rem",
-            minWidth: "200px",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            zIndex: 1000,
-        },
-        menuItem: {
-            display: "block",
-            padding: "0.75rem 1rem",
-            color: "#fff",
-            textDecoration: "none",
-            borderRadius: "2px",
-            fontSize: "0.875rem",
-            cursor: "pointer",
-        },
-        menuItemHover: {
-            backgroundColor: "#333",
-        },
-        avatar: {
-            width: "24px",
-            height: "24px",
-            borderRadius: "50%",
-            backgroundColor: "#1db954",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontSize: "0.875rem",
-            fontWeight: "600",
-        },
-    };
-
-    // Close menu when clicking outside
     React.useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-
         if (isOpen) {
-            document.addEventListener("mousedown", handleClickOutside);
+            document.addEventListener('mousedown', handleClickOutside);
         }
-
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isOpen]);
+    }, [isOpen, handleClickOutside]);
 
     if (!user) {
         return (
-            <Link href="/login" style={styles.button}>
-                Se connecter
+            <Link href="/login" style={{ textDecoration: 'none' }}>
+                <UserButton data-tooltip="Se connecter">
+                    <Avatar>?</Avatar>
+                </UserButton>
             </Link>
         );
     }
 
     return (
-        <div style={styles.container} ref={menuRef}>
-            <button onClick={toggleMenu} style={styles.button}>
-                <div style={styles.avatar}>
-                    {user.username.charAt(0).toUpperCase()}
-                </div>
-                {user.username}
-            </button>
+        <Container ref={menuRef}>
+            <UserButton onClick={() => setIsOpen(!isOpen)} data-tooltip={user.username} $isOpen={isOpen}>
+                <Avatar>{user.username.charAt(0).toUpperCase()}</Avatar>
+                <ChevronDown size={16} style={{ marginRight: '4px' }} />
+            </UserButton>
 
             {isOpen && (
-                <div style={styles.menu}>
-                    <div
-                        style={styles.menuItem}
-                        onClick={handleLogout}
-                        onMouseEnter={(e) =>
-                            Object.assign(e.target.style, styles.menuItemHover)
-                        }
-                        onMouseLeave={(e) =>
-                            Object.assign(e.target.style, {
-                                backgroundColor: "transparent",
-                            })
-                        }
-                    >
+                <Menu>
+                    <MenuItem onClick={handleLogout}>
                         Se déconnecter
-                    </div>
-                </div>
+                    </MenuItem>
+                </Menu>
             )}
-        </div>
+        </Container>
     );
 });
 

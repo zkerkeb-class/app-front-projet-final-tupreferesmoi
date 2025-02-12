@@ -10,29 +10,56 @@ const Container = styled.div`
 const LanguageButton = styled.button`
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background-color: #282828;
+    gap: 8px;
+    padding: 2px;
+    background-color: rgba(0, 0, 0, 0.3);
     border: none;
-    border-radius: 500px;
-    color: #fff;
+    border-radius: 50px;
+    color: ${({ theme }) => theme.colors.text};
     cursor: pointer;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 700;
+    height: 32px;
+    transition: all 0.2s ease;
 
     &:hover {
-        background-color: #333;
+        background-color: rgba(0, 0, 0, 0.7);
     }
+
+    ${({ $isOpen }) => !$isOpen && `
+        &:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background-color: #282828;
+            color: white;
+            font-size: 0.875rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+    `}
+`;
+
+const LanguageLabel = styled.div`
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 `;
 
 const LanguageMenu = styled.div`
     position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 0.5rem;
+    top: calc(100% + 8px);
+    right: 0;
     background-color: #282828;
     border-radius: 4px;
-    padding: 0.5rem;
+    padding: 4px;
     min-width: 120px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -41,24 +68,25 @@ const LanguageMenu = styled.div`
 
 const LanguageOption = styled.button`
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 8px 12px;
     background: none;
     border: none;
-    color: ${({ $active, theme }) => $active ? theme.colors.primary : '#fff'};
+    color: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.text};
     text-align: left;
     cursor: pointer;
     font-size: 0.875rem;
     border-radius: 2px;
+    font-weight: ${({ $active }) => $active ? '700' : '400'};
 
     &:hover {
-        background-color: #333;
+        background-color: rgba(255, 255, 255, 0.1);
     }
 `;
 
 const languages = [
-    { code: 'fr', label: 'FR' },
-    { code: 'en', label: 'EN' },
-    { code: 'ar', label: 'ع' }
+    { code: 'fr', label: 'FR', fullName: 'Français' },
+    { code: 'en', label: 'EN', fullName: 'English' },
+    { code: 'ar', label: 'ع', fullName: 'العربية' }
 ];
 
 const LanguageSelector = () => {
@@ -91,11 +119,15 @@ const LanguageSelector = () => {
         // La logique de changement de langue sera implémentée plus tard
     };
 
+    const currentLanguage = languages.find(lang => lang.code === selectedLanguage);
+
     return (
         <Container ref={menuRef}>
-            <LanguageButton onClick={toggleMenu}>
-                {languages.find(lang => lang.code === selectedLanguage)?.label}
-                <ChevronDown size={16} />
+            <LanguageButton onClick={toggleMenu} data-tooltip={currentLanguage?.fullName} $isOpen={isOpen}>
+                <LanguageLabel>
+                    {currentLanguage?.label}
+                    <ChevronDown size={16} />
+                </LanguageLabel>
             </LanguageButton>
             <LanguageMenu $isOpen={isOpen}>
                 {languages.map((language) => (
@@ -104,7 +136,7 @@ const LanguageSelector = () => {
                         $active={selectedLanguage === language.code}
                         onClick={() => handleLanguageSelect(language.code)}
                     >
-                        {language.label}
+                        {language.fullName}
                     </LanguageOption>
                 ))}
             </LanguageMenu>
@@ -112,4 +144,4 @@ const LanguageSelector = () => {
     );
 };
 
-export default LanguageSelector; 
+export default LanguageSelector;
