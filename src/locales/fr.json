@@ -1,0 +1,208 @@
+{
+    "common": {
+        "search": "Rechercher",
+        "home": "Accueil",
+        "library": "Bibliothèque",
+        "settings": "Paramètres",
+        "profile": "Profil",
+        "logout": "Se déconnecter",
+        "login": "Se connecter",
+        "register": "S'inscrire",
+        "welcome": "Bienvenue",
+        "error": "Erreur",
+        "loading": "Chargement...",
+        "email": "Adresse e-mail ou nom d'utilisateur",
+        "password": "Mot de passe",
+        "submit": "Envoyer",
+        "cancel": "Annuler",
+        "showAll": "Tout afficher",
+        "backToHome": "Retour à l'accueil",
+        "unknownTitle": "Titre inconnu",
+        "unknownArtist": "Artiste inconnu",
+        "unknownAlbum": "Album inconnu",
+        "error": {
+            "invalidResponse": "Réponse invalide du serveur"
+        }
+    },
+    "pagination": {
+        "pageInfo": "Page {{current}} sur {{total}} ({{count}} {{items}})"
+    },
+    "artists": {
+        "allArtists": "Tous les artistes",
+        "artistsLabel": "artistes",
+        "verified": "Artiste vérifié",
+        "popularTracks": "Titres populaires",
+        "trackCount": "{{count}} titres",
+        "backToList": "Retour à la liste des artistes",
+        "error": {
+            "loadFailed": "Impossible de charger les artistes",
+            "noTracks": "Aucune piste trouvée pour cet artiste"
+        }
+    },
+    "tracks": {
+        "allTracks": "Tous les morceaux",
+        "tracksLabel": "morceaux",
+        "track": "Titre",
+        "fromAlbum": "De l'album",
+        "duration": "Durée",
+        "error": {
+            "loadFailed": "Impossible de charger les morceaux",
+            "invalidId": "ID de piste invalide",
+            "invalidData": "Données de piste invalides",
+            "fetchFailed": "Erreur lors de la récupération des données",
+            "notFound": "Piste introuvable"
+        }
+    },
+    "sidebar": {
+        "home": "Accueil",
+        "search": "Rechercher",
+        "createPlaylist": "Créer une playlist",
+        "myPlaylists": "Mes playlists",
+        "recentPlaylists": "Playlists récentes",
+        "noPlaylists": "Aucune playlist",
+        "newPlaylistName": "Nom de la playlist",
+        "create": "Créer"
+    },
+    "home": {
+        "recentTracks": "Morceaux récents",
+        "popularArtists": "Artistes populaires",
+        "recentAlbums": "Albums récents",
+        "loading": "Chargement en cours..."
+    },
+    "auth": {
+        "login": {
+            "title": "Connexion",
+            "emailLabel": "Adresse e-mail ou nom d'utilisateur",
+            "passwordLabel": "Mot de passe",
+            "submitButton": "Se connecter",
+            "loadingButton": "Connexion en cours...",
+            "noAccount": "Pas encore de compte ? S'inscrire",
+            "error": "Une erreur est survenue lors de la connexion"
+        },
+        "register": {
+            "title": "Inscription",
+            "emailLabel": "Adresse e-mail",
+            "usernameLabel": "Nom d'utilisateur",
+            "passwordLabel": "Mot de passe",
+            "submitButton": "S'inscrire",
+            "loadingButton": "Inscription en cours...",
+            "hasAccount": "Déjà un compte ? Se connecter",
+            "error": "Une erreur est survenue lors de l'inscription",
+            "passwordRequirements": "8 caractères minimum, une lettre et un chiffre ou caractère spécial",
+            "passwordError": "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre ou caractère spécial"
+        }
+    },
+    "player": {
+        "play": "Lecture",
+        "pause": "Pause",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "shuffle": "Aléatoire",
+        "repeat": "Répéter",
+        "volume": "Volume",
+        "queue": "File d'attente",
+        "mute": "Couper le son",
+        "unmute": "Rétablir le son",
+        "fullscreen": "Plein écran",
+        "exitFullscreen": "Quitter le plein écran",
+        "repeatModes": {
+            "normal": "Mode normal",
+            "repeat": "Répéter la liste",
+            "repeatOne": "Répéter le morceau"
+        }
+    },
+    "playlist": {
+        "create": "Créer une playlist",
+        "edit": "Modifier la playlist",
+        "delete": "Supprimer la playlist",
+        "addToPlaylist": "Ajouter à la playlist",
+        "removeFromPlaylist": "Retirer de la playlist"
+    },
+    "track": {
+        "addToQueue": "Ajouter à la file d'attente",
+        "addToPlaylist": "Ajouter à une playlist",
+        "removeFromPlaylist": "Retirer de la playlist",
+        "like": "J'aime",
+        "unlike": "Je n'aime plus"
+    },
+    "albums": {
+        "allAlbums": "Tous les albums",
+        "albumsLabel": "albums",
+        "type": "ALBUM",
+        "trackCount": "{{count}} titres",
+        "duration": "{{minutes}} minutes",
+        "backToList": "Retour à la liste des albums",
+        "error": {
+            "loadFailed": "Impossible de charger les albums",
+            "invalidId": "ID d'album invalide",
+            "invalidData": "Données d'album invalides",
+            "fetchFailed": "Erreur lors de la récupération des données",
+            "notFound": "Album introuvable"
+        }
+    },
+    "playlists": {
+        "myPlaylists": "Mes Playlists",
+        "createNew": "Créer une playlist",
+        "newPlaylistName": "Nom de la playlist",
+        "create": "Créer",
+        "trackCount": "{{count}} titres",
+        "duration": "{{minutes}} minutes",
+        "visibility": {
+            "public": "Public",
+            "private": "Privé"
+        },
+        "error": {
+            "createFailed": "Erreur lors de la création de la playlist",
+            "deleteFailed": "Erreur lors de la suppression de la playlist",
+            "updateFailed": "Erreur lors de la mise à jour de la playlist",
+            "loadFailed": "Erreur lors du chargement de la playlist",
+            "notFound": "Playlist introuvable"
+        },
+        "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette playlist ?",
+        "confirmRemoveTrack": "Êtes-vous sûr de vouloir retirer ce morceau de la playlist ?",
+        "unknownUser": "Utilisateur inconnu"
+    },
+    "addToPlaylistModal": {
+        "title": "Ajouter à une playlist",
+        "newPlaylistName": "Nom de la playlist",
+        "createAndAdd": "Créer et ajouter",
+        "creating": "Création en cours...",
+        "createNew": "Créer une nouvelle playlist",
+        "back": "Retour",
+        "error": {
+            "loadFailed": "Erreur lors du chargement des playlists",
+            "enterName": "Veuillez entrer un nom pour la playlist",
+            "addFailed": "Erreur lors de l'ajout à la playlist",
+            "createFailed": "Erreur lors de la création de la playlist"
+        },
+        "success": {
+            "trackAdded": "Piste ajoutée avec succès",
+            "playlistCreated": "Playlist créée et piste ajoutée avec succès"
+        }
+    },
+    "header": {
+        "searchPlaceholder": "Rechercher des titres, artistes, albums ou playlists"
+    },
+    "search": {
+        "filters": {
+            "all": "Tout",
+            "tracks": "Titres",
+            "artists": "Artistes",
+            "albums": "Albums",
+            "playlists": "Playlists"
+        },
+        "sections": {
+            "tracks": "Titres",
+            "artists": "Artistes",
+            "albums": "Albums",
+            "playlists": "Playlists"
+        },
+        "labels": {
+            "artist": "Artiste",
+            "album": "Album",
+            "playlist": "Playlist"
+        },
+        "noResults": "Aucun résultat trouvé",
+        "noResultsIn": "dans {{filter}}"
+    }
+} 
