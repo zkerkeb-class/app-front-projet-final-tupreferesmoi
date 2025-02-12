@@ -7,6 +7,8 @@ import { Home, Search, BookOpen, PlusSquare, Heart } from "react-feather";
 import { useTranslation } from "react-i18next";
 import playlistApi from "@/services/playlistApi";
 import { searchBarRef } from "./Header";
+import { useRouter } from "next/navigation";
+import authService from "@/services/authService";
 
 const SidebarContainer = styled.aside`
     background-color: ${({ theme }) => theme.colors.background};
@@ -237,17 +239,74 @@ const ActionButton = styled.button`
     }
 `;
 
+const NavButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: ${({ theme }) => theme.spacing.md};
+    color: ${({ theme }) => theme.colors.textSecondary};
+    text-decoration: none;
+    padding: ${({ theme }) => theme.spacing.sm};
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+        color: ${({ theme }) => theme.colors.text};
+    }
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+`;
+
 export default function Sidebar() {
     const [playlists, setPlaylists] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newPlaylistName, setNewPlaylistName] = useState("");
     const { t } = useTranslation();
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-        loadPlaylists();
+        // Vérifier l'état d'authentification
+        const checkAuth = () => {
+            const isAuth = authService.isAuthenticated();
+            setIsAuthenticated(isAuth);
+            if (isAuth) {
+                loadPlaylists();
+            } else {
+                setPlaylists([]);
+            }
+        };
+
+        // Vérifier au montage du composant
+        checkAuth();
+
+        // Ajouter un écouteur d'événements pour le stockage local
+        const handleStorageChange = (e) => {
+            if (e.key === 'token' || e.key === 'user') {
+                checkAuth();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        document.addEventListener('auth-change', checkAuth);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            document.removeEventListener('auth-change', checkAuth);
+        };
     }, []);
 
     const loadPlaylists = async () => {
+        if (!authService.isAuthenticated()) return;
+        
         try {
             const response = await playlistApi.getUserPlaylists();
             setPlaylists(response);
@@ -256,7 +315,20 @@ export default function Sidebar() {
         }
     };
 
+    const handleCreatePlaylistClick = () => {
+        if (!authService.isAuthenticated()) {
+            router.push('/login');
+            return;
+        }
+        setIsCreating(true);
+    };
+
     const handleCreatePlaylist = async () => {
+        if (!authService.isAuthenticated()) {
+            router.push('/login');
+            return;
+        }
+
         if (!newPlaylistName.trim()) return;
 
         try {
@@ -274,6 +346,14 @@ export default function Sidebar() {
 
     const handleSearchClick = () => {
         searchBarRef.current?.focus();
+    };
+
+    const handlePlaylistsClick = () => {
+        if (!authService.isAuthenticated()) {
+            router.push('/login');
+            return;
+        }
+        router.push('/playlists');
     };
 
     return (
@@ -324,16 +404,16 @@ export default function Sidebar() {
                         </ButtonContainer>
                     </>
                 ) : (
-                    <CreatePlaylistButton onClick={() => setIsCreating(true)}>
+                    <CreatePlaylistButton onClick={handleCreatePlaylistClick}>
                         <PlusSquare size={20} />
                         {t('sidebar.createPlaylist')}
                     </CreatePlaylistButton>
                 )}
 
-                <NavLink href="/playlists">
+                <NavButton onClick={handlePlaylistsClick}>
                     <BookOpen />
                     {t('sidebar.myPlaylists')}
-                </NavLink>
+                </NavButton>
 
                 <PlaylistsList>
                     <PlaylistsHeader>

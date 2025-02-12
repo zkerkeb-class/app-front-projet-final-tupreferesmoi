@@ -37,6 +37,7 @@ const authService = {
             if (data.token) {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data));
+                document.dispatchEvent(new Event('auth-change'));
             }
             return data;
         } catch (error) {
@@ -54,6 +55,7 @@ const authService = {
             if (data.token) {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data));
+                document.dispatchEvent(new Event('auth-change'));
             }
             return data;
         } catch (error) {
@@ -64,6 +66,7 @@ const authService = {
     logout() {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        document.dispatchEvent(new Event('auth-change'));
     },
 
     getCurrentUser() {
