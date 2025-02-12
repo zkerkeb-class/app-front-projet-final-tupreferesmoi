@@ -6,9 +6,11 @@ import Link from "next/link";
 import { Plus, Music, Trash2 } from "react-feather";
 import { useRouter } from "next/navigation";
 import playlistApi from "@/services/playlistApi";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
     padding: 60px 24px 24px;
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const Header = styled.div`
@@ -82,6 +84,7 @@ const PlaylistCard = styled.div`
     border-radius: 8px;
     transition: all 0.3s ease;
     cursor: pointer;
+    padding: 16px;
 
     &:hover {
         background: ${({ theme }) => theme.colors.surfaceHover};
@@ -97,7 +100,6 @@ const PlaylistLink = styled(Link)`
     text-decoration: none;
     color: inherit;
     display: block;
-    padding: 16px;
 `;
 
 const IconContainer = styled.div`
@@ -139,14 +141,15 @@ const PlaylistInfo = styled.div`
 
 const VisibilityBadge = styled.div`
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 24px;
+    right: 24px;
     font-size: 12px;
     color: ${({ theme }) => theme.colors.textSecondary};
     background: ${({ theme }) => theme.colors.background};
-    padding: 4px 8px;
+    padding: 4px 12px;
     border-radius: 12px;
     opacity: 0.8;
+    z-index: 1;
 `;
 
 const DeleteButton = styled.button`
@@ -175,10 +178,12 @@ const DeleteButton = styled.button`
 
 export default function PlaylistsPage() {
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [newPlaylistName, setNewPlaylistName] = useState("");
+    const isRTL = i18n.language === 'ar';
 
     const fetchPlaylists = async () => {
         try {
@@ -211,7 +216,7 @@ export default function PlaylistsPage() {
             setIsCreating(false);
             await fetchPlaylists();
         } catch (error) {
-            console.error("Erreur lors de la création de la playlist:", error);
+            console.error(t('playlists.error.createFailed'), error);
         }
     };
 
@@ -231,19 +236,19 @@ export default function PlaylistsPage() {
     };
 
     if (loading) {
-        return <Container>Chargement...</Container>;
+        return <Container $isRTL={isRTL}>{t('common.loading')}</Container>;
     }
 
     return (
-        <Container>
+        <Container $isRTL={isRTL}>
             <Header>
-                <h1>Mes Playlists</h1>
+                <h1>{t('playlists.myPlaylists')}</h1>
                 <CreateSection>
                     {isCreating ? (
                         <>
                             <Input
                                 type="text"
-                                placeholder="Nom de la playlist"
+                                placeholder={t('playlists.newPlaylistName')}
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
                                 onKeyPress={(e) => {
@@ -254,13 +259,13 @@ export default function PlaylistsPage() {
                                 autoFocus
                             />
                             <CreateButton onClick={handleCreatePlaylist}>
-                                Créer
+                                {t('playlists.create')}
                             </CreateButton>
                         </>
                     ) : (
                         <CreateButton onClick={() => setIsCreating(true)}>
                             <Plus size={20} />
-                            Créer une playlist
+                            {t('playlists.createNew')}
                         </CreateButton>
                     )}
                 </CreateSection>
@@ -269,17 +274,17 @@ export default function PlaylistsPage() {
             <PlaylistGrid>
                 {playlists.map((playlist) => (
                     <PlaylistCard key={playlist._id}>
+                        <VisibilityBadge>
+                            {playlist.isPublic ? t('playlists.visibility.public') : t('playlists.visibility.private')}
+                        </VisibilityBadge>
                         <PlaylistLink href={`/playlists/${playlist._id}`}>
                             <IconContainer className="icon-container">
                                 <Music />
                             </IconContainer>
                             <PlaylistInfo>
                                 <h3>{playlist.name}</h3>
-                                <p>{playlist.tracks?.length || 0} titres</p>
+                                <p>{t('playlists.trackCount', { count: playlist.tracks?.length || 0 })}</p>
                             </PlaylistInfo>
-                            <VisibilityBadge>
-                                {playlist.isPublic ? 'Public' : 'Privé'}
-                            </VisibilityBadge>
                         </PlaylistLink>
                     </PlaylistCard>
                 ))}

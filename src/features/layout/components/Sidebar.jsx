@@ -208,6 +208,35 @@ const SearchContainer = styled.div`
     padding: ${({ theme }) => theme.spacing.sm};
 `;
 
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 8px;
+    padding: ${({ theme }) => theme.spacing.sm};
+`;
+
+const ActionButton = styled.button`
+    flex: 1;
+    padding: 8px 16px;
+    background: ${({ $primary }) => $primary ? '#1db954' : 'rgba(255, 255, 255, 0.1)'};
+    border: none;
+    border-radius: 500px;
+    color: ${({ $primary }) => $primary ? '#000' : '#fff'};
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: ${({ $primary }) => $primary ? '#1ed760' : 'rgba(255, 255, 255, 0.2)'};
+        transform: scale(1.02);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+`;
+
 export default function Sidebar() {
     const [playlists, setPlaylists] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
@@ -277,9 +306,22 @@ export default function Sidebar() {
                             }}
                             autoFocus
                         />
-                        <CreatePlaylistButton onClick={handleCreatePlaylist}>
-                            {t('sidebar.create')}
-                        </CreatePlaylistButton>
+                        <ButtonContainer>
+                            <ActionButton
+                                onClick={() => {
+                                    setIsCreating(false);
+                                    setNewPlaylistName('');
+                                }}
+                            >
+                                {t('addToPlaylistModal.back')}
+                            </ActionButton>
+                            <ActionButton
+                                $primary
+                                onClick={handleCreatePlaylist}
+                            >
+                                {t('sidebar.create')}
+                            </ActionButton>
+                        </ButtonContainer>
                     </>
                 ) : (
                     <CreatePlaylistButton onClick={() => setIsCreating(true)}>

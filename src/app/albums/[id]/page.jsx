@@ -19,6 +19,7 @@ import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
+import { useTranslation } from "react-i18next";
 
 const AlbumHeader = styled.div`
     padding: 60px 24px 24px;
@@ -185,6 +186,7 @@ const ControlsContainer = styled.div`
 
 export default function AlbumPage({ params }) {
     const dispatch = useDispatch();
+    const { t, i18n } = useTranslation();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [album, setAlbum] = useState(null);
     const [tracks, setTracks] = useState([]);
@@ -193,7 +195,8 @@ export default function AlbumPage({ params }) {
     const router = useRouter();
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { handlePlay, isCurrentTrack } = useTrackPlayback();
+    const { handlePlay, isCurrentTrack, isPlaying: useTrackPlaybackPlaying } = useTrackPlayback();
+    const isRTL = i18n.language === 'ar';
 
     useEffect(() => {
         const fetchData = async () => {
@@ -202,36 +205,33 @@ export default function AlbumPage({ params }) {
                 setError(null);
 
                 if (!params?.id || params.id === "undefined") {
-                    throw new Error("ID d'album invalide");
+                    throw new Error(t('albums.error.invalidId'));
                 }
 
-                // Récupération de l'album et des pistes
                 const [albumResponse, tracksResponse] = await Promise.all([
                     musicApi.getAlbum(params.id),
                     musicApi.getAlbumTracks(params.id),
                 ]);
 
-                // Vérification simplifiée
                 if (!albumResponse?.data || !tracksResponse?.data) {
-                    throw new Error("Données invalides");
+                    throw new Error(t('albums.error.invalidData'));
                 }
 
                 const albumData = albumResponse.data;
                 const tracksData = tracksResponse.data.tracks || [];
 
-
                 setAlbum(albumData);
                 setTracks(tracksData);
             } catch (error) {
                 console.error("Erreur:", error);
-                setError("Erreur lors de la récupération des données");
+                setError(t('albums.error.fetchFailed'));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [params.id]);
+    }, [params.id, t]);
 
     const formatDuration = (seconds) => {
         const minutes = Math.floor(seconds / 60);
@@ -250,16 +250,16 @@ export default function AlbumPage({ params }) {
     };
 
     if (loading) {
-        return <div style={{ padding: "24px" }}>Chargement...</div>;
+        return <div style={{ padding: "24px" }}>{t('common.loading')}</div>;
     }
 
     if (error) {
         return (
             <div style={{ padding: "24px" }}>
-                <h2>Erreur</h2>
+                <h2>{t('common.error')}</h2>
                 <p>{error}</p>
                 <button onClick={() => router.push("/albums")}>
-                    Retour à la liste des albums
+                    {t('albums.backToList')}
                 </button>
             </div>
         );
@@ -268,10 +268,10 @@ export default function AlbumPage({ params }) {
     if (!album) {
         return (
             <div style={{ padding: "24px" }}>
-                <h2>Erreur</h2>
-                <p>Album introuvable</p>
+                <h2>{t('common.error')}</h2>
+                <p>{t('albums.error.notFound')}</p>
                 <button onClick={() => router.push("/albums")}>
-                    Retour à la liste des albums
+                    {t('albums.backToList')}
                 </button>
             </div>
         );
@@ -284,7 +284,7 @@ export default function AlbumPage({ params }) {
                     <AlbumCover>
                         <Image
                             src={album?.coverImage?.large || DEFAULT_IMAGE}
-                            alt={album.title}
+                            alt={album.title || t('common.unknownTitle')}
                             fill
                             style={{ objectFit: "cover" }}
                             unoptimized={true}
@@ -292,12 +292,12 @@ export default function AlbumPage({ params }) {
                     </AlbumCover>
                     <AlbumInfo>
                         <div className="album-type">
-                            {album?.type?.toUpperCase() || "ALBUM"}
+                            {album?.type?.toUpperCase() || t('albums.type')}
                         </div>
-                        <h1>{album?.title || "Album inconnu"}</h1>
+                        <h1>{album?.title || t('common.unknownTitle')}</h1>
                         <div className="artist">
                             <Link href={`/artists/${album?.artistId?._id}`}>
-                                {album?.artistId?.name || "Artiste inconnu"}
+                                {album?.artistId?.name || t('common.unknownArtist')}
                             </Link>
                         </div>
                         <div className="details">
@@ -306,18 +306,19 @@ export default function AlbumPage({ params }) {
                                     ? new Date(album.releaseDate).getFullYear()
                                     : ""}
                             </span>
-                            <span>{tracks?.length || 0} titres</span>
+                            <span>{t('albums.trackCount', { count: tracks?.length || 0 })}</span>
                             <span>
-                                {tracks?.length
-                                    ? Math.floor(
-                                          tracks.reduce(
-                                              (acc, track) =>
-                                                  acc + (track.duration || 0),
-                                              0
-                                          ) / 60
-                                      )
-                                    : 0}{" "}
-                                minutes
+                                {t('albums.duration', {
+                                    minutes: tracks?.length
+                                        ? Math.floor(
+                                              tracks.reduce(
+                                                  (acc, track) =>
+                                                      acc + (track.duration || 0),
+                                                  0
+                                              ) / 60
+                                          )
+                                        : 0
+                                })}
                             </span>
                         </div>
                         <PlaybackControls 
@@ -342,10 +343,10 @@ export default function AlbumPage({ params }) {
                                 </div>
                                 <div className="track-title">
                                     <div className="title-text">
-                                        <span className="title">{track.title}</span>
+                                        <span className="title">{track.title || t('common.unknownTitle')}</span>
                                         <span className="artist">
                                             <Link href={`/artists/${track.artistId?._id || album?.artistId?._id}`}>
-                                                {track.artistId?.name || album?.artistId?.name}
+                                                {track.artistId?.name || album?.artistId?.name || t('common.unknownArtist')}
                                             </Link>
                                         </span>
                                     </div>

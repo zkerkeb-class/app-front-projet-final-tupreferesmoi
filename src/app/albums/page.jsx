@@ -7,9 +7,11 @@ import { musicApi } from "@services/musicApi";
 import { GridLoader } from "@components/common/loaders";
 import { Card } from "@components/common";
 import Pagination from "@components/common/Pagination";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const Header = styled.div`
@@ -32,12 +34,14 @@ const ITEMS_PER_PAGE = 20;
 
 export default function AlbumsPage() {
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const [albums, setAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const isRTL = i18n.language === 'ar';
 
     const loadAlbums = async (pageNumber) => {
         try {
@@ -48,7 +52,7 @@ export default function AlbumsPage() {
             );
 
             if (!response.success) {
-                throw new Error("Réponse invalide du serveur");
+                throw new Error(t('common.error.invalidResponse'));
             }
 
             setAlbums(response.data || []);
@@ -56,7 +60,7 @@ export default function AlbumsPage() {
             setTotalPages(response.pagination?.totalPages || 0);
         } catch (error) {
             console.error("Erreur lors du chargement des albums:", error);
-            setError("Impossible de charger les albums");
+            setError(t('albums.error.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -80,9 +84,9 @@ export default function AlbumsPage() {
 
     if (loading && albums.length === 0) {
         return (
-            <Container>
+            <Container $isRTL={isRTL}>
                 <Header>
-                    <h1>Tous les albums</h1>
+                    <h1>{t('albums.allAlbums')}</h1>
                 </Header>
                 <GridLoader count={ITEMS_PER_PAGE} />
             </Container>
@@ -91,9 +95,9 @@ export default function AlbumsPage() {
 
     if (error && albums.length === 0) {
         return (
-            <Container>
+            <Container $isRTL={isRTL}>
                 <Header>
-                    <h1>Tous les albums</h1>
+                    <h1>{t('albums.allAlbums')}</h1>
                 </Header>
                 <p>{error}</p>
             </Container>
@@ -101,16 +105,16 @@ export default function AlbumsPage() {
     }
 
     return (
-        <Container>
+        <Container $isRTL={isRTL}>
             <Header>
-                <h1>Tous les albums</h1>
+                <h1>{t('albums.allAlbums')}</h1>
             </Header>
             <Grid>
                 {albums.map((album) => (
                     <Card
                         key={album.id}
-                        title={album.title}
-                        subtitle={album.artist}
+                        title={album.title || t('common.unknownTitle')}
+                        subtitle={album.artist || t('common.unknownArtist')}
                         imageUrl={album.coverUrl}
                         type="album"
                         onClick={() => router.push(`/albums/${album.id}`)}
@@ -123,7 +127,7 @@ export default function AlbumsPage() {
                 totalItems={totalItems}
                 onPreviousPage={handlePreviousPage}
                 onNextPage={handleNextPage}
-                itemsLabel="albums"
+                itemsLabel={t('albums.albumsLabel')}
             />
         </Container>
     );

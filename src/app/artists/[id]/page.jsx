@@ -18,6 +18,7 @@ import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
+import { useTranslation } from "react-i18next";
 
 const ArtistHeader = styled.div`
     padding: 60px 24px 24px;
@@ -155,6 +156,7 @@ const DEFAULT_IMAGE = "/default-album.png";
 
 export default function ArtistPage({ params }) {
     const dispatch = useDispatch();
+    const { t, i18n } = useTranslation();
     const { currentTrack, isPlaying } = useSelector((state) => state.player);
     const [artist, setArtist] = useState(null);
     const [tracks, setTracks] = useState([]);
@@ -164,6 +166,7 @@ export default function ArtistPage({ params }) {
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { handlePlay, isCurrentTrack, isPlaying: useTrackPlaybackPlaying } = useTrackPlayback();
+    const isRTL = i18n.language === 'ar';
 
     useEffect(() => {
         const fetchData = async () => {
@@ -249,16 +252,16 @@ export default function ArtistPage({ params }) {
     };
 
     if (loading) {
-        return <div style={{ padding: "24px" }}>Chargement...</div>;
+        return <div style={{ padding: "24px" }}>{t('common.loading')}</div>;
     }
 
     if (error) {
         return (
             <div style={{ padding: "24px" }}>
-                <h2>Erreur</h2>
+                <h2>{t('common.error')}</h2>
                 <p>{error}</p>
                 <button onClick={() => router.push("/artists")}>
-                    Retour à la liste des artistes
+                    {t('artists.backToList')}
                 </button>
             </div>
         );
@@ -267,10 +270,10 @@ export default function ArtistPage({ params }) {
     if (!artist) {
         return (
             <div style={{ padding: "24px" }}>
-                <h2>Erreur</h2>
-                <p>Aucune piste trouvée pour cet artiste</p>
+                <h2>{t('common.error')}</h2>
+                <p>{t('artists.error.noTracks')}</p>
                 <button onClick={() => router.push("/artists")}>
-                    Retour à la liste des artistes
+                    {t('artists.backToList')}
                 </button>
             </div>
         );
@@ -280,9 +283,9 @@ export default function ArtistPage({ params }) {
         <>
             <ArtistHeader>
                 <ArtistInfo>
-                    <p>Artiste vérifié</p>
+                    <p>{t('artists.verified')}</p>
                     <h1>{artist.name}</h1>
-                    <p>{tracks.length} titres</p>
+                    <p>{t('artists.trackCount', { count: tracks.length })}</p>
                     <PlaybackControls 
                         onPlay={handleMainPlay}
                         isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
@@ -292,7 +295,7 @@ export default function ArtistPage({ params }) {
             </ArtistHeader>
 
             <TracksSection>
-                <h2>Titres populaires</h2>
+                <h2>{t('artists.popularTracks')}</h2>
                 <TrackList>
                     {tracks.map((track, index) => (
                         <TrackItem key={track._id || track.id}>
