@@ -10,6 +10,7 @@ import {
     Maximize,
     Minimize,
 } from "react-feather";
+import { useTranslation } from "react-i18next";
 import { ControlsContainer } from "../styles/playbackControls.styles";
 import { ProgressBar, TimeDisplay } from "../../../styles/common/controls";
 import { IconButton } from "../../../components/common";
@@ -20,6 +21,7 @@ import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { PLAYER_MODES } from "../constants";
 
 export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen }) => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const { 
         isPlaying, 
@@ -112,11 +114,11 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
     const getModeTitle = () => {
         switch (mode) {
             case PLAYER_MODES.REPEAT_ONE:
-                return "Répéter le morceau";
+                return t('player.repeatModes.repeatOne');
             case PLAYER_MODES.REPEAT:
-                return "Répéter la liste";
+                return t('player.repeatModes.repeat');
             default:
-                return "Mode normal";
+                return t('player.repeatModes.normal');
         }
     };
 
@@ -129,9 +131,9 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                     {showShuffleButton && (
                         <IconButton
                             onClick={handleToggleShuffle}
-                            disabled={disabled}
+                            disabled={disabled || !queue || queue.length <= 1}
                             $active={shuffleEnabled}
-                            title="Mode aléatoire"
+                            title={t('player.shuffle')}
                         >
                             <Shuffle />
                         </IconButton>
@@ -146,8 +148,8 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                     </IconButton>
                     <IconButton
                         onClick={handleSkipToStart}
-                        disabled={disabled}
-                        title="Précédent"
+                        disabled={disabled || currentTrackIndex === 0}
+                        title={t('player.previous')}
                     >
                         <SkipBack />
                     </IconButton>
@@ -156,14 +158,14 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                         onClick={handleTogglePlay}
                         disabled={disabled}
                         size="large"
-                        title={isPlaying ? "Pause" : "Lecture"}
+                        title={isPlaying ? t('player.pause') : t('player.play')}
                     >
                         {isPlaying ? <Pause /> : <Play />}
                     </IconButton>
                     <IconButton
                         onClick={handleSkipToEnd}
-                        disabled={disabled}
-                        title="Suivant"
+                        disabled={disabled || currentTrackIndex === queue?.length - 1}
+                        title={t('player.next')}
                     >
                         <SkipForward />
                     </IconButton>
@@ -171,7 +173,7 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                         <IconButton
                             onClick={onToggleFullscreen}
                             disabled={disabled}
-                            title={isFullscreen ? "Réduire" : "Plein écran"}
+                            title={isFullscreen ? t('player.exitFullscreen') : t('player.fullscreen')}
                         >
                             {isFullscreen ? <Minimize /> : <Maximize />}
                         </IconButton>

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@features/auth/AuthContext";
 import styled from 'styled-components';
-import { ChevronDown } from 'react-feather';
+import { ChevronDown, User } from 'react-feather';
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
     position: relative;
@@ -32,12 +33,13 @@ const UserButton = styled.button`
     }
 
     ${({ $isOpen }) => !$isOpen && `
+        position: relative;
+        
         &:hover::before {
             content: attr(data-tooltip);
             position: absolute;
             bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 0;
             padding: 8px 12px;
             background-color: #282828;
             color: white;
@@ -98,6 +100,7 @@ const UserMenu = memo(() => {
     const menuRef = useRef(null);
     const router = useRouter();
     const { user, logout } = useAuth();
+    const { t } = useTranslation();
 
     const handleLogout = useCallback(() => {
         logout();
@@ -123,8 +126,10 @@ const UserMenu = memo(() => {
     if (!user) {
         return (
             <Link href="/login" style={{ textDecoration: 'none' }}>
-                <UserButton data-tooltip="Se connecter">
-                    <Avatar>?</Avatar>
+                <UserButton data-tooltip={t('common.login')}>
+                    <Avatar>
+                        <User size={16} />
+                    </Avatar>
                 </UserButton>
             </Link>
         );
@@ -140,7 +145,7 @@ const UserMenu = memo(() => {
             {isOpen && (
                 <Menu>
                     <MenuItem onClick={handleLogout}>
-                        Se déconnecter
+                        {t('common.logout')}
                     </MenuItem>
                 </Menu>
             )}

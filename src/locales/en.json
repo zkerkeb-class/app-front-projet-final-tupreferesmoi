@@ -78,6 +78,18 @@
             "loadingButton": "Signing in...",
             "noAccount": "Don't have an account? Sign up",
             "error": "An error occurred during login"
+        },
+        "register": {
+            "title": "Register",
+            "emailLabel": "Email",
+            "usernameLabel": "Username",
+            "passwordLabel": "Password",
+            "submitButton": "Sign up",
+            "loadingButton": "Signing up...",
+            "hasAccount": "Already have an account? Sign in",
+            "error": "An error occurred during registration",
+            "passwordRequirements": "8 characters minimum, one letter and one number or special character",
+            "passwordError": "Password must contain at least 8 characters, one letter and one number or special character"
         }
     },
     "player": {
@@ -88,7 +100,16 @@
         "shuffle": "Shuffle",
         "repeat": "Repeat",
         "volume": "Volume",
-        "queue": "Queue"
+        "queue": "Queue",
+        "mute": "Mute",
+        "unmute": "Unmute",
+        "fullscreen": "Fullscreen",
+        "exitFullscreen": "Exit fullscreen",
+        "repeatModes": {
+            "normal": "Normal mode",
+            "repeat": "Repeat playlist",
+            "repeatOne": "Repeat track"
+        }
     },
     "playlist": {
         "create": "Create Playlist",
@@ -158,5 +179,30 @@
             "trackAdded": "Track added successfully",
             "playlistCreated": "Playlist created and track added successfully"
         }
+    },
+    "header": {
+        "searchPlaceholder": "Search for tracks, artists, albums or playlists"
+    },
+    "search": {
+        "filters": {
+            "all": "All",
+            "tracks": "Tracks",
+            "artists": "Artists",
+            "albums": "Albums",
+            "playlists": "Playlists"
+        },
+        "sections": {
+            "tracks": "Tracks",
+            "artists": "Artists",
+            "albums": "Albums",
+            "playlists": "Playlists"
+        },
+        "labels": {
+            "artist": "Artist",
+            "album": "Album",
+            "playlist": "Playlist"
+        },
+        "noResults": "No results found",
+        "noResultsIn": "in {{filter}}"
     }
 } 

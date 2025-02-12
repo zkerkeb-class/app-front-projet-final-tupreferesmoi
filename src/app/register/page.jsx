@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "react-feather";
 import { useAuth } from "@features/auth/AuthContext";
+import { useTranslation } from "react-i18next";
 import styles from "@styles/auth.module.css";
 
 const validatePassword = (password) => {
@@ -19,6 +20,7 @@ const validatePassword = (password) => {
 export default function RegisterPage() {
     const router = useRouter();
     const { register } = useAuth();
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -45,9 +47,7 @@ export default function RegisterPage() {
         setError("");
 
         if (!validatePassword(formData.password)) {
-            setError(
-                "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre ou caractère spécial"
-            );
+            setError(t('auth.register.passwordError'));
             return;
         }
 
@@ -59,7 +59,7 @@ export default function RegisterPage() {
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                    "Une erreur est survenue lors de l&apos;inscription"
+                t('auth.register.error')
             );
         } finally {
             setIsLoading(false);
@@ -69,11 +69,11 @@ export default function RegisterPage() {
     return (
         <div className={styles.authContainer}>
             <div className={styles.authCard}>
-                <h1 className={styles.title}>Inscription</h1>
+                <h1 className={styles.title}>{t('auth.register.title')}</h1>
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.inputGroup}>
                         <label htmlFor="email" className={styles.label}>
-                            Adresse e-mail
+                            {t('auth.register.emailLabel')}
                         </label>
                         <input
                             type="email"
@@ -88,7 +88,7 @@ export default function RegisterPage() {
 
                     <div className={styles.inputGroup}>
                         <label htmlFor="username" className={styles.label}>
-                            Nom d&apos;utilisateur
+                            {t('auth.register.usernameLabel')}
                         </label>
                         <input
                             type="text"
@@ -103,7 +103,7 @@ export default function RegisterPage() {
 
                     <div className={styles.inputGroup}>
                         <label htmlFor="password" className={styles.label}>
-                            Mot de passe
+                            {t('auth.register.passwordLabel')}
                         </label>
                         <div className={styles.passwordInput}>
                             <input
@@ -128,8 +128,7 @@ export default function RegisterPage() {
                             </button>
                         </div>
                         <small className={styles.hint}>
-                            8 caractères minimum, une lettre et un chiffre ou
-                            caractère spécial
+                            {t('auth.register.passwordRequirements')}
                         </small>
                     </div>
 
@@ -141,13 +140,13 @@ export default function RegisterPage() {
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? "Inscription en cours..."
-                            : "S&apos;inscrire"}
+                            ? t('auth.register.loadingButton')
+                            : t('auth.register.submitButton')}
                     </button>
                 </form>
 
                 <Link href="/login" className={styles.link}>
-                    Déjà un compte ? S&apos;identifier
+                    {t('auth.register.hasAccount')}
                 </Link>
             </div>
         </div>

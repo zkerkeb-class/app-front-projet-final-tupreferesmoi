@@ -78,6 +78,18 @@
             "loadingButton": "جاري تسجيل الدخول...",
             "noAccount": "ليس لديك حساب؟ سجل الآن",
             "error": "حدث خطأ أثناء تسجيل الدخول"
+        },
+        "register": {
+            "title": "التسجيل",
+            "emailLabel": "البريد الإلكتروني",
+            "usernameLabel": "اسم المستخدم",
+            "passwordLabel": "كلمة المرور",
+            "submitButton": "تسجيل",
+            "loadingButton": "جاري التسجيل...",
+            "hasAccount": "لديك حساب بالفعل؟ تسجيل الدخول",
+            "error": "حدث خطأ أثناء التسجيل",
+            "passwordRequirements": "8 أحرف كحد أدنى، حرف واحد ورقم أو رمز خاص",
+            "passwordError": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، حرف واحد ورقم أو رمز خاص"
         }
     },
     "player": {
@@ -88,7 +100,16 @@
         "shuffle": "عشوائي",
         "repeat": "تكرار",
         "volume": "مستوى الصوت",
-        "queue": "قائمة الانتظار"
+        "queue": "قائمة الانتظار",
+        "mute": "كتم الصوت",
+        "unmute": "إلغاء كتم الصوت",
+        "fullscreen": "ملء الشاشة",
+        "exitFullscreen": "الخروج من ملء الشاشة",
+        "repeatModes": {
+            "normal": "الوضع العادي",
+            "repeat": "تكرار القائمة",
+            "repeatOne": "تكرار المقطع"
+        }
     },
     "playlist": {
         "create": "إنشاء قائمة تشغيل",
@@ -158,5 +179,30 @@
             "trackAdded": "تمت إضافة المقطع بنجاح",
             "playlistCreated": "تم إنشاء قائمة التشغيل وإضافة المقطع بنجاح"
         }
+    },
+    "header": {
+        "searchPlaceholder": "البحث عن المسارات والفنانين والألبومات وقوائم التشغيل"
+    },
+    "search": {
+        "filters": {
+            "all": "الكل",
+            "tracks": "المسارات",
+            "artists": "الفنانون",
+            "albums": "الألبومات",
+            "playlists": "قوائم التشغيل"
+        },
+        "sections": {
+            "tracks": "المسارات",
+            "artists": "الفنانون",
+            "albums": "الألبومات",
+            "playlists": "قوائم التشغيل"
+        },
+        "labels": {
+            "artist": "فنان",
+            "album": "ألبوم",
+            "playlist": "قائمة تشغيل"
+        },
+        "noResults": "لم يتم العثور على نتائج",
+        "noResultsIn": "في {{filter}}"
     }
 } 

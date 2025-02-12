@@ -5,8 +5,8 @@
         "library": "Bibliothèque",
         "settings": "Paramètres",
         "profile": "Profil",
-        "logout": "Déconnexion",
-        "login": "Connexion",
+        "logout": "Se déconnecter",
+        "login": "Se connecter",
         "register": "S'inscrire",
         "welcome": "Bienvenue",
         "error": "Erreur",
@@ -78,6 +78,18 @@
             "loadingButton": "Connexion en cours...",
             "noAccount": "Pas encore de compte ? S'inscrire",
             "error": "Une erreur est survenue lors de la connexion"
+        },
+        "register": {
+            "title": "Inscription",
+            "emailLabel": "Adresse e-mail",
+            "usernameLabel": "Nom d'utilisateur",
+            "passwordLabel": "Mot de passe",
+            "submitButton": "S'inscrire",
+            "loadingButton": "Inscription en cours...",
+            "hasAccount": "Déjà un compte ? Se connecter",
+            "error": "Une erreur est survenue lors de l'inscription",
+            "passwordRequirements": "8 caractères minimum, une lettre et un chiffre ou caractère spécial",
+            "passwordError": "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre ou caractère spécial"
         }
     },
     "player": {
@@ -88,7 +100,16 @@
         "shuffle": "Aléatoire",
         "repeat": "Répéter",
         "volume": "Volume",
-        "queue": "File d'attente"
+        "queue": "File d'attente",
+        "mute": "Couper le son",
+        "unmute": "Rétablir le son",
+        "fullscreen": "Plein écran",
+        "exitFullscreen": "Quitter le plein écran",
+        "repeatModes": {
+            "normal": "Mode normal",
+            "repeat": "Répéter la liste",
+            "repeatOne": "Répéter le morceau"
+        }
     },
     "playlist": {
         "create": "Créer une playlist",
@@ -158,5 +179,30 @@
             "trackAdded": "Piste ajoutée avec succès",
             "playlistCreated": "Playlist créée et piste ajoutée avec succès"
         }
+    },
+    "header": {
+        "searchPlaceholder": "Rechercher des titres, artistes, albums ou playlists"
+    },
+    "search": {
+        "filters": {
+            "all": "Tout",
+            "tracks": "Titres",
+            "artists": "Artistes",
+            "albums": "Albums",
+            "playlists": "Playlists"
+        },
+        "sections": {
+            "tracks": "Titres",
+            "artists": "Artistes",
+            "albums": "Albums",
+            "playlists": "Playlists"
+        },
+        "labels": {
+            "artist": "Artiste",
+            "album": "Album",
+            "playlist": "Playlist"
+        },
+        "noResults": "Aucun résultat trouvé",
+        "noResultsIn": "dans {{filter}}"
     }
 } 
