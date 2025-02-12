@@ -1,0 +1,94 @@
+{
+    "common": {
+        "search": "بحث",
+        "home": "الرئيسية",
+        "library": "المكتبة",
+        "settings": "الإعدادات",
+        "profile": "الملف الشخصي",
+        "logout": "تسجيل الخروج",
+        "login": "تسجيل الدخول",
+        "register": "التسجيل",
+        "welcome": "مرحباً",
+        "error": "خطأ",
+        "loading": "جاري التحميل...",
+        "email": "البريد الإلكتروني أو اسم المستخدم",
+        "password": "كلمة المرور",
+        "submit": "إرسال",
+        "cancel": "إلغاء",
+        "showAll": "عرض الكل",
+        "backToHome": "العودة إلى الرئيسية",
+        "unknownTitle": "عنوان غير معروف",
+        "unknownArtist": "فنان غير معروف",
+        "unknownAlbum": "ألبوم غير معروف",
+        "error": {
+            "invalidResponse": "استجابة غير صالحة من الخادم"
+        }
+    },
+    "pagination": {
+        "pageInfo": "الصفحة {{current}} من {{total}} ({{count}} {{items}})"
+    },
+    "tracks": {
+        "allTracks": "جميع المقاطع",
+        "tracksLabel": "مقاطع",
+        "track": "مقطع",
+        "fromAlbum": "من ألبوم",
+        "error": {
+            "loadFailed": "فشل تحميل المقاطع",
+            "invalidId": "معرف المقطع غير صالح",
+            "invalidData": "بيانات المقطع غير صالحة",
+            "fetchFailed": "فشل في جلب البيانات",
+            "notFound": "المقطع غير موجود"
+        }
+    },
+    "sidebar": {
+        "home": "الرئيسية",
+        "search": "بحث",
+        "createPlaylist": "إنشاء قائمة تشغيل",
+        "myPlaylists": "قوائم التشغيل الخاصة بي",
+        "recentPlaylists": "قوائم التشغيل الأخيرة",
+        "noPlaylists": "لا توجد قوائم تشغيل",
+        "newPlaylistName": "اسم قائمة التشغيل",
+        "create": "إنشاء"
+    },
+    "home": {
+        "recentTracks": "المقاطع الأخيرة",
+        "popularArtists": "الفنانون المشهورون",
+        "recentAlbums": "الألبومات الأخيرة",
+        "loading": "جاري التحميل..."
+    },
+    "auth": {
+        "login": {
+            "title": "تسجيل الدخول",
+            "emailLabel": "البريد الإلكتروني أو اسم المستخدم",
+            "passwordLabel": "كلمة المرور",
+            "submitButton": "تسجيل الدخول",
+            "loadingButton": "جاري تسجيل الدخول...",
+            "noAccount": "ليس لديك حساب؟ سجل الآن",
+            "error": "حدث خطأ أثناء تسجيل الدخول"
+        }
+    },
+    "player": {
+        "play": "تشغيل",
+        "pause": "إيقاف مؤقت",
+        "next": "التالي",
+        "previous": "السابق",
+        "shuffle": "عشوائي",
+        "repeat": "تكرار",
+        "volume": "مستوى الصوت",
+        "queue": "قائمة الانتظار"
+    },
+    "playlist": {
+        "create": "إنشاء قائمة تشغيل",
+        "edit": "تعديل قائمة التشغيل",
+        "delete": "حذف قائمة التشغيل",
+        "addToPlaylist": "إضافة إلى قائمة التشغيل",
+        "removeFromPlaylist": "إزالة من قائمة التشغيل"
+    },
+    "track": {
+        "addToQueue": "إضافة إلى قائمة الانتظار",
+        "addToPlaylist": "إضافة إلى قائمة التشغيل",
+        "removeFromPlaylist": "إزالة من قائمة التشغيل",
+        "like": "إعجاب",
+        "unlike": "إلغاء الإعجاب"
+    }
+} 

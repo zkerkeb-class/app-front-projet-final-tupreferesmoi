@@ -1,0 +1,94 @@
+{
+    "common": {
+        "search": "Search",
+        "home": "Home",
+        "library": "Library",
+        "settings": "Settings",
+        "profile": "Profile",
+        "logout": "Logout",
+        "login": "Login",
+        "register": "Register",
+        "welcome": "Welcome",
+        "error": "Error",
+        "loading": "Loading...",
+        "email": "Email or username",
+        "password": "Password",
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "showAll": "Show all",
+        "backToHome": "Back to home",
+        "unknownTitle": "Unknown title",
+        "unknownArtist": "Unknown artist",
+        "unknownAlbum": "Unknown album",
+        "error": {
+            "invalidResponse": "Invalid server response"
+        }
+    },
+    "pagination": {
+        "pageInfo": "Page {{current}} of {{total}} ({{count}} {{items}})"
+    },
+    "tracks": {
+        "allTracks": "All tracks",
+        "tracksLabel": "tracks",
+        "track": "Track",
+        "fromAlbum": "From the album",
+        "error": {
+            "loadFailed": "Failed to load tracks",
+            "invalidId": "Invalid track ID",
+            "invalidData": "Invalid track data",
+            "fetchFailed": "Failed to fetch data",
+            "notFound": "Track not found"
+        }
+    },
+    "sidebar": {
+        "home": "Home",
+        "search": "Search",
+        "createPlaylist": "Create playlist",
+        "myPlaylists": "My playlists",
+        "recentPlaylists": "Recent playlists",
+        "noPlaylists": "No playlists",
+        "newPlaylistName": "Playlist name",
+        "create": "Create"
+    },
+    "home": {
+        "recentTracks": "Recent Tracks",
+        "popularArtists": "Popular Artists",
+        "recentAlbums": "Recent Albums",
+        "loading": "Loading..."
+    },
+    "auth": {
+        "login": {
+            "title": "Login",
+            "emailLabel": "Email or username",
+            "passwordLabel": "Password",
+            "submitButton": "Sign in",
+            "loadingButton": "Signing in...",
+            "noAccount": "Don't have an account? Sign up",
+            "error": "An error occurred during login"
+        }
+    },
+    "player": {
+        "play": "Play",
+        "pause": "Pause",
+        "next": "Next",
+        "previous": "Previous",
+        "shuffle": "Shuffle",
+        "repeat": "Repeat",
+        "volume": "Volume",
+        "queue": "Queue"
+    },
+    "playlist": {
+        "create": "Create Playlist",
+        "edit": "Edit Playlist",
+        "delete": "Delete Playlist",
+        "addToPlaylist": "Add to Playlist",
+        "removeFromPlaylist": "Remove from Playlist"
+    },
+    "track": {
+        "addToQueue": "Add to Queue",
+        "addToPlaylist": "Add to Playlist",
+        "removeFromPlaylist": "Remove from Playlist",
+        "like": "Like",
+        "unlike": "Unlike"
+    }
+} 

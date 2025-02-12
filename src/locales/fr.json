@@ -1,0 +1,94 @@
+{
+    "common": {
+        "search": "Rechercher",
+        "home": "Accueil",
+        "library": "Bibliothèque",
+        "settings": "Paramètres",
+        "profile": "Profil",
+        "logout": "Déconnexion",
+        "login": "Connexion",
+        "register": "S'inscrire",
+        "welcome": "Bienvenue",
+        "error": "Erreur",
+        "loading": "Chargement...",
+        "email": "Adresse e-mail ou nom d'utilisateur",
+        "password": "Mot de passe",
+        "submit": "Envoyer",
+        "cancel": "Annuler",
+        "showAll": "Tout afficher",
+        "backToHome": "Retour à l'accueil",
+        "unknownTitle": "Titre inconnu",
+        "unknownArtist": "Artiste inconnu",
+        "unknownAlbum": "Album inconnu",
+        "error": {
+            "invalidResponse": "Réponse invalide du serveur"
+        }
+    },
+    "pagination": {
+        "pageInfo": "Page {{current}} sur {{total}} ({{count}} {{items}})"
+    },
+    "tracks": {
+        "allTracks": "Tous les morceaux",
+        "tracksLabel": "morceaux",
+        "track": "Titre",
+        "fromAlbum": "De l'album",
+        "error": {
+            "loadFailed": "Impossible de charger les morceaux",
+            "invalidId": "ID de piste invalide",
+            "invalidData": "Données de piste invalides",
+            "fetchFailed": "Erreur lors de la récupération des données",
+            "notFound": "Piste introuvable"
+        }
+    },
+    "sidebar": {
+        "home": "Accueil",
+        "search": "Rechercher",
+        "createPlaylist": "Créer une playlist",
+        "myPlaylists": "Mes playlists",
+        "recentPlaylists": "Playlists récentes",
+        "noPlaylists": "Aucune playlist",
+        "newPlaylistName": "Nom de la playlist",
+        "create": "Créer"
+    },
+    "home": {
+        "recentTracks": "Morceaux récents",
+        "popularArtists": "Artistes populaires",
+        "recentAlbums": "Albums récents",
+        "loading": "Chargement en cours..."
+    },
+    "auth": {
+        "login": {
+            "title": "Connexion",
+            "emailLabel": "Adresse e-mail ou nom d'utilisateur",
+            "passwordLabel": "Mot de passe",
+            "submitButton": "Se connecter",
+            "loadingButton": "Connexion en cours...",
+            "noAccount": "Pas encore de compte ? S'inscrire",
+            "error": "Une erreur est survenue lors de la connexion"
+        }
+    },
+    "player": {
+        "play": "Lecture",
+        "pause": "Pause",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "shuffle": "Aléatoire",
+        "repeat": "Répéter",
+        "volume": "Volume",
+        "queue": "File d'attente"
+    },
+    "playlist": {
+        "create": "Créer une playlist",
+        "edit": "Modifier la playlist",
+        "delete": "Supprimer la playlist",
+        "addToPlaylist": "Ajouter à la playlist",
+        "removeFromPlaylist": "Retirer de la playlist"
+    },
+    "track": {
+        "addToQueue": "Ajouter à la file d'attente",
+        "addToPlaylist": "Ajouter à une playlist",
+        "removeFromPlaylist": "Retirer de la playlist",
+        "like": "J'aime",
+        "unlike": "Je n'aime plus"
+    }
+} 

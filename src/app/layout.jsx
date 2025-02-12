@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { Inter } from "next/font/google";
 import StyledComponentsRegistry from "@lib/registry";
 import { ThemeProvider } from "styled-components";
@@ -16,6 +16,8 @@ import {
     ContentWrapper,
 } from "@features/layout";
 import { AuthProvider } from "@features/auth/AuthContext";
+import { useTranslation } from "react-i18next";
+import "@config/i18n";
 
 // Lazy load major components
 const Header = lazy(() => import("@features/layout/components/Header"));
@@ -29,8 +31,17 @@ const inter = Inter({
 });
 
 export default function RootLayout({ children }) {
+    const { i18n } = useTranslation();
+
+    useEffect(() => {
+        // Mettre à jour la direction du document en fonction de la langue actuelle
+        const currentLang = i18n.language;
+        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = currentLang;
+    }, [i18n.language]);
+
     return (
-        <html lang="fr" suppressHydrationWarning>
+        <html lang={i18n.language} dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
             <body suppressHydrationWarning className={inter.className}>
                 <AuthProvider>
                     <StyledComponentsRegistry>

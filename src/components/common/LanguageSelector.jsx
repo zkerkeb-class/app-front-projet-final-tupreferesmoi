@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { ChevronDown } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 
 const Container = styled.div`
     position: relative;
@@ -72,7 +73,7 @@ const LanguageOption = styled.button`
     background: none;
     border: none;
     color: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.text};
-    text-align: left;
+    text-align: ${({ $isRTL }) => $isRTL ? 'right' : 'left'};
     cursor: pointer;
     font-size: 0.875rem;
     border-radius: 2px;
@@ -84,15 +85,22 @@ const LanguageOption = styled.button`
 `;
 
 const languages = [
-    { code: 'fr', label: 'FR', fullName: 'Français' },
-    { code: 'en', label: 'EN', fullName: 'English' },
-    { code: 'ar', label: 'ع', fullName: 'العربية' }
+    { code: 'fr', label: 'FR', fullName: 'Français', dir: 'ltr' },
+    { code: 'en', label: 'EN', fullName: 'English', dir: 'ltr' },
+    { code: 'ar', label: 'ع', fullName: 'العربية', dir: 'rtl' }
 ];
 
 const LanguageSelector = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState('fr');
+    const { i18n } = useTranslation();
     const menuRef = useRef(null);
+
+    useEffect(() => {
+        // Mettre à jour la direction du document en fonction de la langue
+        const currentLang = languages.find(lang => lang.code === i18n.language);
+        document.documentElement.dir = currentLang?.dir || 'ltr';
+        document.documentElement.lang = i18n.language;
+    }, [i18n.language]);
 
     const handleClickOutside = (event) => {
         if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -113,13 +121,18 @@ const LanguageSelector = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleLanguageSelect = (code) => {
-        setSelectedLanguage(code);
-        setIsOpen(false);
-        // La logique de changement de langue sera implémentée plus tard
+    const handleLanguageSelect = async (code) => {
+        try {
+            await i18n.changeLanguage(code);
+            setIsOpen(false);
+            // Stocker la préférence de langue
+            localStorage.setItem('i18nextLng', code);
+        } catch (error) {
+            console.error('Erreur lors du changement de langue:', error);
+        }
     };
 
-    const currentLanguage = languages.find(lang => lang.code === selectedLanguage);
+    const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
     return (
         <Container ref={menuRef}>
@@ -133,7 +146,8 @@ const LanguageSelector = () => {
                 {languages.map((language) => (
                     <LanguageOption
                         key={language.code}
-                        $active={selectedLanguage === language.code}
+                        $active={i18n.language === language.code}
+                        $isRTL={language.dir === 'rtl'}
                         onClick={() => handleLanguageSelect(language.code)}
                     >
                         {language.fullName}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { setCurrentTrack, setIsPlaying } from "@store/slices/playerSlice";
 import { musicApi } from "@services/musicApi";
 import { GridLoader } from "@components/common/loaders";
@@ -15,6 +16,7 @@ import { useTrackPlayback } from "@/hooks/useTrackPlayback";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 `;
 
 const Header = styled.div`
@@ -38,6 +40,7 @@ const ITEMS_PER_PAGE = 20;
 export default function TracksPage() {
     const dispatch = useDispatch();
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -45,6 +48,7 @@ export default function TracksPage() {
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
+    const isRTL = i18n.language === 'ar';
 
     const loadTracks = async (pageNumber) => {
         try {
@@ -55,7 +59,7 @@ export default function TracksPage() {
             );
 
             if (!response.success) {
-                throw new Error("Réponse invalide du serveur");
+                throw new Error(t('common.error.invalidResponse'));
             }
 
             setTracks(response.data || []);
@@ -63,7 +67,7 @@ export default function TracksPage() {
             setTotalPages(response.pagination?.totalPages || 0);
         } catch (error) {
             console.error("Erreur lors du chargement des morceaux:", error);
-            setError("Impossible de charger les morceaux");
+            setError(t('tracks.error.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -91,9 +95,9 @@ export default function TracksPage() {
 
     if (loading && tracks.length === 0) {
         return (
-            <Container>
+            <Container $isRTL={isRTL}>
                 <Header>
-                    <h1>Tous les morceaux</h1>
+                    <h1>{t('tracks.allTracks')}</h1>
                 </Header>
                 <GridLoader count={ITEMS_PER_PAGE} />
             </Container>
@@ -102,9 +106,9 @@ export default function TracksPage() {
 
     if (error && tracks.length === 0) {
         return (
-            <Container>
+            <Container $isRTL={isRTL}>
                 <Header>
-                    <h1>Tous les morceaux</h1>
+                    <h1>{t('tracks.allTracks')}</h1>
                 </Header>
                 <p>{error}</p>
             </Container>
@@ -112,9 +116,9 @@ export default function TracksPage() {
     }
 
     return (
-        <Container>
+        <Container $isRTL={isRTL}>
             <Header>
-                <h1>Tous les morceaux</h1>
+                <h1>{t('tracks.allTracks')}</h1>
             </Header>
             <Grid>
                 {tracks.map((track) => (
@@ -136,7 +140,7 @@ export default function TracksPage() {
                 totalItems={totalItems}
                 onPreviousPage={handlePreviousPage}
                 onNextPage={handleNextPage}
-                itemsLabel="morceaux"
+                itemsLabel={t('tracks.tracksLabel')}
             />
         </Container>
     );

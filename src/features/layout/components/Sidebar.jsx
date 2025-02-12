@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { Home, Search, BookOpen, PlusSquare, Heart } from "react-feather";
+import { useTranslation } from "react-i18next";
 import playlistApi from "@/services/playlistApi";
 import { searchBarRef } from "./Header";
 
@@ -211,6 +212,7 @@ export default function Sidebar() {
     const [playlists, setPlaylists] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newPlaylistName, setNewPlaylistName] = useState("");
+    const { t } = useTranslation();
 
     useEffect(() => {
         loadPlaylists();
@@ -252,21 +254,20 @@ export default function Sidebar() {
             <NavigationSection>
                 <NavLink href="/">
                     <Home />
-                    Accueil
+                    {t('sidebar.home')}
                 </NavLink>
                 <SearchButton onClick={handleSearchClick}>
                     <Search />
-                    Rechercher
+                    {t('sidebar.search')}
                 </SearchButton>
             </NavigationSection>
 
             <LibrarySection>
-
                 {isCreating ? (
                     <>
                         <Input
                             type="text"
-                            placeholder="Nom de la playlist"
+                            placeholder={t('sidebar.newPlaylistName')}
                             value={newPlaylistName}
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             onKeyPress={(e) => {
@@ -277,24 +278,24 @@ export default function Sidebar() {
                             autoFocus
                         />
                         <CreatePlaylistButton onClick={handleCreatePlaylist}>
-                            Créer
+                            {t('sidebar.create')}
                         </CreatePlaylistButton>
                     </>
                 ) : (
                     <CreatePlaylistButton onClick={() => setIsCreating(true)}>
                         <PlusSquare size={20} />
-                        Créer une playlist
+                        {t('sidebar.createPlaylist')}
                     </CreatePlaylistButton>
                 )}
 
                 <NavLink href="/playlists">
                     <BookOpen />
-                    Mes playlists
+                    {t('sidebar.myPlaylists')}
                 </NavLink>
 
                 <PlaylistsList>
                     <PlaylistsHeader>
-                        Playlists récentes
+                        {t('sidebar.recentPlaylists')}
                     </PlaylistsHeader>
                     {playlists && playlists.length > 0 ? (
                         playlists.slice(0, 5).map((playlist) => (
@@ -307,7 +308,7 @@ export default function Sidebar() {
                         ))
                     ) : (
                         <div style={{ color: 'rgba(255,255,255,0.5)', padding: '8px', fontSize: '14px' }}>
-                            Aucune playlist
+                            {t('sidebar.noPlaylists')}
                         </div>
                     )}
                 </PlaylistsList>
