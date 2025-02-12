@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import UserMenu from "../../../components/common/UserMenu";
 import SearchBar from "../../../components/common/search/SearchBar";
+import LanguageSelector from "../../../components/common/LanguageSelector";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -88,6 +89,10 @@ const BrowseButton = styled.button`
     }
 `;
 
+const RightSection = styled(NavigationSection)`
+    gap: 1rem;
+`;
+
 export const searchBarRef = React.createRef();
 
 export default function Header() {
@@ -111,12 +116,13 @@ export default function Header() {
                 <SearchBar ref={searchBarRef} />
             </SearchContainer>
 
-            <NavigationSection>
+            <RightSection>
                 <BrowseButton>
                     <Grid size={24} />
                 </BrowseButton>
+                <LanguageSelector />
                 <UserMenu />
-            </NavigationSection>
+            </RightSection>
         </HeaderContainer>
     );
 }
