@@ -50,7 +50,8 @@ const nextConfig = {
             "@hooks": require("path").resolve(__dirname, "./src/hooks"),
             "@config": require("path").resolve(__dirname, "./src/config"),
             "@lib": require("path").resolve(__dirname, "./src/lib"),
-            "@providers": require("path").resolve(__dirname, "./src/providers")
+            "@providers": require("path").resolve(__dirname, "./src/providers"),
+            "@contexts": require("path").resolve(__dirname, "./src/contexts")
         };
         return config;
     },

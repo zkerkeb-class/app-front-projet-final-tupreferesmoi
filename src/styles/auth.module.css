@@ -5,20 +5,21 @@
     justify-content: center;
     min-height: 100vh;
     padding: 2rem;
-    background: linear-gradient(to bottom, #282828, #121212);
+    background: var(--background-color);
 }
 
 .authCard {
-    background-color: #282828;
+    background-color: var(--surface-color);
     padding: 2rem;
     border-radius: 8px;
     width: 100%;
     max-width: 450px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--secondary-hover-color);
 }
 
 .title {
-    color: #fff;
+    color: var(--text-color);
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 2rem;
@@ -38,7 +39,7 @@
 }
 
 .label {
-    color: #fff;
+    color: var(--text-color);
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -46,83 +47,79 @@
 .input {
     padding: 0.75rem;
     border-radius: 4px;
-    border: 1px solid #404040;
-    background-color: #121212;
-    color: #fff;
+    border: 1px solid var(--secondary-hover-color);
+    background-color: var(--surface-color);
+    color: var(--text-color);
     font-size: 1rem;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
     width: 100%;
 }
 
 .input:focus {
-    border-color: #1db954;
+    border-color: var(--primary-color);
     outline: none;
+    box-shadow: 0 0 0 2px var(--surface-color), 0 0 0 4px var(--primary-color);
 }
 
 .passwordInput {
     position: relative;
-    display: flex;
-    align-items: center;
 }
 
 .passwordToggle {
     position: absolute;
     right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
-    color: #9f9f9f;
+    color: var(--text-secondary-color);
     cursor: pointer;
-    padding: 0;
+    padding: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
-}
-
-[dir="rtl"] .passwordToggle {
-    right: auto;
-    left: 0.75rem;
+    transition: color 0.2s ease;
 }
 
 .passwordToggle:hover {
-    color: #fff;
+    color: var(--text-color);
 }
 
 .button {
-    background-color: #1db954;
-    color: #fff;
+    background-color: var(--primary-color);
+    color: white;
     padding: 0.75rem;
     border-radius: 500px;
     border: none;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .button:hover {
-    background-color: #1ed760;
+    background-color: var(--primary-hover-color);
 }
 
 .button:disabled {
-    background-color: #404040;
+    background-color: var(--secondary-color);
     cursor: not-allowed;
 }
 
 .error {
-    color: #ff4444;
+    color: var(--error-color);
     font-size: 0.9rem;
     margin-top: 0.5rem;
 }
 
 .hint {
-    color: #9f9f9f;
+    color: var(--text-secondary-color);
     font-size: 0.8rem;
     margin-top: 0.25rem;
 }
 
 .link {
-    color: #1db954;
+    color: var(--primary-color);
     text-decoration: none;
     font-size: 0.9rem;
     text-align: center;

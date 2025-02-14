@@ -2,8 +2,8 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { Inter } from "next/font/google";
 import StyledComponentsRegistry from "@lib/registry";
-import { ThemeProvider } from "styled-components";
-import { theme } from "@styles/theme";
+import { ThemeProvider as StyledThemeProvider } from "styled-components";
+import { getTheme } from "@styles/theme";
 import { Provider } from "react-redux";
 import { store } from "@store";
 import GlobalStyle from "@styles/GlobalStyle";
@@ -16,6 +16,7 @@ import {
     ContentWrapper,
 } from "@features/layout";
 import { AuthProvider } from "@features/auth/AuthContext";
+import { ThemeProvider, useTheme } from "@contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
 import "@config/i18n";
 
@@ -30,8 +31,9 @@ const inter = Inter({
     preload: true
 });
 
-export default function RootLayout({ children }) {
+function RootLayoutContent({ children }) {
     const { i18n } = useTranslation();
+    const { isDarkTheme } = useTheme();
 
     useEffect(() => {
         // Mettre à jour la direction du document en fonction de la langue actuelle
@@ -41,33 +43,43 @@ export default function RootLayout({ children }) {
     }, [i18n.language]);
 
     return (
-        <html lang={i18n.language} dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+        <StyledThemeProvider theme={getTheme(isDarkTheme)}>
+            <GlobalStyle />
+            <AppLayout>
+                <MainWrapper>
+                    <SidebarWrapper>
+                        <Suspense fallback={<Loader />}>
+                            <Sidebar />
+                        </Suspense>
+                    </SidebarWrapper>
+                    <MainContent>
+                        <Suspense fallback={<Loader />}>
+                            <Header />
+                        </Suspense>
+                        <ContentWrapper>
+                            {children}
+                        </ContentWrapper>
+                    </MainContent>
+                </MainWrapper>
+                <Suspense fallback={<Loader />}>
+                    <AudioPlayer />
+                </Suspense>
+            </AppLayout>
+        </StyledThemeProvider>
+    );
+}
+
+export default function RootLayout({ children }) {
+    return (
+        <html lang="fr" suppressHydrationWarning>
             <body suppressHydrationWarning className={inter.className}>
                 <AuthProvider>
                     <StyledComponentsRegistry>
                         <Provider store={store}>
-                            <ThemeProvider theme={theme}>
-                                <GlobalStyle />
-                                <AppLayout>
-                                    <MainWrapper>
-                                        <SidebarWrapper>
-                                            <Suspense fallback={<Loader />}>
-                                                <Sidebar />
-                                            </Suspense>
-                                        </SidebarWrapper>
-                                        <MainContent>
-                                            <Suspense fallback={<Loader />}>
-                                                <Header />
-                                            </Suspense>
-                                            <ContentWrapper>
-                                                {children}
-                                            </ContentWrapper>
-                                        </MainContent>
-                                    </MainWrapper>
-                                    <Suspense fallback={<Loader />}>
-                                        <AudioPlayer />
-                                    </Suspense>
-                                </AppLayout>
+                            <ThemeProvider>
+                                <RootLayoutContent>
+                                    {children}
+                                </RootLayoutContent>
                             </ThemeProvider>
                         </Provider>
                     </StyledComponentsRegistry>

@@ -12,7 +12,8 @@
             "@hooks/*": ["src/hooks/*"],
             "@config/*": ["src/config/*"],
             "@lib/*": ["src/lib/*"],
-            "@providers/*": ["src/providers/*"]
+            "@providers/*": ["src/providers/*"],
+            "@contexts/*": ["src/contexts/*"]
         }
     }
 }

@@ -2,13 +2,14 @@
 
 import React from "react";
 import styled from "styled-components";
-import { Home, Grid, ChevronLeft, ChevronRight, Search } from "react-feather";
+import { Home, ChevronLeft, ChevronRight, Search, Sun, Moon } from "react-feather";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import UserMenu from "../../../components/common/UserMenu";
-import SearchBar from "../../../components/common/search/SearchBar";
-import LanguageSelector from "../../../components/common/LanguageSelector";
+import UserMenu from "@components/common/UserMenu";
+import SearchBar from "@components/common/search/SearchBar";
+import LanguageSelector from "@components/common/LanguageSelector";
+import { useTheme } from "@contexts/ThemeContext";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -77,22 +78,6 @@ const SearchContainer = styled.div`
     position: relative;
 `;
 
-const BrowseButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    width: 32px;
-    height: 32px;
-    color: ${({ theme }) => theme.colors.text};
-    cursor: pointer;
-
-    &:hover {
-        color: ${({ theme }) => theme.colors.primary};
-    }
-`;
-
 const RightSection = styled(NavigationSection)`
     gap: 1rem;
 `;
@@ -126,12 +111,49 @@ const SearchIcon = styled(Search)`
     height: 20px;
 `;
 
+const ThemeButton = styled.button`
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: ${({ theme }) => theme.colors.surface};
+    border: none;
+    color: ${({ theme }) => theme.colors.text};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background-color: ${({ theme }) => theme.colors.surfaceHover};
+        transform: scale(1.05);
+    }
+
+    .sun, .moon {
+        position: absolute;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sun {
+        opacity: ${({ $isDark }) => $isDark ? 1 : 0};
+        transform: ${({ $isDark }) => $isDark ? 'rotate(0) scale(1)' : 'rotate(-90deg) scale(0.5)'};
+    }
+
+    .moon {
+        opacity: ${({ $isDark }) => $isDark ? 0 : 1};
+        transform: ${({ $isDark }) => $isDark ? 'rotate(90deg) scale(0.5)' : 'rotate(0) scale(1)'};
+    }
+`;
+
 export const searchBarRef = React.createRef();
 
 export default function Header() {
     const router = useRouter();
     const { i18n, t } = useTranslation();
     const isRTL = i18n.language === 'ar';
+    const { isDarkTheme, toggleTheme } = useTheme();
 
     return (
         <HeaderContainer $isRTL={isRTL}>
@@ -155,9 +177,14 @@ export default function Header() {
             </SearchContainer>
 
             <RightSection $isRTL={isRTL}>
-                <BrowseButton>
-                    <Grid size={24} />
-                </BrowseButton>
+                <ThemeButton 
+                    onClick={toggleTheme} 
+                    title={t(isDarkTheme ? 'theme.switchToLight' : 'theme.switchToDark')}
+                    $isDark={isDarkTheme}
+                >
+                    <Sun className="sun" size={20} />
+                    <Moon className="moon" size={20} />
+                </ThemeButton>
                 <LanguageSelector />
                 <UserMenu />
             </RightSection>
