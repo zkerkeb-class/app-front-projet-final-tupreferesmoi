@@ -204,5 +204,9 @@
         },
         "noResults": "Aucun résultat trouvé",
         "noResultsIn": "dans {{filter}}"
+    },
+    "theme": {
+        "switchToLight": "Passer au thème clair",
+        "switchToDark": "Passer au thème sombre"
     }
 } 

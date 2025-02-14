@@ -204,5 +204,9 @@
         },
         "noResults": "لم يتم العثور على نتائج",
         "noResultsIn": "في {{filter}}"
+    },
+    "theme": {
+        "switchToLight": "التبديل إلى السمة الفاتحة",
+        "switchToDark": "التبديل إلى السمة الداكنة"
     }
 } 
