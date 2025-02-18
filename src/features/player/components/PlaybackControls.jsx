@@ -16,7 +16,7 @@ import { ProgressBar, TimeDisplay } from "../../../styles/common/controls";
 import { IconButton } from "../../../components/common";
 import { formatTime } from "../../../utils/formatTime";
 import { useDispatch, useSelector } from "react-redux";
-import { setIsPlaying, setMode, setShuffleMode, playNext, playPrevious, setCurrentTime } from "../../../store/slices/playerSlice";
+import { setIsPlaying, setMode, setShuffleMode, playNext } from "../../../store/slices/playerSlice";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { PLAYER_MODES } from "../constants";
 
@@ -34,7 +34,7 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
         queue,
         currentTrackIndex 
     } = useSelector((state) => state.player);
-    const { handleProgressChange } = useAudioPlayer();
+    const { handleProgressChange, handleSkipToStart, handleSkipToEnd } = useAudioPlayer();
 
     const handleTogglePlay = () => {
         if (!currentTrack) return;
@@ -59,20 +59,7 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
         dispatch(setShuffleMode(!shuffleEnabled));
     };
 
-    const handleSkipToStart = () => {
-        if (!currentTrack) return;
-        
-        // Si on est à plus de 5 secondes dans la chanson, on revient au début
-        if (currentTime > 5) {
-            dispatch(setCurrentTime(0));
-        } 
-        // Sinon, on va à la chanson précédente si elle existe
-        else if (currentTrackIndex > 0) {
-            dispatch(playPrevious());
-        }
-    };
-
-    const handleSkipToEnd = () => {
+    const handleSkipToNext = () => {
         if (!currentTrack) return;
         
         // S'il y a une prochaine chanson, on la joue
@@ -163,7 +150,7 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                         {isPlaying ? <Pause /> : <Play />}
                     </IconButton>
                     <IconButton
-                        onClick={handleSkipToEnd}
+                        onClick={handleSkipToNext}
                         disabled={disabled || currentTrackIndex === queue?.length - 1}
                         title={t('player.next')}
                     >
