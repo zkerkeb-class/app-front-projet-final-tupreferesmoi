@@ -10,13 +10,11 @@ export const TrackInfoContainer = styled.div`
     align-items: center;
     gap: 12px;
     min-width: 180px;
-    max-width: 300px;
+    overflow: hidden;
 
     img {
         border-radius: 4px;
-        flex-shrink: 0;
-        width: 56px;
-        height: 56px;
+        object-fit: cover;
     }
 
     .track-text {
@@ -25,37 +23,42 @@ export const TrackInfoContainer = styled.div`
         gap: 4px;
         min-width: 0;
         flex: 1;
-        overflow: hidden;
 
         .title, .artist {
-            position: relative;
             white-space: nowrap;
             overflow: hidden;
-            width: 100%;
             text-overflow: ellipsis;
-
-            span {
-                display: inline-block;
-                position: relative;
-                padding-right: 12px;
-                max-width: none;
-                width: auto;
-
-                &.animate {
-                    animation: ${scrollText} 12s linear infinite;
-                }
-            }
         }
 
         .title {
             color: ${({ theme }) => theme.colors.text};
-            font-size: 14px;
             font-weight: 500;
         }
 
         .artist {
             color: ${({ theme }) => theme.colors.textSecondary};
-            font-size: 12px;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        gap: 8px;
+
+        img {
+            width: 40px !important;
+            height: 40px !important;
+        }
+
+        .track-text {
+            gap: 2px;
+
+            .title {
+                font-size: 0.875rem;
+            }
+
+            .artist {
+                font-size: 0.75rem;
+            }
         }
     }
 `;

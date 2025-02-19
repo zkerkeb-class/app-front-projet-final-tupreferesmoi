@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Volume2, VolumeX } from "react-feather";
 import { useTranslation } from "react-i18next";
@@ -13,11 +13,30 @@ export const VolumeControl = ({
     onToggleMute,
 }) => {
     const { t } = useTranslation();
+    const [isVolumeOpen, setIsVolumeOpen] = useState(false);
+    const volumeRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (volumeRef.current && !volumeRef.current.contains(event.target)) {
+                setIsVolumeOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleVolumeClick = () => {
+        setIsVolumeOpen(!isVolumeOpen);
+    };
 
     return (
-        <VolumeControlContainer>
+        <VolumeControlContainer ref={volumeRef} $isOpen={isVolumeOpen}>
             <IconButton 
-                onClick={onToggleMute} 
+                onClick={handleVolumeClick}
                 $active={isMuted}
                 title={isMuted ? t('player.unmute') : t('player.mute')}
             >
