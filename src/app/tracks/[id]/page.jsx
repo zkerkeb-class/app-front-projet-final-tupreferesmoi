@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause, Plus } from "react-feather";
+import { Play, Pause, Plus, ArrowLeft } from "react-feather";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,9 +16,44 @@ import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import authService from "@/services/authService";
 
+const BackButton = styled.button`
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.text};
+    transition: all 0.2s ease;
+    z-index: 2;
+
+    @media (max-width: 768px) {
+        display: flex;
+        top: 12px;
+        left: 16px;
+    }
+
+    &:hover {
+        transform: scale(1.1);
+        background: rgba(0, 0, 0, 0.9);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
 const Container = styled.div`
     padding: 60px 24px 24px;
     direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+    position: relative;
 
     @media (max-width: 768px) {
         padding: 40px 16px 16px;
@@ -280,6 +315,9 @@ export default function TrackPage({ params }) {
 
     return (
         <Container $isRTL={isRTL}>
+            <BackButton onClick={() => router.push("/tracks")} aria-label={t('common.back')}>
+                <ArrowLeft />
+            </BackButton>
             <TrackHeader>
                 <CoverArt>
                     <Image
