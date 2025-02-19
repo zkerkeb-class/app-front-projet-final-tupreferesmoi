@@ -35,4 +35,21 @@ export const PlayerContainer = styled.div`
             max-width: 200px;
         }
     }
+
+    @media (max-width: 375px) {
+        height: 120px;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        padding: 8px;
+        gap: 4px;
+
+        > *:first-child {
+            max-width: none;
+            justify-self: center;
+        }
+
+        > *:nth-child(2) {
+            order: -1;
+        }
+    }
 `;

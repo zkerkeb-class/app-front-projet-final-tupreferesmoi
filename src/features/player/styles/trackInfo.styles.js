@@ -61,4 +61,21 @@ export const TrackInfoContainer = styled.div`
             }
         }
     }
+
+    @media (max-width: 375px) {
+        justify-content: center;
+        width: 100%;
+        gap: 8px;
+
+        img {
+            width: 32px !important;
+            height: 32px !important;
+        }
+
+        .track-text {
+            flex: 0 1 auto;
+            text-align: center;
+            max-width: 200px;
+        }
+    }
 `;

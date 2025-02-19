@@ -62,6 +62,24 @@ export const ControlsContainer = styled.div`
             }
         }
 
+        @media (max-width: 375px) {
+            .control-buttons {
+                gap: 2px;
+                min-width: 0;
+                width: 100%;
+                justify-content: space-between;
+                padding: 0 8px;
+
+                .main-controls {
+                    gap: 8px;
+                }
+            }
+
+            .progress-container {
+                padding: 0 4px;
+            }
+        }
+
         button {
             display: flex;
             align-items: center;
