@@ -73,9 +73,19 @@ const CreateSection = styled.div`
 
 const PlaylistGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 24px;
     padding: 0;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
 `;
 
 const PlaylistCard = styled.div`
@@ -85,6 +95,14 @@ const PlaylistCard = styled.div`
     transition: all 0.3s ease;
     cursor: pointer;
     padding: 16px;
+
+    @media (max-width: 768px) {
+        padding: 12px;
+    }
+
+    @media (max-width: 480px) {
+        padding: 8px;
+    }
 
     &:hover {
         background: ${({ theme }) => theme.colors.surfaceHover};
@@ -130,12 +148,29 @@ const PlaylistInfo = styled.div`
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        @media (max-width: 768px) {
+            font-size: 14px;
+            margin: 0 0 4px 0;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 13px;
+        }
     }
 
     p {
         color: ${({ theme }) => theme.colors.textSecondary};
         font-size: 14px;
         margin: 0;
+
+        @media (max-width: 768px) {
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 11px;
+        }
     }
 `;
 

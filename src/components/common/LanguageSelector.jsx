@@ -44,6 +44,13 @@ const LanguageButton = styled.button`
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             z-index: 1001;
         }
+
+        @media (max-width: 768px) {
+            &:hover::before {
+                bottom: auto;
+                top: -40px;
+            }
+        }
     `}
 `;
 
@@ -90,7 +97,7 @@ const languages = [
     { code: 'ar', label: 'ع', fullName: 'العربية', dir: 'rtl' }
 ];
 
-const LanguageSelector = () => {
+const LanguageSelector = ({ menuClassName }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { i18n } = useTranslation();
     const menuRef = useRef(null);
@@ -142,7 +149,7 @@ const LanguageSelector = () => {
                     <ChevronDown size={16} />
                 </LanguageLabel>
             </LanguageButton>
-            <LanguageMenu $isOpen={isOpen}>
+            <LanguageMenu $isOpen={isOpen} className={menuClassName}>
                 {languages.map((language) => (
                     <LanguageOption
                         key={language.code}

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause, Plus } from "react-feather";
+import { Play, Pause, Plus, ArrowLeft } from "react-feather";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,9 +16,48 @@ import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import authService from "@/services/authService";
 
+const BackButton = styled.button`
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.text};
+    transition: all 0.2s ease;
+    z-index: 2;
+
+    @media (max-width: 768px) {
+        display: flex;
+        top: 12px;
+        left: 16px;
+    }
+
+    &:hover {
+        transform: scale(1.1);
+        background: rgba(0, 0, 0, 0.9);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
 const Container = styled.div`
     padding: 60px 24px 24px;
     direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+    position: relative;
+
+    @media (max-width: 768px) {
+        padding: 40px 16px 16px;
+    }
 `;
 
 const TrackHeader = styled.div`
@@ -27,6 +66,13 @@ const TrackHeader = styled.div`
     align-items: flex-end;
     margin-bottom: 32px;
     background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 16px;
+    }
 `;
 
 const CoverArt = styled.div`
@@ -36,6 +82,16 @@ const CoverArt = styled.div`
     box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
     border-radius: 4px;
     overflow: hidden;
+
+    @media (max-width: 768px) {
+        width: 192px;
+        height: 192px;
+    }
+
+    @media (max-width: 480px) {
+        width: 160px;
+        height: 160px;
+    }
 `;
 
 const TrackInfo = styled.div`
@@ -56,12 +112,24 @@ const TrackInfo = styled.div`
         padding: 0;
         color: ${({ theme }) => theme.colors.text};
         line-height: 1.1;
+
+        @media (max-width: 768px) {
+            font-size: 48px;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 36px;
+        }
     }
 
     .artist {
         font-size: 16px;
         color: ${({ theme }) => theme.colors.text};
         margin: 16px 0;
+
+        @media (max-width: 768px) {
+            margin: 12px 0;
+        }
     }
 
     .details {
@@ -73,6 +141,18 @@ const TrackInfo = styled.div`
             content: "•";
             margin: 0 8px;
         }
+
+        @media (max-width: 480px) {
+            font-size: 12px;
+            
+            span:not(:last-child)::after {
+                margin: 0 4px;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        width: 100%;
     }
 `;
 
@@ -90,6 +170,11 @@ const ActionButtons = styled.div`
     gap: 16px;
     margin-top: 32px;
     align-items: center;
+
+    @media (max-width: 768px) {
+        justify-content: center;
+        margin-top: 24px;
+    }
 `;
 
 const AddToPlaylistButton = styled.button`
@@ -230,6 +315,9 @@ export default function TrackPage({ params }) {
 
     return (
         <Container $isRTL={isRTL}>
+            <BackButton onClick={() => router.push("/tracks")} aria-label={t('common.back')}>
+                <ArrowLeft />
+            </BackButton>
             <TrackHeader>
                 <CoverArt>
                     <Image

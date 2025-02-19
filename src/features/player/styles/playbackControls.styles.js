@@ -33,6 +33,53 @@ export const ControlsContainer = styled.div`
             gap: 20px;
         }
 
+        @media (max-width: 768px) {
+            padding: 0;
+            gap: 4px;
+
+            .main-controls {
+                gap: 4px;
+            }
+
+            button {
+                width: 24px;
+                height: 24px;
+
+                svg {
+                    width: 14px;
+                    height: 14px;
+                }
+
+                &.play-pause {
+                    width: 32px;
+                    height: 32px;
+
+                    svg {
+                        width: 14px;
+                        height: 14px;
+                    }
+                }
+            }
+        }
+
+        @media (max-width: 375px) {
+            .control-buttons {
+                gap: 2px;
+                min-width: 0;
+                width: 100%;
+                justify-content: space-between;
+                padding: 0 8px;
+
+                .main-controls {
+                    gap: 8px;
+                }
+            }
+
+            .progress-container {
+                padding: 0 4px;
+            }
+        }
+
         button {
             display: flex;
             align-items: center;
@@ -90,5 +137,11 @@ export const ControlsContainer = styled.div`
         flex-direction: column;
         gap: 4px;
         min-width: 200px;
+
+        @media (max-width: 768px) {
+            min-width: 0;
+            gap: 2px;
+            font-size: 12px;
+        }
     }
 `;
