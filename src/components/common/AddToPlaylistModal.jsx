@@ -15,16 +15,22 @@ const ModalOverlay = styled.div`
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 16px;
 `;
 
 const ModalContent = styled.div`
     background: #282828;
-    padding: 32px;
+    padding: 24px;
     border-radius: 8px;
     width: 100%;
     max-width: 480px;
     position: relative;
     box-shadow: 0 8px 24px rgba(0,0,0,.5);
+
+    @media (max-width: 768px) {
+        padding: 20px;
+        max-width: 100%;
+    }
 `;
 
 const CloseButton = styled.button`
@@ -49,17 +55,28 @@ const CloseButton = styled.button`
 `;
 
 const Title = styled.h2`
-    margin: 0 0 32px;
+    margin: 0 0 24px;
     color: #fff;
     font-size: 24px;
     font-weight: 700;
+
+    @media (max-width: 768px) {
+        font-size: 20px;
+        margin: 0 0 20px;
+    }
 `;
 
 const PlaylistList = styled.div`
     max-height: 300px;
     overflow-y: auto;
-    margin: 16px -32px;
-    padding: 0 32px;
+    margin: 16px -24px;
+    padding: 0 24px;
+
+    @media (max-width: 768px) {
+        max-height: 250px;
+        margin: 12px -20px;
+        padding: 0 20px;
+    }
 
     &::-webkit-scrollbar {
         width: 8px;
@@ -93,6 +110,11 @@ const PlaylistItem = styled.button`
     font-size: 16px;
     text-align: left;
 
+    @media (max-width: 768px) {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
     &:hover {
         background: rgba(255, 255, 255, 0.1);
     }
@@ -105,6 +127,11 @@ const CreatePlaylistButton = styled(PlaylistItem)`
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     gap: 16px;
 
+    @media (max-width: 768px) {
+        padding: 12px;
+        gap: 12px;
+    }
+
     &:hover {
         color: #fff;
     }
@@ -112,6 +139,11 @@ const CreatePlaylistButton = styled(PlaylistItem)`
     svg {
         width: 24px;
         height: 24px;
+
+        @media (max-width: 768px) {
+            width: 20px;
+            height: 20px;
+        }
     }
 `;
 
@@ -125,6 +157,12 @@ const Input = styled.input`
     color: #fff;
     font-size: 16px;
     transition: all 0.2s;
+
+    @media (max-width: 768px) {
+        padding: 12px;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
 
     &:focus {
         outline: none;
@@ -140,6 +178,11 @@ const ButtonContainer = styled.div`
     display: flex;
     gap: 16px;
     margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+        gap: 12px;
+        margin-bottom: 12px;
+    }
 `;
 
 const BackButton = styled.button`
@@ -153,6 +196,11 @@ const BackButton = styled.button`
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
+
+    @media (max-width: 768px) {
+        padding: 12px;
+        font-size: 14px;
+    }
 
     &:hover {
         background: rgba(255, 255, 255, 0.2);
@@ -177,6 +225,11 @@ const CreateButton = styled.button`
     cursor: pointer;
     transition: all 0.2s;
 
+    @media (max-width: 768px) {
+        padding: 12px;
+        font-size: 14px;
+    }
+
     &:hover {
         background: #1ed760;
         transform: scale(1.02);
@@ -194,6 +247,12 @@ const Message = styled.div`
     border-radius: 4px;
     font-size: 14px;
     text-align: center;
+    
+    @media (max-width: 768px) {
+        padding: 10px;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
     
     &.success {
         background: rgba(29, 185, 84, 0.1);
