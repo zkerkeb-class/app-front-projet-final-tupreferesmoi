@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import UserMenu from "@components/common/UserMenu";
 import SearchBar from "@components/common/search/SearchBar";
 import LanguageSelector from "@components/common/LanguageSelector";
+import BurgerMenu from "@components/common/menu/BurgerMenu";
 import { useTheme } from "@contexts/ThemeContext";
 
 const HeaderContainer = styled.header`
@@ -22,6 +23,11 @@ const HeaderContainer = styled.header`
     top: 0;
     z-index: 100;
     direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+
+    @media (max-width: 768px) {
+        padding: ${({ theme }) => theme.spacing.sm}
+            ${({ theme }) => theme.spacing.md};
+    }
 `;
 
 const NavigationSection = styled.div`
@@ -29,6 +35,10 @@ const NavigationSection = styled.div`
     align-items: center;
     gap: 16px;
     flex-direction: ${({ $isRTL }) => $isRTL ? 'row-reverse' : 'row'};
+
+    @media (max-width: 768px) {
+        gap: 8px;
+    }
 `;
 
 const NavButton = styled.button`
@@ -44,6 +54,10 @@ const NavButton = styled.button`
     cursor: pointer;
     transition: all 0.2s ease;
     transform: ${({ $isRTL }) => $isRTL ? 'rotate(180deg)' : 'none'};
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.8);
@@ -76,10 +90,19 @@ const SearchContainer = styled.div`
     flex-grow: 1;
     max-width: 364px;
     position: relative;
+
+    @media (max-width: 768px) {
+        max-width: none;
+        margin: 0 8px;
+    }
 `;
 
 const RightSection = styled(NavigationSection)`
     gap: 1rem;
+
+    @media (max-width: 768px) {
+        gap: 8px;
+    }
 `;
 
 const SearchInput = styled.input`
@@ -126,6 +149,10 @@ const ThemeButton = styled.button`
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+    @media (max-width: 768px) {
+        display: none;
+    }
+
     &:hover {
         background-color: ${({ theme }) => theme.colors.surfaceHover};
         transform: scale(1.05);
@@ -144,6 +171,12 @@ const ThemeButton = styled.button`
     .moon {
         opacity: ${({ $isDark }) => $isDark ? 0 : 1};
         transform: ${({ $isDark }) => $isDark ? 'rotate(90deg) scale(0.5)' : 'rotate(0) scale(1)'};
+    }
+`;
+
+const LanguageSelectorWrapper = styled.div`
+    @media (max-width: 768px) {
+        display: none;
     }
 `;
 
@@ -185,8 +218,11 @@ export default function Header() {
                     <Sun className="sun" size={20} />
                     <Moon className="moon" size={20} />
                 </ThemeButton>
-                <LanguageSelector />
+                <LanguageSelectorWrapper>
+                    <LanguageSelector />
+                </LanguageSelectorWrapper>
                 <UserMenu />
+                <BurgerMenu />
             </RightSection>
         </HeaderContainer>
     );
