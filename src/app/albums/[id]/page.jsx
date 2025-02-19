@@ -23,11 +23,20 @@ import { useTranslation } from "react-i18next";
 import authService from "@/services/authService";
 
 const AlbumHeader = styled.div`
-    padding: 60px 24px 24px;
+    padding: 32px 24px;
     background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
     display: flex;
-    gap: 24px;
+    gap: 32px;
     align-items: flex-end;
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 24px;
+        padding: 24px 16px;
+    }
 `;
 
 const AlbumCover = styled.div`
@@ -35,117 +44,220 @@ const AlbumCover = styled.div`
     height: 232px;
     position: relative;
     box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+        width: 192px;
+        height: 192px;
+    }
+
+    @media (max-width: 480px) {
+        width: 160px;
+        height: 160px;
+    }
 `;
 
 const AlbumInfo = styled.div`
     flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     .album-type {
         font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
-        margin-bottom: 8px;
         color: ${({ theme }) => theme.colors.textSecondary};
+        letter-spacing: 0.1em;
     }
 
     h1 {
-        font-size: 72px;
+        font-size: 48px;
         font-weight: 900;
         margin: 0;
         padding: 0;
         color: ${({ theme }) => theme.colors.text};
         line-height: 1.1;
+
+        @media (max-width: 768px) {
+            font-size: 36px;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 28px;
+        }
     }
 
     .artist {
         font-size: 16px;
         color: ${({ theme }) => theme.colors.text};
-        margin: 16px 0;
+        margin: 4px 0;
 
         a {
             color: ${({ theme }) => theme.colors.text};
             text-decoration: none;
+            font-weight: 500;
 
             &:hover {
                 text-decoration: underline;
             }
         }
+
+        @media (max-width: 480px) {
+            font-size: 14px;
+        }
+    }
+
+    .details-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 8px;
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
     }
 
     .details {
-        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
         color: ${({ theme }) => theme.colors.textSecondary};
-        margin: 8px 0;
+        font-size: 14px;
 
         span:not(:last-child)::after {
             content: "•";
             margin: 0 8px;
+        }
+
+        @media (max-width: 768px) {
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 12px;
+            gap: 4px;
+
+            span:not(:last-child)::after {
+                margin: 0 4px;
+            }
         }
     }
 `;
 
 const TracksSection = styled.div`
     padding: 24px;
+    margin-top: 16px;
+
+    @media (max-width: 768px) {
+        padding: 16px;
+        margin-top: 8px;
+    }
 `;
 
 const TrackList = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 `;
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 16px 16px 6fr minmax(120px, 1fr) 40px;
-    padding: 8px;
-    border-radius: 4px;
+    grid-template-columns: 40px 1fr auto 40px;
+    padding: 12px 16px;
+    border-radius: 8px;
     align-items: center;
     gap: 16px;
+    transition: background-color 0.2s ease;
 
-    &:hover {
-        background: rgba(255, 255, 255, 0.1);
+    @media (max-width: 768px) {
+        grid-template-columns: 32px 1fr 40px;
+        padding: 10px 12px;
+        gap: 12px;
     }
 
-    .track-number {
-        color: ${({ theme }) => theme.colors.textSecondary};
-        font-size: 14px;
+    @media (hover: hover) {
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
     }
 
-    .track-play {
-        opacity: 0;
-    }
-
-    &:hover .track-number {
-        opacity: 0;
-    }
-
-    &:hover .track-play {
-        opacity: 1;
-    }
-
-    .track-title {
+    .track-number-play {
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        justify-content: center;
+        position: relative;
 
-        img {
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
+        @media (max-width: 768px) {
+            width: 32px;
+            height: 32px;
         }
 
-        .title-text {
-            display: flex;
-            flex-direction: column;
+        .track-number {
+            color: ${({ theme }) => theme.colors.textSecondary};
+            font-size: 16px;
+            position: absolute;
+        }
 
-            .title {
-                color: ${({ theme }) => theme.colors.text};
-                font-size: 16px;
+        .track-play {
+            position: absolute;
+            opacity: 0;
+        }
+
+        @media (hover: hover) {
+            &:hover .track-number {
+                opacity: 0;
             }
+            &:hover .track-play {
+                opacity: 1;
+            }
+        }
 
-            .artist {
-                color: ${({ theme }) => theme.colors.textSecondary};
+        @media (hover: none) {
+            .track-play {
+                opacity: 1;
+            }
+            .track-number {
+                display: none;
+            }
+        }
+    }
+
+    .track-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+
+        .track-title {
+            color: ${({ theme }) => theme.colors.text};
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @media (max-width: 768px) {
                 font-size: 14px;
+            }
+        }
+
+        .track-artist {
+            color: ${({ theme }) => theme.colors.textSecondary};
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @media (max-width: 768px) {
+                font-size: 12px;
             }
         }
     }
@@ -153,29 +265,52 @@ const TrackItem = styled.div`
     .track-duration {
         color: ${({ theme }) => theme.colors.textSecondary};
         font-size: 14px;
-        text-align: right;
+        padding: 0 8px;
+
+        @media (max-width: 768px) {
+            display: none;
+        }
     }
 `;
 
 const AddToPlaylistButton = styled.button`
-    opacity: 0;
     background: transparent;
     border: none;
     color: ${({ theme }) => theme.colors.textSecondary};
     cursor: pointer;
-    padding: 4px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    border-radius: 50%;
+    transition: all 0.2s ease;
 
-    &:hover {
-        color: ${({ theme }) => theme.colors.text};
-        transform: scale(1.1);
+    @media (hover: hover) {
+        opacity: 0;
+
+        &:hover {
+            color: ${({ theme }) => theme.colors.text};
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ${TrackItem}:hover & {
+            opacity: 1;
+        }
     }
 
-    ${TrackItem}:hover & {
+    @media (hover: none) {
         opacity: 1;
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+
+        @media (max-width: 768px) {
+            width: 18px;
+            height: 18px;
+        }
     }
 `;
 
@@ -183,6 +318,10 @@ const ControlsContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 16px;
+
+    @media (max-width: 768px) {
+        margin-top: 8px;
+    }
 `;
 
 export default function AlbumPage({ params }) {
@@ -290,7 +429,7 @@ export default function AlbumPage({ params }) {
     return (
         <>
             <div>
-                <AlbumHeader>
+                <AlbumHeader $isRTL={isRTL}>
                     <AlbumCover>
                         <Image
                             src={album?.coverImage?.large || DEFAULT_IMAGE}
@@ -310,32 +449,36 @@ export default function AlbumPage({ params }) {
                                 {album?.artistId?.name || t('common.unknownArtist')}
                             </Link>
                         </div>
-                        <div className="details">
-                            <span>
-                                {album?.releaseDate
-                                    ? new Date(album.releaseDate).getFullYear()
-                                    : ""}
-                            </span>
-                            <span>{t('albums.trackCount', { count: tracks?.length || 0 })}</span>
-                            <span>
-                                {t('albums.duration', {
-                                    minutes: tracks?.length
-                                        ? Math.floor(
-                                              tracks.reduce(
-                                                  (acc, track) =>
-                                                      acc + (track.duration || 0),
-                                                  0
-                                              ) / 60
-                                          )
-                                        : 0
-                                })}
-                            </span>
+                        <div className="details-container">
+                            <div className="details">
+                                <span>
+                                    {album?.releaseDate
+                                        ? new Date(album.releaseDate).getFullYear()
+                                        : ""}
+                                </span>
+                                <span>{t('albums.trackCount', { count: tracks?.length || 0 })}</span>
+                                <span>
+                                    {t('albums.duration', {
+                                        minutes: tracks?.length
+                                            ? Math.floor(
+                                                  tracks.reduce(
+                                                      (acc, track) =>
+                                                          acc + (track.duration || 0),
+                                                      0
+                                                  ) / 60
+                                            )
+                                            : 0
+                                    })}
+                                </span>
+                            </div>
+                            <ControlsContainer>
+                                <PlaybackControls 
+                                    onPlay={handleMainPlay}
+                                    isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
+                                    hasMultipleTracks={tracks.length > 1}
+                                />
+                            </ControlsContainer>
                         </div>
-                        <PlaybackControls 
-                            onPlay={handleMainPlay}
-                            isPlaying={isPlaying && tracks.length > 0 && isCurrentTrack(tracks[0])}
-                            hasMultipleTracks={tracks.length > 1}
-                        />
                     </AlbumInfo>
                 </AlbumHeader>
 
@@ -343,31 +486,32 @@ export default function AlbumPage({ params }) {
                     <TrackList>
                         {tracks.map((track, index) => (
                             <TrackItem key={track._id || track.id}>
-                                <span className="track-number">{index + 1}</span>
-                                <div className="track-play">
-                                    <PlayButton 
-                                        onClick={() => handleTrackPlay(track, index)}
-                                        isPlaying={isCurrentTrack(track) && isPlaying}
-                                        size="small"
-                                    />
-                                </div>
-                                <div className="track-title">
-                                    <div className="title-text">
-                                        <span className="title">{track.title || t('common.unknownTitle')}</span>
-                                        <span className="artist">
-                                            <Link href={`/artists/${track.artistId?._id || album?.artistId?._id}`}>
-                                                {track.artistId?.name || album?.artistId?.name || t('common.unknownArtist')}
-                                            </Link>
-                                        </span>
+                                <div className="track-number-play">
+                                    <span className="track-number">{index + 1}</span>
+                                    <div className="track-play">
+                                        <PlayButton 
+                                            onClick={() => handleTrackPlay(track, index)}
+                                            isPlaying={isCurrentTrack(track) && isPlaying}
+                                            size="small"
+                                        />
                                     </div>
                                 </div>
-                                <span className="track-duration">
+                                <div className="track-info">
+                                    <div className="track-title">{track.title || t('common.unknownTitle')}</div>
+                                    <div className="track-artist">
+                                        <Link href={`/artists/${track.artistId?._id || album?.artistId?._id}`}>
+                                            {track.artistId?.name || album?.artistId?.name || t('common.unknownArtist')}
+                                        </Link>
+                                    </div>
+                                </div>
+                                <div className="track-duration">
                                     {formatDuration(track.duration)}
-                                </span>
+                                </div>
                                 <AddToPlaylistButton
                                     onClick={() => handleAddToPlaylist(track._id || track.id)}
+                                    aria-label={t('common.addToPlaylist')}
                                 >
-                                    <Plus size={20} />
+                                    <Plus />
                                 </AddToPlaylistButton>
                             </TrackItem>
                         ))}

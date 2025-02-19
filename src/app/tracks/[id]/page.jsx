@@ -19,6 +19,10 @@ import authService from "@/services/authService";
 const Container = styled.div`
     padding: 60px 24px 24px;
     direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+
+    @media (max-width: 768px) {
+        padding: 40px 16px 16px;
+    }
 `;
 
 const TrackHeader = styled.div`
@@ -27,6 +31,13 @@ const TrackHeader = styled.div`
     align-items: flex-end;
     margin-bottom: 32px;
     background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 16px;
+    }
 `;
 
 const CoverArt = styled.div`
@@ -36,6 +47,16 @@ const CoverArt = styled.div`
     box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
     border-radius: 4px;
     overflow: hidden;
+
+    @media (max-width: 768px) {
+        width: 192px;
+        height: 192px;
+    }
+
+    @media (max-width: 480px) {
+        width: 160px;
+        height: 160px;
+    }
 `;
 
 const TrackInfo = styled.div`
@@ -56,12 +77,24 @@ const TrackInfo = styled.div`
         padding: 0;
         color: ${({ theme }) => theme.colors.text};
         line-height: 1.1;
+
+        @media (max-width: 768px) {
+            font-size: 48px;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 36px;
+        }
     }
 
     .artist {
         font-size: 16px;
         color: ${({ theme }) => theme.colors.text};
         margin: 16px 0;
+
+        @media (max-width: 768px) {
+            margin: 12px 0;
+        }
     }
 
     .details {
@@ -73,6 +106,18 @@ const TrackInfo = styled.div`
             content: "•";
             margin: 0 8px;
         }
+
+        @media (max-width: 480px) {
+            font-size: 12px;
+            
+            span:not(:last-child)::after {
+                margin: 0 4px;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        width: 100%;
     }
 `;
 
@@ -90,6 +135,11 @@ const ActionButtons = styled.div`
     gap: 16px;
     margin-top: 32px;
     align-items: center;
+
+    @media (max-width: 768px) {
+        justify-content: center;
+        margin-top: 24px;
+    }
 `;
 
 const AddToPlaylistButton = styled.button`
