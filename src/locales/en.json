@@ -22,7 +22,10 @@
         "unknownAlbum": "Unknown album",
         "error": {
             "invalidResponse": "Invalid server response"
-        }
+        },
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit"
     },
     "pagination": {
         "pageInfo": "Page {{current}} of {{total}} ({{count}} {{items}})"
@@ -208,5 +211,14 @@
     "theme": {
         "switchToLight": "Switch to light theme",
         "switchToDark": "Switch to dark theme"
+    },
+    "menu": {
+        "title": "Spotify-Ynov",
+        "toggle": "Toggle menu",
+        "close": "Close menu",
+        "myPlaylists": "My Playlists",
+        "allTracks": "All Tracks",
+        "allArtists": "All Artists",
+        "allAlbums": "All Albums"
     }
 } 
