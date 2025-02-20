@@ -8,12 +8,12 @@ import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTrack, setIsPlaying, setQueue, setCurrentTrackIndex } from "@/store/slices/playerSlice";
 import playlistApi from "@/services/playlistApi";
-import { musicApi } from "../../../services/musicApi";
+import { musicApi } from "@services/musicApi";
 import { formatTime } from '@/utils/formatTime';
 import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
-import { useTrackPlayback } from "@/hooks/useTrackPlayback";
-import { PlayButton } from "@/components/common/buttons/PlayButton";
+import { useTrackPlayback } from "@hooks/useTrackPlayback";
+import { PlayButton } from "@components/common/buttons/PlayButton";
 import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
 import { useTranslation } from "react-i18next";
 

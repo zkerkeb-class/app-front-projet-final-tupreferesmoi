@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import MediaCard from "../../components/media/MediaCard";
-import { musicApi } from "../../services/musicApi";
+import MediaCard from "@components/media/MediaCard";
+import { musicApi } from "@services/musicApi";
 import { useDispatch } from "react-redux";
-import { setCurrentTrack, setIsPlaying } from "../../store/slices/playerSlice";
+import { setCurrentTrack, setIsPlaying } from "@store/slices/playerSlice";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};

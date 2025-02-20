@@ -18,6 +18,7 @@ import {
 import { AuthProvider } from "@features/auth/AuthContext";
 import { ThemeProvider, useTheme } from "@contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
+import { QueryProvider } from "@providers/QueryProvider";
 import "@config/i18n";
 
 // Lazy load major components

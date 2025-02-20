@@ -5,21 +5,21 @@ import styled from "styled-components";
 import { Play, Pause, Plus, ArrowLeft } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { musicApi } from "../../../services/musicApi";
+import { musicApi } from "@services/musicApi";
 import { useDispatch, useSelector } from "react-redux";
 import {
     setCurrentTrack,
     setIsPlaying,
     setQueue,
     setCurrentTrackIndex,
-} from "../../../store/slices/playerSlice";
+} from "@store/slices/playerSlice";
 import Link from "next/link";
-import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
-import { PlayButton } from "@/components/common/buttons/PlayButton";
-import { useTrackPlayback } from "@/hooks/useTrackPlayback";
-import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
+import AddToPlaylistModal from "@components/common/AddToPlaylistModal";
+import { PlayButton } from "@components/common/buttons/PlayButton";
+import { useTrackPlayback } from "@hooks/useTrackPlayback";
+import { PlaybackControls } from "@components/common/buttons/PlaybackControls";
 import { useTranslation } from "react-i18next";
-import authService from "@/services/authService";
+import authService from "@services/authService";
 
 const BackButton = styled.button`
     position: absolute;

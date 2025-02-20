@@ -6,21 +6,21 @@ import { Play, Pause, Plus, ArrowLeft } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { musicApi } from "../../../services/musicApi";
+import { musicApi } from "@services/musicApi";
 import { useDispatch, useSelector } from "react-redux";
 import {
     setCurrentTrack,
     setIsPlaying,
     setQueue,
     setCurrentTrackIndex,
-} from "../../../store/slices/playerSlice";
-import { DEFAULT_IMAGE } from "../../../features/player/constants";
-import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
-import { useTrackPlayback } from "@/hooks/useTrackPlayback";
-import { PlayButton } from "@/components/common/buttons/PlayButton";
-import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
+} from "@store/slices/playerSlice";
+import { DEFAULT_IMAGE } from "@features/player/constants";
+import AddToPlaylistModal from "@components/common/AddToPlaylistModal";
+import { useTrackPlayback } from "@hooks/useTrackPlayback";
+import { PlayButton } from "@components/common/buttons/PlayButton";
+import { PlaybackControls } from "@components/common/buttons/PlaybackControls";
 import { useTranslation } from "react-i18next";
-import authService from "@/services/authService";
+import authService from "@services/authService";
 
 const BackButton = styled.button`
     position: absolute;
