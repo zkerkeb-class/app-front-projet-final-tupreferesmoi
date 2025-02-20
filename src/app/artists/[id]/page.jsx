@@ -143,7 +143,7 @@ const TrackList = styled.div`
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 40px 1fr 80px 40px;
+    grid-template-columns: 40px minmax(0, 1fr) 80px 40px;
     padding: 12px 16px;
     border-radius: 8px;
     align-items: center;
@@ -151,9 +151,9 @@ const TrackItem = styled.div`
     transition: background-color 0.2s ease;
 
     @media (max-width: 768px) {
-        grid-template-columns: 32px 1fr 80px 40px;
+        grid-template-columns: 32px minmax(0, 1fr) 60px 32px;
         padding: 10px 12px;
-        gap: 12px;
+        gap: 8px;
     }
 
     @media (hover: hover) {
@@ -220,6 +220,7 @@ const TrackItem = styled.div`
         flex-direction: column;
         gap: 4px;
         min-width: 0;
+        overflow: hidden;
 
         .title {
             color: ${({ theme }) => theme.colors.text};
@@ -228,6 +229,7 @@ const TrackItem = styled.div`
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            width: 100%;
 
             @media (max-width: 768px) {
                 font-size: 14px;
@@ -240,6 +242,7 @@ const TrackItem = styled.div`
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            width: 100%;
 
             @media (max-width: 768px) {
                 font-size: 12px;
@@ -260,7 +263,7 @@ const TrackItem = styled.div`
         color: ${({ theme }) => theme.colors.textSecondary};
         font-size: 14px;
         text-align: right;
-        padding-right: 8px;
+        white-space: nowrap;
 
         @media (max-width: 768px) {
             font-size: 12px;
@@ -280,13 +283,19 @@ const AddToPlaylistButton = styled.button`
     justify-content: center;
     transition: all 0.2s;
 
+    @media (hover: none) {
+        opacity: 1;
+    }
+
     &:hover {
         color: ${({ theme }) => theme.colors.text};
         transform: scale(1.1);
     }
 
     ${TrackItem}:hover & {
-        opacity: 1;
+        @media (hover: hover) {
+            opacity: 1;
+        }
     }
 `;
 

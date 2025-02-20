@@ -15,12 +15,47 @@ import { useTranslation } from "react-i18next";
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
     direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+
+    @media (max-width: 680px) {
+        padding: ${({ theme }) => theme.spacing.lg};
+    }
+
+    @media (max-width: 400px) {
+        padding: ${({ theme }) => theme.spacing.md};
+    }
 `;
 
 const Grid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(6, 180px);
     gap: 24px;
+    justify-content: center;
+    width: 100%;
+
+    @media (max-width: 1400px) {
+        grid-template-columns: repeat(5, 180px);
+    }
+
+    @media (max-width: 1200px) {
+        grid-template-columns: repeat(4, 180px);
+    }
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(3, 180px);
+        gap: 16px;
+    }
+
+    @media (max-width: 680px) {
+        grid-template-columns: repeat(2, 160px);
+        gap: 12px;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 400px) {
+        grid-template-columns: repeat(2, 140px);
+        gap: 10px;
+        font-size: 0.8rem;
+    }
 `;
 
 export default function Home() {

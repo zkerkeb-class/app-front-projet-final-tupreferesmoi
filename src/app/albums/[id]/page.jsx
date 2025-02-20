@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause, Plus } from "react-feather";
+import { Play, Pause, Plus, ArrowLeft } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -22,6 +22,40 @@ import { PlaybackControls } from "@/components/common/buttons/PlaybackControls";
 import { useTranslation } from "react-i18next";
 import authService from "@/services/authService";
 
+const BackButton = styled.button`
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.text};
+    transition: all 0.2s ease;
+    z-index: 2;
+
+    @media (max-width: 768px) {
+        display: flex;
+        top: 12px;
+        left: 16px;
+    }
+
+    &:hover {
+        transform: scale(1.1);
+        background: rgba(0, 0, 0, 0.9);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
 const AlbumHeader = styled.div`
     padding: 32px 24px;
     background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
@@ -29,6 +63,7 @@ const AlbumHeader = styled.div`
     gap: 32px;
     align-items: flex-end;
     direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+    position: relative;
 
     @media (max-width: 768px) {
         flex-direction: column;
@@ -430,6 +465,9 @@ export default function AlbumPage({ params }) {
         <>
             <div>
                 <AlbumHeader $isRTL={isRTL}>
+                    <BackButton onClick={() => router.push("/albums")} aria-label={t('common.back')}>
+                        <ArrowLeft />
+                    </BackButton>
                     <AlbumCover>
                         <Image
                             src={album?.coverImage?.large || DEFAULT_IMAGE}
