@@ -15,7 +15,7 @@ import {
     setCurrentTrackIndex,
 } from "@store/slices/playerSlice";
 import { DEFAULT_IMAGE } from "@features/player/constants";
-import AddToPlaylistModal from "@components/common/AddToPlaylistModal";
+import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { useTrackPlayback } from "@hooks/useTrackPlayback";
 import { PlayButton } from "@components/common/buttons/PlayButton";
 import { PlaybackControls } from "@components/common/buttons/PlaybackControls";
@@ -557,7 +557,7 @@ export default function AlbumPage({ params }) {
                 </TracksSection>
             </div>
 
-            <AddToPlaylistModal
+            <DynamicAddToPlaylistModal
                 isOpen={isModalOpen}
                 onClose={() => {
                     setIsModalOpen(false);

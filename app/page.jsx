@@ -8,7 +8,6 @@ import { useHomeData } from "@features/home/hooks/useHomeData";
 import { RecentTracksSection } from "@features/home/components/RecentTracksSection";
 import { PopularArtistsSection } from "@features/home/components/PopularArtistsSection";
 import { RecentAlbumsSection } from "@features/home/components/RecentAlbumsSection";
-import { LazyLoadSection } from "@components/common/LazyLoadSection";
 import { GridLoader } from "@components/common/loaders";
 
 const Container = styled.div`
@@ -24,6 +23,10 @@ const Container = styled.div`
     }
 `;
 
+const Section = styled.section`
+    margin-bottom: 2rem;
+`;
+
 export default function Home() {
     const router = useRouter();
     const { i18n } = useTranslation();
@@ -37,31 +40,35 @@ export default function Home() {
 
     return (
         <Container $isRTL={isRTL}>
-            <RecentTracksSection
-                tracks={recentTracks}
-                isLoading={isLoading}
-                onTrackClick={(id) => handleCardClick("track", id)}
-            />
+            <Section>
+                <Suspense fallback={<GridLoader count={3} />}>
+                    <RecentTracksSection
+                        tracks={recentTracks}
+                        isLoading={isLoading}
+                        onTrackClick={(id) => handleCardClick("track", id)}
+                    />
+                </Suspense>
+            </Section>
 
-            <Suspense fallback={<GridLoader count={6} />}>
-                <LazyLoadSection>
+            <Section>
+                <Suspense fallback={<GridLoader count={6} />}>
                     <PopularArtistsSection
                         artists={popularArtists}
                         isLoading={isLoading}
                         onArtistClick={(id) => handleCardClick("artist", id)}
                     />
-                </LazyLoadSection>
-            </Suspense>
+                </Suspense>
+            </Section>
 
-            <Suspense fallback={<GridLoader count={6} />}>
-                <LazyLoadSection>
+            <Section>
+                <Suspense fallback={<GridLoader count={6} />}>
                     <RecentAlbumsSection
                         albums={recentAlbums}
                         isLoading={isLoading}
                         onAlbumClick={(id) => handleCardClick("album", id)}
                     />
-                </LazyLoadSection>
-            </Suspense>
+                </Suspense>
+            </Section>
         </Container>
     );
 }

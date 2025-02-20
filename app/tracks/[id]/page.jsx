@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { setCurrentTrack, setIsPlaying } from "@/store/slices/playerSlice";
 import { getAudioInstance } from "@/utils/audioInstance";
-import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
+import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import authService from "@/services/authService";
 
@@ -359,7 +359,7 @@ export default function TrackPage({ params }) {
                 </TrackInfo>
             </TrackHeader>
 
-            <AddToPlaylistModal
+            <DynamicAddToPlaylistModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 trackId={track?.id || track?._id || params.id}

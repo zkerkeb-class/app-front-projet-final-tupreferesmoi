@@ -14,7 +14,7 @@ import {
     setCurrentTrackIndex,
 } from "@store/slices/playerSlice";
 import Link from "next/link";
-import AddToPlaylistModal from "@components/common/AddToPlaylistModal";
+import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { PlayButton } from "@components/common/buttons/PlayButton";
 import { useTrackPlayback } from "@hooks/useTrackPlayback";
 import { PlaybackControls } from "@components/common/buttons/PlaybackControls";
@@ -491,7 +491,7 @@ export default function ArtistPage({ params }) {
                 </TrackList>
             </TracksSection>
 
-            <AddToPlaylistModal
+            <DynamicAddToPlaylistModal
                 isOpen={isModalOpen}
                 onClose={() => {
                     setIsModalOpen(false);

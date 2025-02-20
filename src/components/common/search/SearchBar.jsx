@@ -3,9 +3,8 @@ import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { musicApi } from '../../../services/musicApi';
-import SearchResults from './SearchResults';
-import { FiSearch } from 'react-icons/fi';
-import { IoMdClose } from 'react-icons/io';
+import { DynamicSearchResults } from '../dynamic';
+import { Search, X } from 'react-feather';
 
 const DEBOUNCE_DELAY = 300; // milliseconds
 
@@ -187,7 +186,7 @@ const SearchBar = React.forwardRef((props, ref) => {
             <SearchForm onSubmit={(e) => e.preventDefault()}>
                 <InputWrapper $isFocused={isFocused}>
                     <SearchIcon $isFocused={isFocused}>
-                        <FiSearch size={18} />
+                        <Search size={18} />
                     </SearchIcon>
                     <SearchInput
                         ref={ref}
@@ -204,21 +203,19 @@ const SearchBar = React.forwardRef((props, ref) => {
                             onClick={handleClear}
                             aria-label={t('common.cancel')}
                         >
-                            <IoMdClose size={20} />
+                            <X size={20} />
                         </ClearButton>
                     )}
                 </InputWrapper>
             </SearchForm>
             {(results || isLoading) && isFocused && (
-                <ResultsWrapper>
-                    <SearchResults
-                        results={results}
-                        isLoading={isLoading}
-                        activeFilter={activeFilter}
-                        onFilterChange={handleFilterChange}
-                        onResultClick={handleResultClick}
-                    />
-                </ResultsWrapper>
+                <DynamicSearchResults
+                    results={results}
+                    onResultClick={handleResultClick}
+                    isLoading={isLoading}
+                    activeFilter={activeFilter}
+                    onFilterChange={setActiveFilter}
+                />
             )}
         </SearchContainer>
     );

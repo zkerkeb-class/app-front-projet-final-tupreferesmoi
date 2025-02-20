@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled, { keyframes } from 'styled-components';
 import { DEFAULT_IMAGES } from '../../../features/player/constants';
-import { FiMusic, FiUser, FiDisc, FiList } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Music, User, Disc, List } from 'react-feather';
@@ -231,10 +230,10 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
 
     const filterButtons = [
         { key: 'ALL', label: t('search.filters.all'), icon: null },
-        { key: 'TRACKS', label: t('search.filters.tracks'), icon: FiMusic },
-        { key: 'ARTISTS', label: t('search.filters.artists'), icon: FiUser },
-        { key: 'ALBUMS', label: t('search.filters.albums'), icon: FiDisc },
-        { key: 'PLAYLISTS', label: t('search.filters.playlists'), icon: FiList }
+        { key: 'TRACKS', label: t('search.filters.tracks'), icon: Music },
+        { key: 'ARTISTS', label: t('search.filters.artists'), icon: User },
+        { key: 'ALBUMS', label: t('search.filters.albums'), icon: Disc },
+        { key: 'PLAYLISTS', label: t('search.filters.playlists'), icon: List }
     ];
 
     if (isLoading) {
@@ -291,13 +290,13 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
     const renderFallbackIcon = (type, size = 20) => {
         switch (type) {
             case 'track':
-                return <FiMusic size={size} />;
+                return <Music size={size} />;
             case 'artist':
-                return <FiUser size={size} />;
+                return <User size={size} />;
             case 'album':
-                return <FiDisc size={size} />;
+                return <Disc size={size} />;
             case 'playlist':
-                return <FiList size={size} />;
+                return <List size={size} />;
             default:
                 return null;
         }
@@ -471,7 +470,7 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
                     {shouldShowSection('tracks') && (
                         <ResultSection
                             title={t('search.sections.tracks')}
-                            icon={FiMusic}
+                            icon={Music}
                             items={results?.tracks}
                             type="track"
                             renderItem={renderTrackItem}
@@ -480,7 +479,7 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
                     {shouldShowSection('artists') && (
                         <ResultSection
                             title={t('search.sections.artists')}
-                            icon={FiUser}
+                            icon={User}
                             items={results?.artists}
                             type="artist"
                             renderItem={renderArtistItem}
@@ -489,7 +488,7 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
                     {shouldShowSection('albums') && (
                         <ResultSection
                             title={t('search.sections.albums')}
-                            icon={FiDisc}
+                            icon={Disc}
                             items={results?.albums}
                             type="album"
                             renderItem={renderAlbumItem}
@@ -498,7 +497,7 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
                     {shouldShowSection('playlists') && (
                         <ResultSection
                             title={t('search.sections.playlists')}
-                            icon={FiList}
+                            icon={List}
                             items={results?.playlists}
                             type="playlist"
                             renderItem={renderPlaylistItem}

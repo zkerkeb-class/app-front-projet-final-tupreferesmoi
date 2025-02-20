@@ -10,7 +10,7 @@ import { setCurrentTrack, setIsPlaying, setQueue, setCurrentTrackIndex } from "@
 import playlistApi from "@/services/playlistApi";
 import { musicApi } from "@services/musicApi";
 import { formatTime } from '@/utils/formatTime';
-import AddToPlaylistModal from "@/components/common/AddToPlaylistModal";
+import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { useTrackPlayback } from "@hooks/useTrackPlayback";
 import { PlayButton } from "@components/common/buttons/PlayButton";
@@ -792,7 +792,7 @@ export default function PlaylistPage() {
                 </TrackList>
             </TracksSection>
 
-            <AddToPlaylistModal
+            <DynamicAddToPlaylistModal
                 isOpen={isModalOpen}
                 onClose={() => {
                     setIsModalOpen(false);
