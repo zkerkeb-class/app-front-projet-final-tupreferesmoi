@@ -14,24 +14,52 @@ const SectionContainer = styled.section`
 const SectionHeader = styled.div`
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: ${({ theme }) => theme.spacing.lg};
+    align-items: flex-end;
+    margin-bottom: 20px;
+    padding: 0 24px;
     flex-direction: ${({ $isRTL }) => $isRTL ? 'row-reverse' : 'row'};
+
+    @media (max-width: 900px) {
+        padding: 0 16px;
+    }
+
+    @media (max-width: 400px) {
+        padding: 0 12px;
+    }
 `;
 
 const Title = styled.h2`
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: ${({ theme }) => theme.colors.text};
     margin: 0;
+    cursor: pointer;
+
+    @media (max-width: 1200px) {
+        font-size: 1.8rem;
+    }
+
+    @media (max-width: 900px) {
+        font-size: 1.6rem;
+    }
+
+    @media (max-width: 680px) {
+        font-size: 1.4rem;
+    }
+
+    &:hover {
+        text-decoration: underline;
+    }
 `;
 
 const ShowAllLink = styled(Link)`
     color: ${({ theme }) => theme.colors.textSecondary};
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 0.875rem;
-    transition: color 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-bottom: 0.3rem;
 
     &:hover {
         color: ${({ theme }) => theme.colors.text};
@@ -39,7 +67,7 @@ const ShowAllLink = styled(Link)`
 `;
 
 const Content = styled.div`
-    margin-bottom: 48px;
+    width: 100%;
 `;
 
 export function Section({ title, children, href, showAllText }) {
@@ -49,7 +77,9 @@ export function Section({ title, children, href, showAllText }) {
     return (
         <SectionContainer $isRTL={isRTL}>
             <SectionHeader $isRTL={isRTL}>
-                <Title>{title}</Title>
+                <Link href={href || "#"} style={{ textDecoration: "none" }}>
+                    <Title>{title}</Title>
+                </Link>
                 {href && <ShowAllLink href={href}>{showAllText}</ShowAllLink>}
             </SectionHeader>
             <Content>{children}</Content>
