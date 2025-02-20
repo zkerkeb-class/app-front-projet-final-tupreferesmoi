@@ -3,16 +3,16 @@ import ComponentLoader from './loaders/ComponentLoader';
 
 // Modals - Ces composants doivent rester dynamiques car ils sont chargés à la demande
 export const DynamicAddToPlaylistModal = dynamic(
-    () => import('./AddToPlaylistModal'),
+    () => import('@components/features/playlist/AddToPlaylistModal'),
     {
-        loading: () => <ComponentLoader />,
-        ssr: false
+        ssr: false,
+        loading: () => null,
     }
 );
 
 // Search Components - Le composant de recherche doit rester dynamique car il n'est chargé que lors d'une recherche
 export const DynamicSearchResults = dynamic(
-    () => import('./search/SearchResults'),
+    () => import('@components/features/search/SearchResults'),
     {
         loading: () => <ComponentLoader />,
         ssr: false

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { musicApi } from '../../../services/musicApi';
-import { DynamicSearchResults } from '../dynamic';
+import { musicApi } from '@services/musicApi';
+import { DynamicSearchResults } from '@components/common/dynamic';
 import { Search, X } from 'react-feather';
 
 const DEBOUNCE_DELAY = 300; // milliseconds

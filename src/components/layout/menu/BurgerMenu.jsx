@@ -4,7 +4,7 @@ import { Menu, X, Sun, Moon } from 'react-feather';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
-import LanguageSelector from '@components/common/LanguageSelector';
+import LanguageSelector from '@components/layout/LanguageSelector';
 import { useTheme } from '@contexts/ThemeContext';
 
 const MenuButton = styled.button`

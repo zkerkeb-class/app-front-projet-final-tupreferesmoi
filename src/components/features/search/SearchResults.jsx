@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled, { keyframes } from 'styled-components';
-import { DEFAULT_IMAGES } from '../../../features/player/constants';
+import { DEFAULT_IMAGES } from '@features/player/constants';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Music, User, Disc, List } from 'react-feather';
