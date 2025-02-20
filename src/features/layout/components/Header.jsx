@@ -6,10 +6,10 @@ import { Home, ChevronLeft, ChevronRight, Search, Sun, Moon } from "react-feathe
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import UserMenu from "@components/common/UserMenu";
-import SearchBar from "@components/common/search/SearchBar";
-import LanguageSelector from "@components/common/LanguageSelector";
-import BurgerMenu from "@components/common/menu/BurgerMenu";
+import UserMenu from "@components/layout/UserMenu";
+import SearchBar from "@components/features/search/SearchBar";
+import LanguageSelector from "@components/layout/LanguageSelector";
+import BurgerMenu from "@components/layout/menu/BurgerMenu";
 import { useTheme } from "@contexts/ThemeContext";
 
 const HeaderContainer = styled.header`
