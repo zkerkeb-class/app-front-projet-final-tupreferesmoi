@@ -29,6 +29,15 @@ const Container = styled.div`
 
 const Header = styled.div`
     margin-bottom: ${({ theme }) => theme.spacing.xl};
+    padding: 0 24px;
+
+    @media (max-width: 900px) {
+        padding: 0 16px;
+    }
+
+    @media (max-width: 400px) {
+        padding: 0 12px;
+    }
 
     h1 {
         font-size: 2.5rem;
@@ -55,33 +64,30 @@ const Header = styled.div`
 
 const Grid = styled.div`
     display: grid;
-    grid-template-columns: repeat(6, 180px);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
-    justify-content: center;
-    width: 100%;
-
-    @media (max-width: 1400px) {
-        grid-template-columns: repeat(5, 180px);
-    }
+    padding: 0 24px;
 
     @media (max-width: 1200px) {
-        grid-template-columns: repeat(4, 180px);
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     }
 
     @media (max-width: 900px) {
-        grid-template-columns: repeat(3, 180px);
         gap: 16px;
+        padding: 0 16px;
     }
 
     @media (max-width: 680px) {
-        grid-template-columns: repeat(2, 160px);
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 12px;
+        padding: 0 16px;
         font-size: 0.9rem;
     }
 
     @media (max-width: 400px) {
-        grid-template-columns: repeat(2, 140px);
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 10px;
+        padding: 0 12px;
         font-size: 0.8rem;
     }
 `;
