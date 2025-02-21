@@ -90,11 +90,9 @@ const playerSlice = createSlice({
             } else if (state.currentTrackIndex < state.queue.length - 1) {
                 state.currentTrackIndex += 1;
                 state.currentTrack = state.queue[state.currentTrackIndex];
-            } else if (state.mode === "repeat" && state.queue.length > 0) {
+            } else if (state.queue.length > 1) {
                 state.currentTrackIndex = 0;
                 state.currentTrack = state.queue[0];
-            } else {
-                state.isPlaying = false;
             }
         },
         playPrevious: (state) => {

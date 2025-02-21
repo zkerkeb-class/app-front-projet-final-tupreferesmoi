@@ -60,14 +60,22 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
     };
 
     const handleSkipToNext = () => {
-        if (!currentTrack) return;
+        if (!currentTrack || !queue || queue.length <= 1) return;
         
-        // S'il y a une prochaine chanson, on la joue
+        // En mode aléatoire, on joue toujours une chanson aléatoire
+        if (shuffleEnabled) {
+            dispatch(playNext());
+            return;
+        }
+
+        // Si on n'est pas à la fin de la queue, on joue la prochaine chanson
         if (currentTrackIndex < queue.length - 1) {
             dispatch(playNext());
+            return;
         }
-        // Si on est en mode répétition et qu'on est à la fin de la queue
-        else if (mode === PLAYER_MODES.REPEAT && queue.length > 0) {
+
+        // Si on est à la fin et qu'il y a plus d'une chanson, on revient toujours au début
+        if (queue.length > 1) {
             dispatch(playNext());
         }
     };
@@ -135,7 +143,7 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                     </IconButton>
                     <IconButton
                         onClick={handleSkipToStart}
-                        disabled={disabled || currentTrackIndex === 0}
+                        disabled={disabled}
                         title={t('player.previous')}
                     >
                         <SkipBack />
@@ -151,7 +159,7 @@ export const PlaybackControls = ({ disabled, onToggleFullscreen, isFullscreen })
                     </IconButton>
                     <IconButton
                         onClick={handleSkipToNext}
-                        disabled={disabled || currentTrackIndex === queue?.length - 1}
+                        disabled={disabled || queue?.length <= 1}
                         title={t('player.next')}
                     >
                         <SkipForward />
