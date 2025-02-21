@@ -66,7 +66,14 @@ export default function AlbumPage({ params }) {
     };
 
     const handleTrackPlay = (track, index) => {
-        handlePlay(track, { tracks, index });
+        const trackWithCover = {
+            ...track,
+            coverUrl: album?.coverImage?.large || album?.coverImage?.medium || album?.coverImage?.thumbnail || DEFAULT_IMAGE
+        };
+        handlePlay(trackWithCover, { tracks: tracks.map(t => ({
+            ...t,
+            coverUrl: album?.coverImage?.large || album?.coverImage?.medium || album?.coverImage?.thumbnail || DEFAULT_IMAGE
+        })), index });
     };
 
     const handleMainPlay = () => {
