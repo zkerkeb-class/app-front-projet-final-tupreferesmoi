@@ -132,8 +132,8 @@ const AlbumInfo = styled.div`
 
 const DetailsContainer = styled.div`
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    gap: 24px;
     margin-top: 8px;
 
     @media (max-width: 768px) {
@@ -176,7 +176,7 @@ const ControlsContainer = styled.div`
     gap: 16px;
 
     @media (max-width: 768px) {
-        margin-top: 8px;
+        justify-content: center;
     }
 `;
 

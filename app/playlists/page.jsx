@@ -73,7 +73,7 @@ const CreateSection = styled.div`
 
 const PlaylistGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 24px;
     padding: 0;
 
@@ -94,6 +94,26 @@ const PlaylistCard = styled.div`
     border-radius: 8px;
     transition: all 0.3s ease;
     cursor: pointer;
+    overflow: hidden;
+
+    &:hover {
+        background: ${({ theme }) => theme.colors.surfaceHover};
+        transform: translateY(-5px);
+
+        .icon-container {
+            transform: scale(1.1);
+        }
+
+        .delete-button {
+            opacity: 1;
+        }
+    }
+`;
+
+const PlaylistLink = styled(Link)`
+    text-decoration: none;
+    color: inherit;
+    display: block;
     padding: 16px;
 
     @media (max-width: 768px) {
@@ -103,21 +123,6 @@ const PlaylistCard = styled.div`
     @media (max-width: 480px) {
         padding: 8px;
     }
-
-    &:hover {
-        background: ${({ theme }) => theme.colors.surfaceHover};
-        transform: translateY(-5px);
-
-        .icon-container {
-            transform: scale(1.1);
-        }
-    }
-`;
-
-const PlaylistLink = styled(Link)`
-    text-decoration: none;
-    color: inherit;
-    display: block;
 `;
 
 const IconContainer = styled.div`
@@ -131,6 +136,24 @@ const IconContainer = styled.div`
     margin-bottom: 16px;
     transition: all 0.3s ease;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.4) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    ${PlaylistCard}:hover &:before {
+        opacity: 1;
+    }
 
     svg {
         color: ${({ theme }) => theme.colors.textSecondary};
@@ -148,36 +171,20 @@ const PlaylistInfo = styled.div`
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-
-        @media (max-width: 768px) {
-            font-size: 14px;
-            margin: 0 0 4px 0;
-        }
-
-        @media (max-width: 480px) {
-            font-size: 13px;
-        }
     }
 
     p {
         color: ${({ theme }) => theme.colors.textSecondary};
         font-size: 14px;
         margin: 0;
-
-        @media (max-width: 768px) {
-            font-size: 12px;
-        }
-
-        @media (max-width: 480px) {
-            font-size: 11px;
-        }
+        opacity: 0.8;
     }
 `;
 
 const VisibilityBadge = styled.div`
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 8px;
+    right: 8px;
     font-size: 12px;
     color: ${({ theme }) => theme.colors.textSecondary};
     background: ${({ theme }) => theme.colors.background};
@@ -185,6 +192,7 @@ const VisibilityBadge = styled.div`
     border-radius: 12px;
     opacity: 0.8;
     z-index: 1;
+    backdrop-filter: blur(8px);
 `;
 
 const DeleteButton = styled.button`
