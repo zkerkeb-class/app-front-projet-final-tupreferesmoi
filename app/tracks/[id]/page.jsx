@@ -51,27 +51,39 @@ const BackButton = styled.button`
 `;
 
 const Container = styled.div`
-    padding: 60px 24px 24px;
-    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
+    padding: 0;
+    background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
     position: relative;
+    max-width: 1480px;
+    margin: 0 auto;
+    width: 100%;
+`;
+
+const ContentWrapper = styled.div`
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 24px;
 
     @media (max-width: 768px) {
-        padding: 40px 16px 16px;
+        padding: 0 16px;
     }
 `;
 
 const TrackHeader = styled.div`
+    padding: 32px 0;
     display: flex;
-    gap: 24px;
+    gap: 32px;
     align-items: flex-end;
-    margin-bottom: 32px;
     background: linear-gradient(transparent 0, rgba(0, 0, 0, 0.5) 100%);
+    direction: ${({ $isRTL }) => $isRTL ? 'rtl' : 'ltr'};
 
     @media (max-width: 768px) {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 16px;
+        gap: 24px;
+        padding: 24px 0;
     }
 `;
 
@@ -106,19 +118,22 @@ const TrackInfo = styled.div`
     }
 
     h1 {
-        font-size: 72px;
+        font-size: 36px;
         font-weight: 900;
         margin: 0;
         padding: 0;
         color: ${({ theme }) => theme.colors.text};
-        line-height: 1.1;
+        line-height: 1.2;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
 
         @media (max-width: 768px) {
-            font-size: 48px;
+            font-size: 28px;
         }
 
         @media (max-width: 480px) {
-            font-size: 36px;
+            font-size: 20px;
         }
     }
 
@@ -202,6 +217,21 @@ const AddToPlaylistButton = styled.button`
     }
 `;
 
+const TracksSection = styled.div`
+    padding: 24px 0;
+    margin-top: 16px;
+    background: linear-gradient(rgba(0, 0, 0, 0.3) 0%, ${({ theme }) => theme.colors.background} 100%);
+
+    @media (max-width: 768px) {
+        padding: 16px 0;
+        margin-top: 8px;
+    }
+`;
+
+const TrackList = styled.div`
+    // Add any necessary styles for the track list
+`;
+
 export default function TrackPage({ params }) {
     const router = useRouter();
     const { t, i18n } = useTranslation();
@@ -210,6 +240,7 @@ export default function TrackPage({ params }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedTrackId, setSelectedTrackId] = useState(null);
     const dispatch = useDispatch();
     const isRTL = i18n.language === 'ar';
 
@@ -314,56 +345,67 @@ export default function TrackPage({ params }) {
     };
 
     return (
-        <Container $isRTL={isRTL}>
-            <BackButton onClick={() => router.push("/tracks")} aria-label={t('common.back')}>
-                <ArrowLeft />
-            </BackButton>
-            <TrackHeader>
-                <CoverArt>
-                    <Image
-                        src={track.coverUrl || DEFAULT_IMAGE}
-                        alt={track.title || t('common.unknownTitle')}
-                        fill
-                        sizes="232px"
-                        style={{ objectFit: "cover" }}
-                        priority
-                        unoptimized={true}
-                    />
-                </CoverArt>
-                <TrackInfo>
-                    <div className="track-type">{t('tracks.track')}</div>
-                    <h1>{track.title || t('common.unknownTitle')}</h1>
-                    <div className="artist">
-                        <StyledLink href={`/artists/${track.artistId?._id}`}>
-                            {track.artistId?.name || t('common.unknownArtist')}
-                        </StyledLink>
-                    </div>
-                    <div className="details">
-                        <span>
-                            {t('tracks.fromAlbum')}{" "}
-                            <StyledLink href={`/albums/${track.albumId?._id}`}>
-                                {track.albumId?.title || t('common.unknownAlbum')}
-                            </StyledLink>
-                        </span>
-                        <span>{formatDuration(track.duration || 0)}</span>
-                    </div>
-                    <ActionButtons>
-                        <PlayButton 
-                            onClick={handlePlay}
-                            isPlaying={currentTrack?.id === track.id && isPlaying}
+        <Container>
+            <ContentWrapper>
+                <BackButton onClick={() => router.push("/tracks")} aria-label={t('common.back')}>
+                    <ArrowLeft />
+                </BackButton>
+                <TrackHeader $isRTL={isRTL}>
+                    <CoverArt>
+                        <Image
+                            src={track.coverUrl || DEFAULT_IMAGE}
+                            alt={track.title || t('common.unknownTitle')}
+                            fill
+                            sizes="232px"
+                            style={{ objectFit: "cover" }}
+                            priority
+                            unoptimized={true}
                         />
-                        <AddToPlaylistButton onClick={handleAddToPlaylist}>
-                            <Plus size={20} />
-                        </AddToPlaylistButton>
-                    </ActionButtons>
-                </TrackInfo>
-            </TrackHeader>
+                    </CoverArt>
+                    <TrackInfo>
+                        <div className="track-type">{t('tracks.track')}</div>
+                        <h1>{track.title || t('common.unknownTitle')}</h1>
+                        <div className="artist">
+                            <StyledLink href={`/artists/${track.artistId?._id}`}>
+                                {track.artistId?.name || t('common.unknownArtist')}
+                            </StyledLink>
+                        </div>
+                        <div className="details">
+                            <span>
+                                {t('tracks.fromAlbum')}{" "}
+                                <StyledLink href={`/albums/${track.albumId?._id}`}>
+                                    {track.albumId?.title || t('common.unknownAlbum')}
+                                </StyledLink>
+                            </span>
+                            <span>{formatDuration(track.duration || 0)}</span>
+                        </div>
+                        <ActionButtons>
+                            <PlayButton 
+                                onClick={handlePlay}
+                                isPlaying={currentTrack?.id === track.id && isPlaying}
+                            />
+                            <AddToPlaylistButton onClick={handleAddToPlaylist}>
+                                <Plus size={20} />
+                            </AddToPlaylistButton>
+                        </ActionButtons>
+                    </TrackInfo>
+                </TrackHeader>
 
-            <DynamicAddToPlaylistModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                trackId={track?.id || track?._id || params.id}
-            />
+                <TracksSection>
+                    <TrackList>
+                        {/* ... reste du contenu existant ... */}
+                    </TrackList>
+                </TracksSection>
+
+                <DynamicAddToPlaylistModal
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        setSelectedTrackId(null);
+                    }}
+                    trackId={selectedTrackId}
+                />
+            </ContentWrapper>
         </Container>
     );
 }

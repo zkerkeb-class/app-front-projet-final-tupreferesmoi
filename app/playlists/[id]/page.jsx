@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Play, Pause, Clock, Trash2, Globe, Lock, Plus, Music, MoreVertical, ArrowLeft } from "react-feather";
+import { Play, Pause, Clock, Trash2, Globe, Lock, Plus, Music, ArrowLeft } from "react-feather";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -132,8 +132,8 @@ const PlaylistInfo = styled.div`
 
     .details-container {
         display: flex;
-        align-items: center;
-        gap: 16px;
+        flex-direction: column;
+        gap: 24px;
         margin-top: 8px;
 
         @media (max-width: 768px) {
@@ -172,6 +172,16 @@ const PlaylistInfo = styled.div`
         .username {
             color: ${({ theme }) => theme.colors.text};
             font-weight: 500;
+        }
+    }
+
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        @media (max-width: 768px) {
+            justify-content: center;
         }
     }
 `;
@@ -231,13 +241,12 @@ const TrackHeader = styled.div`
 
 const TrackItem = styled.div`
     display: grid;
-    grid-template-columns: 40px 1fr 80px 40px;
+    grid-template-columns: 40px 1fr 80px 80px;
     padding: 12px 16px;
     border-radius: 8px;
     align-items: center;
     gap: 16px;
     transition: background-color 0.2s ease;
-    position: relative;
 
     @media (max-width: 768px) {
         grid-template-columns: 32px 1fr 80px 40px;
@@ -361,12 +370,8 @@ const TrackItem = styled.div`
 
     .track-actions {
         display: flex;
-        justify-content: center;
-        width: 40px;
-
-        @media (max-width: 768px) {
-            display: flex;
-        }
+        gap: 8px;
+        justify-content: flex-end;
     }
 
     .mobile-menu-button {
@@ -403,8 +408,8 @@ const IconButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border: none;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: ${({ theme }) => theme.colors.textSecondary};
     cursor: pointer;
     width: 32px;
@@ -415,6 +420,7 @@ const IconButton = styled.button`
     &:hover {
         color: ${({ theme }) => theme.colors.text};
         background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.05);
     }
 
     &.danger:hover {
@@ -449,9 +455,26 @@ const AddToPlaylistButton = styled.button`
     }
 `;
 
-const ActionButton = styled(IconButton)`
+const ActionButton = styled.button`
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+
     @media (hover: hover) {
         opacity: 0;
+
+        &:hover {
+            color: ${({ theme }) => theme.colors.text};
+            background: rgba(255, 255, 255, 0.1);
+        }
 
         ${TrackItem}:hover & {
             opacity: 1;
@@ -461,97 +484,50 @@ const ActionButton = styled(IconButton)`
     @media (hover: none) {
         opacity: 1;
     }
-`;
-
-const MobileActionsMenu = styled.div`
-    display: none;
-    
-    @media (max-width: 768px) {
-        display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
-        position: absolute;
-        right: 8px;
-        bottom: 100%;
-        margin-bottom: 8px;
-        background: ${({ theme }) => theme.colors.surface};
-        border-radius: 8px;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
-        flex-direction: column;
-        overflow: hidden;
-        z-index: 10;
-        min-width: 200px;
-
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            right: 12px;
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid ${({ theme }) => theme.colors.surface};
-        }
-    }
-`;
-
-const MobileMenuItem = styled.button`
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: transparent;
-    border: none;
-    color: ${({ theme }) => theme.colors.text};
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    font-size: 14px;
-
-    &:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    &.danger {
-        color: ${({ theme }) => theme.colors.error};
-    }
 
     svg {
         width: 16px;
         height: 16px;
     }
+
+    &.danger:hover {
+        color: ${({ theme }) => theme.colors.error};
+    }
 `;
 
 const BackButton = styled.button`
-    position: absolute;
-    top: 16px;
-    left: 24px;
-    background: rgba(0, 0, 0, 0.7);
+    background: transparent;
     border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: none;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.text};
+    border-radius: 50%;
     transition: all 0.2s ease;
-    z-index: 2;
 
-    @media (max-width: 768px) {
-        display: flex;
-        top: 12px;
-        left: 16px;
+    @media (hover: hover) {
+        opacity: 0;
+
+        &:hover {
+            color: ${({ theme }) => theme.colors.text};
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ${TrackItem}:hover & {
+            opacity: 1;
+        }
     }
 
-    &:hover {
-        transform: scale(1.1);
-        background: rgba(0, 0, 0, 0.9);
+    @media (hover: none) {
+        opacity: 1;
     }
 
     svg {
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
     }
 `;
 
@@ -568,7 +544,6 @@ export default function PlaylistPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { handlePlay, isCurrentTrack, isPlaying } = useTrackPlayback();
     const isRTL = i18n.language === 'ar';
-    const [openMenuTrackId, setOpenMenuTrackId] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -588,17 +563,6 @@ export default function PlaylistPage() {
 
         fetchData();
     }, [params.id, t]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (openMenuTrackId && !event.target.closest('.track-actions')) {
-                setOpenMenuTrackId(null);
-            }
-        };
-
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, [openMenuTrackId]);
 
     const handleTrackPlay = (track, index) => {
         handlePlay(track, { tracks, index });
@@ -725,18 +689,11 @@ export default function PlaylistPage() {
             </PlaylistHeader>
 
             <TracksSection>
-                <TrackHeader>
-                    <div className="track-number">#</div>
-                    <div>{t('tracks.track')}</div>
-                    <div className="duration-header">{t('tracks.duration')}</div>
-                    <div className="actions-header"></div>
-                </TrackHeader>
-
                 <TrackList>
                     {tracks.map((track, index) => (
                         <TrackItem key={track._id}>
-                            <span className="track-number-play">
-                                <div className="track-number">{index + 1}</div>
+                            <div className="track-number-play">
+                                <span className="track-number">{index + 1}</span>
                                 <div className="track-play">
                                     <PlayButton 
                                         onClick={() => handleTrackPlay(track, index)}
@@ -744,48 +701,37 @@ export default function PlaylistPage() {
                                         size="small"
                                     />
                                 </div>
-                            </span>
+                            </div>
                             <div className="track-title">
-                                <div className="title">{track.title || t('common.unknownTitle')}</div>
+                                <div className="title">
+                                    {track.title || t('common.unknownTitle')}
+                                </div>
                                 <div className="artist">
                                     <Link href={`/artists/${track.artistId?._id}`}>
                                         {track.artistId?.name || t('common.unknownArtist')}
                                     </Link>
                                 </div>
                             </div>
-                            <span className="track-duration">{formatTime(track.duration)}</span>
+                            <div className="track-duration">
+                                {formatTime(track.duration)}
+                            </div>
                             <div className="track-actions">
-                                <button 
-                                    className="mobile-menu-button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenMenuTrackId(openMenuTrackId === track._id ? null : track._id);
+                                <ActionButton
+                                    onClick={() => {
+                                        setSelectedTrackId(track._id);
+                                        setIsModalOpen(true);
                                     }}
+                                    aria-label={t('track.addToPlaylist')}
                                 >
-                                    <MoreVertical />
-                                </button>
-                                <MobileActionsMenu $isOpen={openMenuTrackId === track._id}>
-                                    <MobileMenuItem
-                                        onClick={() => {
-                                            setSelectedTrackId(track._id);
-                                            setIsModalOpen(true);
-                                            setOpenMenuTrackId(null);
-                                        }}
-                                    >
-                                        <Plus />
-                                        {t('track.addToPlaylist')}
-                                    </MobileMenuItem>
-                                    <MobileMenuItem
-                                        onClick={() => {
-                                            handleRemoveTrack(track._id);
-                                            setOpenMenuTrackId(null);
-                                        }}
-                                        className="danger"
-                                    >
-                                        <Trash2 />
-                                        {t('track.removeFromPlaylist')}
-                                    </MobileMenuItem>
-                                </MobileActionsMenu>
+                                    <Plus />
+                                </ActionButton>
+                                <ActionButton
+                                    onClick={() => handleRemoveTrack(track._id)}
+                                    className="danger"
+                                    aria-label={t('track.removeFromPlaylist')}
+                                >
+                                    <Trash2 />
+                                </ActionButton>
                             </div>
                         </TrackItem>
                     ))}
@@ -802,4 +748,4 @@ export default function PlaylistPage() {
             />
         </Container>
     );
-} 
+}
