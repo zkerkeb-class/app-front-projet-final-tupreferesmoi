@@ -1,15 +1,21 @@
-import React, { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
-import { useRouter } from 'next/navigation';
-import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
-import { musicApi } from '@services/musicApi';
-import { DynamicSearchResults } from '@components/common/dynamic';
-import { Search, X } from 'react-feather';
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    useCallback,
+    forwardRef,
+} from "react";
+import { useRouter } from "next/navigation";
+import styled from "styled-components";
+import { useTranslation } from "react-i18next";
+import { musicApi } from "@services/musicApi";
+import { DynamicSearchResults } from "@components/common/dynamic";
+import { Search, X } from "react-feather";
 
 const DEBOUNCE_DELAY = 300; // milliseconds
 
 const SearchContainer = styled.div`
-    position: relative;
+    position: absolute;
     width: 100%;
     max-width: 36rem;
 `;
@@ -22,7 +28,9 @@ const InputWrapper = styled.div`
     position: relative;
     transition: all 0.3s ease;
     border-radius: 9999px;
-    ${props => props.$isFocused && `
+    ${(props) =>
+        props.$isFocused &&
+        `
         background-color: #2a2a2a;
     `}
 `;
@@ -33,7 +41,7 @@ const SearchIcon = styled.div`
     top: 50%;
     transform: translateY(-50%);
     transition: all 0.2s ease;
-    color: ${props => props.$isFocused ? '#fff' : '#9ca3af'};
+    color: ${(props) => (props.$isFocused ? "#fff" : "#9ca3af")};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -98,11 +106,11 @@ const ResultsWrapper = styled.div`
 
 const SearchBar = React.forwardRef((props, ref) => {
     const { t } = useTranslation();
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useState("");
     const [results, setResults] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
-    const [activeFilter, setActiveFilter] = useState('ALL');
+    const [activeFilter, setActiveFilter] = useState("ALL");
     const searchTimeout = useRef(null);
     const searchRef = useRef(null);
 
@@ -118,11 +126,11 @@ const SearchBar = React.forwardRef((props, ref) => {
             if (response.success) {
                 setResults(response.data);
             } else {
-                console.error('Search failed:', response.error);
+                console.error("Search failed:", response.error);
                 setResults(null);
             }
         } catch (error) {
-            console.error('Search error:', error);
+            console.error("Search error:", error);
             setResults(null);
         } finally {
             setIsLoading(false);
@@ -152,13 +160,17 @@ const SearchBar = React.forwardRef((props, ref) => {
     // Handle click outside to close results
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (searchRef.current && !searchRef.current.contains(event.target)) {
+            if (
+                searchRef.current &&
+                !searchRef.current.contains(event.target)
+            ) {
                 setIsFocused(false);
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const handleInputChange = (e) => {
@@ -166,9 +178,9 @@ const SearchBar = React.forwardRef((props, ref) => {
     };
 
     const handleClear = () => {
-        setQuery('');
+        setQuery("");
         setResults(null);
-        setActiveFilter('ALL');
+        setActiveFilter("ALL");
     };
 
     const handleFilterChange = (filter) => {
@@ -176,7 +188,7 @@ const SearchBar = React.forwardRef((props, ref) => {
     };
 
     const handleResultClick = () => {
-        setQuery('');
+        setQuery("");
         setResults(null);
         setIsFocused(false);
     };
@@ -194,14 +206,14 @@ const SearchBar = React.forwardRef((props, ref) => {
                         value={query}
                         onChange={handleInputChange}
                         onFocus={() => setIsFocused(true)}
-                        placeholder={t('header.searchPlaceholder')}
-                        aria-label={t('header.searchPlaceholder')}
+                        placeholder={t("header.searchPlaceholder")}
+                        aria-label={t("header.searchPlaceholder")}
                     />
                     {query && (
                         <ClearButton
                             type="button"
                             onClick={handleClear}
-                            aria-label={t('common.cancel')}
+                            aria-label={t("common.cancel")}
                         >
                             <X size={20} />
                         </ClearButton>
@@ -221,6 +233,6 @@ const SearchBar = React.forwardRef((props, ref) => {
     );
 });
 
-SearchBar.displayName = 'SearchBar';
+SearchBar.displayName = "SearchBar";
 
-export default SearchBar; 
+export default SearchBar;
