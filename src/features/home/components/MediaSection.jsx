@@ -32,10 +32,10 @@ export const MediaSection = ({
             <MediaGrid>
                 {items.map((item, index) => (
                     <Card
-                        key={item.id}
+                        key={item._id || item.id || `${type}-${index}`}
                         type={type}
-                        onClick={() => onItemClick?.(item.id)}
-                        onPlay={onItemPlay ? () => onItemPlay(item, index) : undefined}
+                        onClick={() => onItemClick?.(item._id || item.id)}
+                        onItemPlay={onItemPlay ? () => onItemPlay(item, index) : undefined}
                         priority={index < priorityCount}
                         {...getItemProps(item)}
                     />

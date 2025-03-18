@@ -14,7 +14,7 @@ export const useHomeData = () => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const [tracks, artists, albums] = await Promise.all([
+                const [tracksResponse, artistsResponse, albumsResponse] = await Promise.all([
                     musicApi.getRecentTracks(),
                     musicApi.getPopularArtists(),
                     musicApi.getRecentAlbums(),
@@ -22,9 +22,9 @@ export const useHomeData = () => {
                 
                 // Retourner les données brutes sans traitement
                 setData({
-                    recentTracks: tracks,
-                    popularArtists: artists,
-                    recentAlbums: albums
+                    recentTracks: tracksResponse?.data || [],
+                    popularArtists: artistsResponse?.data || [],
+                    recentAlbums: albumsResponse?.data || []
                 });
             } catch (error) {
                 setError(error);

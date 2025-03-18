@@ -49,15 +49,34 @@ export default function AlbumPage({ params }) {
 
                 const albumData = albumResponse.data;
                 const tracksData = tracksResponse.data.tracks || [];
-
-                // Appliquer la gestion des images d'albums spéciaux
-                const coverImage = getAlbumCoverImage(albumData);
-                if (coverImage) {
-                    albumData.coverImage = coverImage;
+                
+                // S'assurer que l'album a une coverUrl valide
+                if (!albumData.coverUrl) {
+                    // Essayer d'extraire depuis coverImage si disponible
+                    if (albumData.coverImage) {
+                        albumData.coverUrl = albumData.coverImage.large || 
+                                           albumData.coverImage.medium || 
+                                           albumData.coverImage.thumbnail || 
+                                           DEFAULT_IMAGE;
+                    } else {
+                        albumData.coverUrl = DEFAULT_IMAGE;
+                    }
                 }
-
+                
                 setAlbum(albumData);
-                setTracks(tracksData);
+                
+                // S'assurer que chaque piste a une coverUrl valide
+                const processedTracks = tracksData.map(track => {
+                    if (!track.coverUrl) {
+                        return {
+                            ...track,
+                            coverUrl: albumData.coverUrl // Utiliser l'image de l'album
+                        };
+                    }
+                    return track;
+                });
+                
+                setTracks(processedTracks);
             } catch (error) {
                 console.error("Erreur:", error);
                 setError(t('albums.error.fetchFailed'));
@@ -76,17 +95,19 @@ export default function AlbumPage({ params }) {
     };
 
     const handleTrackPlay = (track, index) => {
-        const coverUrl = getImageUrl(album?.coverImage);
+        // Utilisation directe de l'URL de couverture de l'album
+        const coverUrl = album.coverUrl || DEFAULT_IMAGE;
         
+        // S'assurer que la piste a une coverUrl
         const trackWithCover = {
             ...track,
-            coverUrl: coverUrl || DEFAULT_IMAGE
+            coverUrl: track.coverUrl || coverUrl
         };
         
         handlePlay(trackWithCover, { 
             tracks: tracks.map(t => ({
                 ...t,
-                coverUrl: coverUrl || DEFAULT_IMAGE
+                coverUrl: t.coverUrl || coverUrl
             })), 
             index 
         });

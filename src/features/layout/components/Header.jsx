@@ -2,7 +2,7 @@
 
 import React from "react";
 import styled from "styled-components";
-import { Home, ChevronLeft, ChevronRight, Search, Sun, Moon } from "react-feather";
+import { Home, ChevronLeft, ChevronRight, Search, Sun, Moon, RefreshCw } from "react-feather";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ import SearchBar from "@components/features/search/SearchBar";
 import LanguageSelector from "@components/layout/LanguageSelector";
 import BurgerMenu from "@components/layout/menu/BurgerMenu";
 import { useTheme } from "@contexts/ThemeContext";
+import { purgeStoreData } from "@/store";
 
 const HeaderContainer = styled.header`
     display: flex;
@@ -183,6 +184,34 @@ const LanguageSelectorWrapper = styled.div`
     }
 `;
 
+// Nouveau bouton pour rafraîchir le cache
+const RefreshButton = styled.button`
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: ${({ theme }) => theme.colors.surface};
+    border: none;
+    color: ${({ theme }) => theme.colors.text};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+
+    &:hover {
+        background-color: ${({ theme }) => theme.colors.surfaceHover};
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+`;
+
 export const searchBarRef = React.createRef();
 
 export default function Header() {
@@ -190,6 +219,16 @@ export default function Header() {
     const { i18n, t } = useTranslation();
     const isRTL = i18n.language === 'ar';
     const { isDarkTheme, toggleTheme } = useTheme();
+    
+    // Fonction pour gérer le rafraîchissement du cache
+    const handleRefreshCache = async () => {
+        try {
+            await purgeStoreData();
+            // La page se rechargera automatiquement grâce à purgeStoreData
+        } catch (error) {
+            console.error("Erreur lors du rafraîchissement du cache:", error);
+        }
+    };
 
     return (
         <HeaderContainer $isRTL={isRTL}>
@@ -213,6 +252,12 @@ export default function Header() {
             </SearchContainer>
 
             <RightSection $isRTL={isRTL}>
+                <RefreshButton 
+                    onClick={handleRefreshCache} 
+                    title={t('common.refreshCache', 'Rafraîchir le cache')}
+                >
+                    <RefreshCw size={18} />
+                </RefreshButton>
                 <ThemeButton 
                     onClick={toggleTheme} 
                     title={t(isDarkTheme ? 'theme.switchToLight' : 'theme.switchToDark')}

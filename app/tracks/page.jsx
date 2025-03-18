@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { getAudioInstance } from "@/utils/audioInstance";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
-import { isValidExternalUrl } from "@/utils/imageHelpers";
+import { isValidExternalUrl, getSpecialAlbumCoverUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
@@ -97,43 +97,79 @@ const ITEMS_PER_PAGE = 20;
 
 // Fonction pour traiter les morceaux avec URL externes
 const processTrackImages = (tracks) => {
+    if (!tracks || !Array.isArray(tracks)) return [];
+    
     return tracks.map(track => {
+        console.log('Traitement de la piste:', {
+            titre: track.title,
+            coverUrlInitiale: track.coverUrl,
+            albumId: track.albumId,
+            albumCoverImage: track.albumId?.coverImage
+        });
+
+        // 1. Si on a déjà une URL signée AWS, on la garde
+        if (track.coverUrl?.includes('X-Amz-Signature')) {
+            console.log('URL AWS signée trouvée:', track.coverUrl);
+            return track;
+        }
+
         let coverUrl = null;
-        
-        // 1. Vérifier si le morceau a déjà une URL de couverture valide
-        if (track.coverUrl && isValidExternalUrl(track.coverUrl)) {
-            return track; // Déjà OK
-        }
-        
-        // 2. Vérifier l'objet albumId s'il existe
-        if (track.albumId) {
-            if (typeof track.albumId === 'object' && track.albumId.coverImage) {
-                // Si coverImage est une chaîne (URL directe)
-                if (typeof track.albumId.coverImage === 'string' && isValidExternalUrl(track.albumId.coverImage)) {
-                    coverUrl = track.albumId.coverImage;
-                }
-                // Si coverImage est un objet avec propriétés large/medium/thumbnail
-                else if (typeof track.albumId.coverImage === 'object') {
-                    const albumCoverUrl = track.albumId.coverImage.large || 
-                                         track.albumId.coverImage.medium || 
-                                         track.albumId.coverImage.thumbnail;
-                    
-                    if (albumCoverUrl && isValidExternalUrl(albumCoverUrl)) {
-                        coverUrl = albumCoverUrl;
-                    }
-                }
+
+        // 2. Pour les pistes avec album peuplé
+        if (track.albumId && track.albumId.coverImage) {
+            const coverImage = track.albumId.coverImage;
+            if (typeof coverImage === 'object') {
+                coverUrl = coverImage.large || 
+                          coverImage.medium || 
+                          coverImage.thumbnail;
+            } else if (typeof coverImage === 'string') {
+                coverUrl = coverImage;
             }
+            console.log('URL extraite de l\'album:', coverUrl);
         }
-        
-        // 3. Appliquer l'URL si elle a été trouvée
-        if (coverUrl) {
+
+        // 3. Si on a une URL AWS non signée ou une URL externe valide
+        if (coverUrl && (coverUrl.includes('amazonaws.com') || isValidExternalUrl(coverUrl))) {
+            console.log('URL valide trouvée:', coverUrl);
             return {
                 ...track,
-                coverUrl: coverUrl
+                coverUrl
             };
         }
-        
-        return track;
+
+        // 4. Cas spéciaux par titre
+        if (track.title) {
+            // Cas spécial pour foret titre
+            if (track.title.toLowerCase() === 'foret titre') {
+                coverUrl = 'https://www.mickeyshannon.com/photos/forest-photography.jpg';
+                console.log('URL spéciale pour foret titre:', coverUrl);
+                return {
+                    ...track,
+                    coverUrl
+                };
+            }
+            // Cas spécial pour Sunflower
+            if (track.title.toLowerCase().includes('sunflower') && track.title.toLowerCase().includes('spider-man')) {
+                coverUrl = 'https://i.scdn.co/image/ab67616d0000b273e2e352d89826aef6dbd5ff8f';
+                console.log('URL spéciale pour Sunflower:', coverUrl);
+                return {
+                    ...track,
+                    coverUrl
+                };
+            }
+        }
+
+        // 5. Si on a une URL en base64 qui n'est PAS l'image par défaut
+        if (track.coverUrl?.startsWith('data:image') && !track.coverUrl.includes('fill=%22%232A2A2A%22')) {
+            console.log('URL base64 valide conservée:', track.coverUrl);
+            return track;
+        }
+
+        console.log('Utilisation image par défaut pour:', track.title);
+        return {
+            ...track,
+            coverUrl: DEFAULT_IMAGE
+        };
     });
 };
 
@@ -162,8 +198,32 @@ export default function TracksPage() {
                 throw new Error(t('common.error.invalidResponse'));
             }
 
-            // Traiter les morceaux pour détecter les URLs externes d'images
-            const processedTracks = processTrackImages(response.data || []);
+            
+            // Traiter les pistes pour s'assurer que les images sont correctement gérées
+            const processedTracks = response.data.map(track => {
+                // Utiliser directement coverUrl s'il existe
+                if (track.coverUrl) {
+                    return track;
+                }
+                
+                // Sinon, utiliser l'image de l'album
+                let coverUrl = DEFAULT_IMAGE;
+                
+                if (track.albumId?.coverImage) {
+                    const coverImage = track.albumId.coverImage;
+                    if (typeof coverImage === 'object') {
+                        coverUrl = coverImage.medium || coverImage.large || coverImage.thumbnail || DEFAULT_IMAGE;
+                    } else if (typeof coverImage === 'string') {
+                        coverUrl = coverImage;
+                    }
+                }
+                
+                return {
+                    ...track,
+                    coverUrl
+                };
+            });
+            
             
             setTracks(processedTracks);
             setTotalItems(response.pagination?.totalItems || 0);
@@ -228,7 +288,7 @@ export default function TracksPage() {
                     <Card
                         key={track.id}
                         title={track.title}
-                        subtitle={typeof track.artist === 'object' ? track.artist.name : track.artist}
+                        subtitle={track.artistId?.name || "Artiste inconnu"}
                         imageUrl={track.coverUrl || DEFAULT_IMAGE}
                         type="track"
                         onClick={() => router.push(`/tracks/${track.id}`)}
