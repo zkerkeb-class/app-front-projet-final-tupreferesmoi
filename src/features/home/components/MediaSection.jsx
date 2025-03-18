@@ -14,7 +14,7 @@ export const MediaSection = ({
     href,
     priorityCount = 3,
     onItemClick,
-    onItemPlay,
+    onPlay,
     getItemProps = () => ({})
 }) => {
     const { t } = useTranslation();
@@ -35,7 +35,7 @@ export const MediaSection = ({
                         key={item._id || item.id || `${type}-${index}`}
                         type={type}
                         onClick={() => onItemClick?.(item._id || item.id)}
-                        onItemPlay={onItemPlay ? () => onItemPlay(item, index) : undefined}
+                        onPlay={onPlay ? () => onPlay(item, index) : undefined}
                         priority={index < priorityCount}
                         {...getItemProps(item)}
                     />
@@ -48,11 +48,11 @@ export const MediaSection = ({
 MediaSection.propTypes = {
     items: PropTypes.array.isRequired,
     isLoading: PropTypes.bool.isRequired,
-    type: PropTypes.oneOf(['album', 'artist', 'playlist']).isRequired,
+    type: PropTypes.oneOf(['album', 'artist', 'playlist', 'track']).isRequired,
     titleKey: PropTypes.string.isRequired,
     href: PropTypes.string.isRequired,
     priorityCount: PropTypes.number,
     onItemClick: PropTypes.func,
-    onItemPlay: PropTypes.func,
+    onPlay: PropTypes.func,
     getItemProps: PropTypes.func
 }; 
