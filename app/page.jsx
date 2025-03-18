@@ -1,7 +1,6 @@
 "use client";
 
 import React, { Suspense, useEffect } from "react";
-import React, { Suspense, useEffect } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -10,7 +9,6 @@ import { RecentTracksSection } from "@features/home/components/RecentTracksSecti
 import { PopularArtistsSection } from "@features/home/components/PopularArtistsSection";
 import { RecentAlbumsSection } from "@features/home/components/RecentAlbumsSection";
 import { GridLoader } from "@components/common/loaders";
-import { isValidExternalUrl } from "@utils/imageHelpers";
 import { isValidExternalUrl } from "@utils/imageHelpers";
 
 const Container = styled.div`
@@ -127,7 +125,6 @@ export default function Home() {
                 <Suspense fallback={<GridLoader count={3} />}>
                     <RecentTracksSection
                         tracks={processedTracks}
-                        tracks={processedTracks}
                         isLoading={isLoading}
                         onTrackClick={(id) => handleCardClick("track", id)}
                     />
@@ -147,7 +144,6 @@ export default function Home() {
             <Section key="recent-albums">
                 <Suspense fallback={<GridLoader count={3} />}>
                     <RecentAlbumsSection
-                        albums={processedAlbums}
                         albums={processedAlbums}
                         isLoading={isLoading}
                         onAlbumClick={(id) => handleCardClick("album", id)}

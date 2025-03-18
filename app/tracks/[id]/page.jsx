@@ -16,7 +16,6 @@ import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import authService from "@/services/authService";
 import { getSpecialAlbumCoverUrl, isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
-import { getSpecialAlbumCoverUrl, isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
 
 const BackButton = styled.button`
     position: absolute;
@@ -286,43 +285,18 @@ export default function TrackPage({ params }) {
     }, [params?.id, t]);
 
     const handlePlay = async () => {
-        if (!track) return;
-
         const audio = getAudioInstance();
         if (!audio) return;
 
-        // S'assurer que artist est une chaîne de caractères et non un objet
-        let artistName = "";
-        if (track.artistId) {
-            // Si artistId est un objet avec name
-            if (typeof track.artistId === 'object' && track.artistId.name) {
-                artistName = track.artistId.name;
-            }
-            // Si artistId est une chaîne
-            else if (typeof track.artistId === 'string') {
-                artistName = track.artistId;
-            }
-        }
-        
+        const artistName = getArtistName(track) || "";
 
-        // S'assurer que artist est une chaîne de caractères et non un objet
-        let artistName = "";
-        if (track.artistId) {
-            // Si artistId est un objet avec name
-            if (typeof track.artistId === 'object' && track.artistId.name) {
-                artistName = track.artistId.name;
-            }
-            // Si artistId est une chaîne
-            else if (typeof track.artistId === 'string') {
-                artistName = track.artistId;
-            }
-        }
-        
-        const trackData = {
-            ...track,
-            artist: artistName || t('common.unknownArtist'),
-            artist: artistName || t('common.unknownArtist'),
-        };
+        dispatch(setCurrentTrack({
+            id: track._id,
+            title: track.title,
+            artist: artistName,
+            coverUrl: track.coverUrl || DEFAULT_IMAGE,
+            audioUrl: track.audioUrl
+        }));
 
         if (currentTrack?.id === track.id) {
             if (isPlaying) {
@@ -334,8 +308,6 @@ export default function TrackPage({ params }) {
             return;
         }
 
-        audio.src = track.audioUrl;
-        dispatch(setCurrentTrack(trackData));
         try {
             await audio.play();
             dispatch(setIsPlaying(true));

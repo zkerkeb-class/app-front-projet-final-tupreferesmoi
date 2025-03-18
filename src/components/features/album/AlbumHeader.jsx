@@ -188,8 +188,6 @@ const AlbumHeader = ({
     onBack, 
     onPlay,
     getImageUrl
-    onPlay,
-    getImageUrl
 }) => {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'ar';
@@ -209,7 +207,6 @@ const AlbumHeader = ({
                     fill
                     style={{ objectFit: "cover" }}
                     unoptimized={true}
-                    priority={true}
                     priority={true}
                 />
             </AlbumCover>
