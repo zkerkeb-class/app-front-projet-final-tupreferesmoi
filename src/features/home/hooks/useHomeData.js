@@ -20,6 +20,7 @@ export const useHomeData = () => {
                     musicApi.getRecentAlbums(),
                 ]);
                 
+                // Retourner les données brutes sans traitement
                 setData({
                     recentTracks: tracks,
                     popularArtists: artists,

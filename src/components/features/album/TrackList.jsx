@@ -176,9 +176,11 @@ const TrackList = ({
     isPlaying, 
     onTrackPlay, 
     onAddToPlaylist,
-    formatDuration 
+    formatDuration,
+    getImageUrl
 }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isRTL = i18n.language === 'ar';
 
     return (
         <TracksSection>

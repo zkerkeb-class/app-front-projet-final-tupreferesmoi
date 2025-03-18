@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
 import { getAudioInstance } from "@/utils/audioInstance";
 import { useTrackPlayback } from "@/hooks/useTrackPlayback";
+import { isValidExternalUrl } from "@/utils/imageHelpers";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
@@ -94,6 +95,48 @@ const Grid = styled.div`
 
 const ITEMS_PER_PAGE = 20;
 
+// Fonction pour traiter les morceaux avec URL externes
+const processTrackImages = (tracks) => {
+    return tracks.map(track => {
+        let coverUrl = null;
+        
+        // 1. Vérifier si le morceau a déjà une URL de couverture valide
+        if (track.coverUrl && isValidExternalUrl(track.coverUrl)) {
+            return track; // Déjà OK
+        }
+        
+        // 2. Vérifier l'objet albumId s'il existe
+        if (track.albumId) {
+            if (typeof track.albumId === 'object' && track.albumId.coverImage) {
+                // Si coverImage est une chaîne (URL directe)
+                if (typeof track.albumId.coverImage === 'string' && isValidExternalUrl(track.albumId.coverImage)) {
+                    coverUrl = track.albumId.coverImage;
+                }
+                // Si coverImage est un objet avec propriétés large/medium/thumbnail
+                else if (typeof track.albumId.coverImage === 'object') {
+                    const albumCoverUrl = track.albumId.coverImage.large || 
+                                         track.albumId.coverImage.medium || 
+                                         track.albumId.coverImage.thumbnail;
+                    
+                    if (albumCoverUrl && isValidExternalUrl(albumCoverUrl)) {
+                        coverUrl = albumCoverUrl;
+                    }
+                }
+            }
+        }
+        
+        // 3. Appliquer l'URL si elle a été trouvée
+        if (coverUrl) {
+            return {
+                ...track,
+                coverUrl: coverUrl
+            };
+        }
+        
+        return track;
+    });
+};
+
 export default function TracksPage() {
     const dispatch = useDispatch();
     const router = useRouter();
@@ -119,7 +162,10 @@ export default function TracksPage() {
                 throw new Error(t('common.error.invalidResponse'));
             }
 
-            setTracks(response.data || []);
+            // Traiter les morceaux pour détecter les URLs externes d'images
+            const processedTracks = processTrackImages(response.data || []);
+            
+            setTracks(processedTracks);
             setTotalItems(response.pagination?.totalItems || 0);
             setTotalPages(response.pagination?.totalPages || 0);
         } catch (error) {

@@ -15,6 +15,7 @@ import { getAudioInstance } from "@/utils/audioInstance";
 import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import authService from "@/services/authService";
+import { getSpecialAlbumCoverUrl, isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
 
 const BackButton = styled.button`
     position: absolute;
@@ -259,7 +260,74 @@ export default function TrackPage({ params }) {
                     throw new Error(t('tracks.error.invalidData'));
                 }
 
-                setTrack(response.data);
+                const trackData = response.data;
+                
+                // Gestion des images de couverture
+                let coverUrl = null;
+                
+                // 1. Vérifier l'objet albumId s'il existe
+                if (trackData.albumId) {
+                    // Si albumId est un objet avec coverImage
+                    if (typeof trackData.albumId === 'object' && trackData.albumId.coverImage) {
+                        // Si l'image de couverture est une chaîne de caractères
+                        if (typeof trackData.albumId.coverImage === 'string') {
+                            // On l'utilise directement si c'est une URL externe valide
+                            if (isValidExternalUrl(trackData.albumId.coverImage)) {
+                                coverUrl = trackData.albumId.coverImage;
+                            }
+                        } 
+                        // Si l'image de couverture est un objet avec des propriétés comme large, medium, etc.
+                        else if (typeof trackData.albumId.coverImage === 'object') {
+                            // Vérifier si l'une des URLs est externe
+                            const albumCoverUrl = trackData.albumId.coverImage.large || 
+                                               trackData.albumId.coverImage.medium || 
+                                               trackData.albumId.coverImage.thumbnail;
+                            
+                            if (albumCoverUrl && isValidExternalUrl(albumCoverUrl)) {
+                                coverUrl = albumCoverUrl;
+                            }
+                        }
+                    }
+                    
+                    // Vérifier si l'ID de l'album correspond à un cas spécial
+                    if (!coverUrl) {
+                        const albumId = typeof trackData.albumId === 'object' ? 
+                                        trackData.albumId._id || trackData.albumId.id : 
+                                        trackData.albumId;
+                                        
+                        const specialCover = getSpecialAlbumCoverUrl(albumId);
+                        if (specialCover) {
+                            coverUrl = specialCover;
+                        }
+                    }
+                }
+                
+                // 2. Vérifier par artiste si aucune image trouvée
+                if (!coverUrl) {
+                    const artistName = getArtistName(trackData);
+                    if (artistName) {
+                        const artistImage = getArtistImage(artistName);
+                        if (artistImage) {
+                            coverUrl = artistImage;
+                        }
+                    }
+                }
+                
+                // 3. Vérifier par titre de la piste
+                if (!coverUrl && trackData.title) {
+                    if (trackData.title.toLowerCase().includes("sunflower") || 
+                        trackData.title.toLowerCase().includes("spider") || 
+                        trackData.title.toLowerCase().includes("verse")) {
+                        coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg";
+                    }
+                }
+                
+                // Appliquer l'URL si elle a été trouvée
+                if (coverUrl) {
+                    trackData.coverUrl = coverUrl;
+                }
+
+                setTrack(trackData);
             } catch (error) {
                 console.error("Erreur:", error);
                 setError(t('tracks.error.fetchFailed'));
@@ -277,9 +345,22 @@ export default function TrackPage({ params }) {
         const audio = getAudioInstance();
         if (!audio) return;
 
+        // S'assurer que artist est une chaîne de caractères et non un objet
+        let artistName = "";
+        if (track.artistId) {
+            // Si artistId est un objet avec name
+            if (typeof track.artistId === 'object' && track.artistId.name) {
+                artistName = track.artistId.name;
+            }
+            // Si artistId est une chaîne
+            else if (typeof track.artistId === 'string') {
+                artistName = track.artistId;
+            }
+        }
+        
         const trackData = {
             ...track,
-            artist: track.artistId?.name || t('common.unknownArtist'),
+            artist: artistName || t('common.unknownArtist'),
         };
 
         if (currentTrack?.id === track.id) {
