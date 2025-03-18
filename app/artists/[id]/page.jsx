@@ -353,7 +353,6 @@ export default function ArtistPage({ params }) {
                                     track.album ||
                                     "Album inconnu",
                                 coverUrl:
-                                    track.album?.coverImage?.thumbnail ||
                                     track.coverUrl ||
                                     DEFAULT_IMAGE,
                                 duration: parseInt(track.duration) || 0,

@@ -324,9 +324,9 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
             onClick={() => handleItemClick('tracks', track._id)}
         >
             <ImageWrapper>
-                {track.albumId?.coverImage?.thumbnail ? (
+                {track.coverUrl ? (
                     <Image
-                        src={track.albumId.coverImage.thumbnail}
+                        src={track.coverUrl}
                         alt={track.title}
                         fill
                         sizes="40px"
@@ -380,9 +380,9 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
             onClick={() => handleItemClick('albums', album._id)}
         >
             <ImageWrapper>
-                {album.coverImage?.thumbnail ? (
+                {album.coverUrl ? (
                     <Image
-                        src={album.coverImage.thumbnail}
+                        src={album.coverUrl}
                         alt={album.title}
                         fill
                         sizes="40px"
@@ -409,9 +409,9 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
             onClick={() => handleItemClick('playlists', playlist._id)}
         >
             <ImageWrapper>
-                {playlist.coverImage?.thumbnail ? (
+                {playlist.coverUrl ? (
                     <Image
-                        src={playlist.coverImage.thumbnail}
+                        src={playlist.coverUrl}
                         alt={playlist.name}
                         fill
                         sizes="40px"

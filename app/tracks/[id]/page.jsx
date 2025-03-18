@@ -262,69 +262,14 @@ export default function TrackPage({ params }) {
 
                 const trackData = response.data;
                 
-                // Gestion des images de couverture
-                let coverUrl = null;
+
                 
-                // 1. Vérifier l'objet albumId s'il existe
-                if (trackData.albumId) {
-                    // Si albumId est un objet avec coverImage
-                    if (typeof trackData.albumId === 'object' && trackData.albumId.coverImage) {
-                        // Si l'image de couverture est une chaîne de caractères
-                        if (typeof trackData.albumId.coverImage === 'string') {
-                            // On l'utilise directement si c'est une URL externe valide
-                            if (isValidExternalUrl(trackData.albumId.coverImage)) {
-                                coverUrl = trackData.albumId.coverImage;
-                            }
-                        } 
-                        // Si l'image de couverture est un objet avec des propriétés comme large, medium, etc.
-                        else if (typeof trackData.albumId.coverImage === 'object') {
-                            // Vérifier si l'une des URLs est externe
-                            const albumCoverUrl = trackData.albumId.coverImage.large || 
-                                               trackData.albumId.coverImage.medium || 
-                                               trackData.albumId.coverImage.thumbnail;
-                            
-                            if (albumCoverUrl && isValidExternalUrl(albumCoverUrl)) {
-                                coverUrl = albumCoverUrl;
-                            }
-                        }
-                    }
-                    
-                    // Vérifier si l'ID de l'album correspond à un cas spécial
-                    if (!coverUrl) {
-                        const albumId = typeof trackData.albumId === 'object' ? 
-                                        trackData.albumId._id || trackData.albumId.id : 
-                                        trackData.albumId;
-                                        
-                        const specialCover = getSpecialAlbumCoverUrl(albumId);
-                        if (specialCover) {
-                            coverUrl = specialCover;
-                        }
-                    }
-                }
+                // À ce stade, le backend a déjà traité l'URL de l'image
+                // Il a soit signé l'URL AWS soit laissé l'URL externe telle quelle
+                // On utilise donc directement trackData.coverUrl
                 
-                // 2. Vérifier par artiste si aucune image trouvée
-                if (!coverUrl) {
-                    const artistName = getArtistName(trackData);
-                    if (artistName) {
-                        const artistImage = getArtistImage(artistName);
-                        if (artistImage) {
-                            coverUrl = artistImage;
-                        }
-                    }
-                }
-                
-                // 3. Vérifier par titre de la piste
-                if (!coverUrl && trackData.title) {
-                    if (trackData.title.toLowerCase().includes("sunflower") || 
-                        trackData.title.toLowerCase().includes("spider") || 
-                        trackData.title.toLowerCase().includes("verse")) {
-                        coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg";
-                    }
-                }
-                
-                // Appliquer l'URL si elle a été trouvée
-                if (coverUrl) {
-                    trackData.coverUrl = coverUrl;
+                if (!trackData.coverUrl) {
+                    trackData.coverUrl = DEFAULT_IMAGE;
                 }
 
                 setTrack(trackData);

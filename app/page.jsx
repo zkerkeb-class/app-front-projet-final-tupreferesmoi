@@ -36,94 +36,45 @@ const processMediaItems = (items) => {
     if (!items || !Array.isArray(items)) return [];
     
     return items.map(item => {
-        let coverUrl = null;
-        
-        // Si l'item a déjà une URL de couverture valide
-        if (item.coverUrl && isValidExternalUrl(item.coverUrl)) {
-            coverUrl = item.coverUrl;
+        // Si l'item a déjà une URL, on la garde
+        if (item.coverUrl) {
+            return item;
         }
-        // Vérifier l'objet coverImage pour les albums
-        else if (item.coverImage) {
-            // Si coverImage est une chaîne (URL directe)
-            if (typeof item.coverImage === 'string' && isValidExternalUrl(item.coverImage)) {
+
+        let coverUrl = null;
+
+        // 1. Pour les albums
+        if (item.coverImage) {
+            if (typeof item.coverImage === 'object') {
+                coverUrl = item.coverImage.large || 
+                          item.coverImage.medium || 
+                          item.coverImage.thumbnail;
+            } else if (typeof item.coverImage === 'string') {
                 coverUrl = item.coverImage;
             }
-            // Si coverImage est un objet avec propriétés large/medium/thumbnail
-            else if (typeof item.coverImage === 'object') {
-                const imgUrl = item.coverImage.large || 
-                              item.coverImage.medium || 
-                              item.coverImage.thumbnail;
-                
-                if (imgUrl && isValidExternalUrl(imgUrl)) {
-                    coverUrl = imgUrl;
-                }
+        }
+        // 2. Pour les pistes avec album
+        else if (item.albumId && item.albumId.coverImage) {
+            const coverImage = item.albumId.coverImage;
+            if (typeof coverImage === 'object') {
+                coverUrl = coverImage.large || 
+                          coverImage.medium || 
+                          coverImage.thumbnail;
+            } else if (typeof coverImage === 'string') {
+                coverUrl = coverImage;
             }
         }
-        // Vérifier l'objet albumId pour les pistes
-        else if (item.albumId) {
-            if (typeof item.albumId === 'object' && item.albumId.coverImage) {
-                // Si coverImage est une chaîne (URL directe)
-                if (typeof item.albumId.coverImage === 'string' && isValidExternalUrl(item.albumId.coverImage)) {
-                    coverUrl = item.albumId.coverImage;
-                }
-                // Si coverImage est un objet avec propriétés large/medium/thumbnail
-                else if (typeof item.albumId.coverImage === 'object') {
-                    const imgUrl = item.albumId.coverImage.large || 
-                                  item.albumId.coverImage.medium || 
-                                  item.albumId.coverImage.thumbnail;
-                    
-                    if (imgUrl && isValidExternalUrl(imgUrl)) {
-                        coverUrl = imgUrl;
-                    }
-                }
+        // 3. Pour les artistes
+        else if (item.image) {
+            if (typeof item.image === 'object') {
+                coverUrl = item.image.large || 
+                          item.image.medium || 
+                          item.image.thumbnail;
+            } else if (typeof item.image === 'string') {
+                coverUrl = item.image;
             }
         }
-        
-        // Vérifier par artiste pour attribuer les images correctes
-        const artistName = getArtistName(item);
-        
-        // Cas spéciaux pour les artistes connus
-        if (!coverUrl && artistName) {
-            // Post Malone - SpiderVerse
-            if (artistName.toLowerCase().includes('post malone')) {
-                coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg";
-            }
-            // NERD - No_One Ever Really Dies (par Asap Ferg)
-            else if (artistName.toLowerCase().includes('asap ferg') || 
-                    artistName.toLowerCase().includes('nerd') || 
-                    artistName.toLowerCase().includes('n.e.r.d')) {
-                coverUrl = "https://m.media-amazon.com/images/I/71C8iOMGKNL._AC_UF1000,1000_QL80_.jpg";
-            }
-        }
-        
-        // Cas spéciaux pour les albums connus par ID
-        if (!coverUrl && (item._id === "679b61dd2ce9051781b345c" || item.id === "679b61dd2ce9051781b345c")) {
-            coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg"; // SpiderVerse
-        }
-        else if (!coverUrl && (item._id === "679b61a82ce90517819b344b" || item.id === "679b61a82ce90517819b344b")) {
-            coverUrl = "https://static.fnac-static.com/multimedia/images_produits/ZoomPE/6/2/8/0094631168826/tsp20130828084740/Demon-days.jpg"; // Demon Days
-        }
-        // Vérifier si c'est un morceau de l'album SpiderVerse - par ID d'album
-        else if (!coverUrl && item.albumId) {
-            const albumId = typeof item.albumId === 'object' ? (item.albumId._id || item.albumId.id) : item.albumId;
-            if (albumId === "679b61dd2ce9051781b345c") {
-                coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg";
-            }
-        }
-        // Vérifier par titre de l'album pour SpiderVerse
-        else if (!coverUrl && item.album && typeof item.album === 'object' && 
-                 (item.album.title === "SpiderVerse" || item.album.name === "SpiderVerse")) {
-            coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg";
-        }
-        // Vérifier par titre de la piste - cas pour "Sunflower"
-        else if (!coverUrl && item.title && 
-                 (item.title.toLowerCase().includes("sunflower") || 
-                  item.title.toLowerCase().includes("spider") || 
-                  item.title.toLowerCase().includes("verse"))) {
-            coverUrl = "https://i1.sndcdn.com/artworks-Q5GUrsDbUhR7-0-t500x500.jpg";
-        }
-        
-        // Appliquer l'URL si elle a été trouvée ou utiliser l'image par défaut
+
         return {
             ...item,
             coverUrl: coverUrl || DEFAULT_IMAGE
@@ -159,19 +110,9 @@ export default function Home() {
     const { recentTracks, popularArtists, recentAlbums, isLoading } = useHomeData();
     const isRTL = i18n.language === 'ar';
     
-    useEffect(() => {
-        // Log pour déboguer la structure des données
-        console.log("Données brutes recentTracks:", recentTracks);
-    }, [recentTracks]);
-    
     // Traiter les données pour s'assurer que les URLs externes sont correctement détectées
     const processedTracks = processMediaItems(recentTracks);
     const processedAlbums = processMediaItems(recentAlbums);
-    
-    useEffect(() => {
-        // Log pour déboguer les résultats du traitement
-        console.log("Tracks traités:", processedTracks);
-    }, [processedTracks]);
 
     const handleCardClick = (type, id) => {
         if (!id) return;
@@ -180,7 +121,7 @@ export default function Home() {
 
     return (
         <Container $isRTL={isRTL}>
-            <Section>
+            <Section key="recent-tracks">
                 <Suspense fallback={<GridLoader count={3} />}>
                     <RecentTracksSection
                         tracks={processedTracks}
@@ -190,7 +131,7 @@ export default function Home() {
                 </Suspense>
             </Section>
 
-            <Section>
+            <Section key="popular-artists">
                 <Suspense fallback={<GridLoader count={3} />}>
                     <PopularArtistsSection
                         artists={popularArtists}
@@ -200,7 +141,7 @@ export default function Home() {
                 </Suspense>
             </Section>
 
-            <Section>
+            <Section key="recent-albums">
                 <Suspense fallback={<GridLoader count={3} />}>
                     <RecentAlbumsSection
                         albums={processedAlbums}
@@ -212,3 +153,5 @@ export default function Home() {
         </Container>
     );
 }
+
+

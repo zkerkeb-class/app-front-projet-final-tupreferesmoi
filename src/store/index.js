@@ -16,5 +16,16 @@ export const store = configureStore({
         }),
 });
 
+// Fonction pour purger le cache Redux et forcer le rechargement des données
+export const purgeStoreData = async () => {
+    // Réinitialiser le player
+    store.dispatch({ type: 'player/clearQueue' });
+    
+    // Ajouter d'autres actions de purge ici si nécessaire
+    
+    // Recharger la page pour rafraîchir toutes les données
+    window.location.reload();
+};
+
 export const useAppDispatch = () => useDispatch();
 export const useAppSelector = useSelector;

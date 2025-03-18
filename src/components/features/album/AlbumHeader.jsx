@@ -192,8 +192,8 @@ const AlbumHeader = ({
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'ar';
 
-    // Déterminer l'URL de l'image à utiliser
-    const coverImageUrl = getImageUrl ? getImageUrl(album?.coverImage, 'large') : (album?.coverImage?.large || DEFAULT_IMAGE);
+    // Utiliser directement coverUrl ou image de secours
+    const coverImageUrl = album?.coverUrl || DEFAULT_IMAGE;
 
     return (
         <StyledAlbumHeader $isRTL={isRTL}>
@@ -202,7 +202,7 @@ const AlbumHeader = ({
             </BackButton>
             <AlbumCover>
                 <Image
-                    src={coverImageUrl || DEFAULT_IMAGE}
+                    src={coverImageUrl}
                     alt={album.title || t('common.unknownTitle')}
                     fill
                     style={{ objectFit: "cover" }}
