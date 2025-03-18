@@ -90,6 +90,9 @@ const SearchContainer = styled.div`
     flex-grow: 1;
     max-width: 364px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @media (max-width: 768px) {
         max-width: none;

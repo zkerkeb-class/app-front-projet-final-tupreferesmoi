@@ -69,11 +69,11 @@ export default function RecentPage() {
                         key={track.id}
                         id={track.id}
                         title={track.title}
-                        description={track.artist}
+                        description={typeof track.artist === 'object' ? track.artist.name : track.artist}
                         imageUrl={track.coverUrl}
                         audioUrl={track.audioUrl}
                         type="track"
-                        artist={track.artist}
+                        artist={typeof track.artist === 'object' ? track.artist.name : track.artist}
                         onPlay={() => handlePlay(track)}
                     />
                 ))}

@@ -123,7 +123,7 @@ export const useTrackPlayer = () => {
             const trackData = {
                 id: track.id,
                 title: track.title,
-                artist: track.artist,
+                artist: typeof track.artist === 'object' ? track.artist.name : track.artist,
                 album: track.album,
                 coverUrl: track.coverUrl || DEFAULT_IMAGE,
                 audioUrl: response.data.audioUrl,
