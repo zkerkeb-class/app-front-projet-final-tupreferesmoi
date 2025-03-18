@@ -9,12 +9,12 @@ export const RecentTracksSection = ({ tracks, isLoading, onTrackClick }) => {
         <MediaSection
             items={tracks}
             isLoading={isLoading}
-            type="playlist"
+            type="track"
             titleKey="home.recentTracks"
             href="/tracks"
             priorityCount={4}
             onItemClick={onTrackClick}
-            onItemPlay={(track, index) => handlePlay(track, { tracks, index })}
+            onPlay={(track, index) => handlePlay(track, { tracks, index })}
             getItemProps={(track) => ({
                 title: track.title,
                 subtitle: typeof track.artist === 'object' ? track.artist.name : track.artist,
