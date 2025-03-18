@@ -10,6 +10,10 @@ import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import AlbumHeader from "@components/features/album/AlbumHeader";
 import TrackList from "@components/features/album/TrackList";
 import authService from "@services/authService";
+import { getAlbumCoverImage, getImageUrl } from "@utils/imageHelpers";
+
+// Image par défaut à utiliser si aucune image n'est trouvée
+const DEFAULT_IMAGE = "/logo192.png";
 
 export default function AlbumPage({ params }) {
     const dispatch = useDispatch();
@@ -46,6 +50,12 @@ export default function AlbumPage({ params }) {
                 const albumData = albumResponse.data;
                 const tracksData = tracksResponse.data.tracks || [];
 
+                // Appliquer la gestion des images d'albums spéciaux
+                const coverImage = getAlbumCoverImage(albumData);
+                if (coverImage) {
+                    albumData.coverImage = coverImage;
+                }
+
                 setAlbum(albumData);
                 setTracks(tracksData);
             } catch (error) {
@@ -66,14 +76,20 @@ export default function AlbumPage({ params }) {
     };
 
     const handleTrackPlay = (track, index) => {
+        const coverUrl = getImageUrl(album?.coverImage);
+        
         const trackWithCover = {
             ...track,
-            coverUrl: album?.coverImage?.large || album?.coverImage?.medium || album?.coverImage?.thumbnail || DEFAULT_IMAGE
+            coverUrl: coverUrl || DEFAULT_IMAGE
         };
-        handlePlay(trackWithCover, { tracks: tracks.map(t => ({
-            ...t,
-            coverUrl: album?.coverImage?.large || album?.coverImage?.medium || album?.coverImage?.thumbnail || DEFAULT_IMAGE
-        })), index });
+        
+        handlePlay(trackWithCover, { 
+            tracks: tracks.map(t => ({
+                ...t,
+                coverUrl: coverUrl || DEFAULT_IMAGE
+            })), 
+            index 
+        });
     };
 
     const handleMainPlay = () => {
@@ -129,6 +145,7 @@ export default function AlbumPage({ params }) {
                     isCurrentTrack={isCurrentTrack}
                     onBack={() => router.push("/albums")}
                     onPlay={handleMainPlay}
+                    getImageUrl={getImageUrl}
                 />
 
                 <TrackList 
@@ -139,6 +156,7 @@ export default function AlbumPage({ params }) {
                     onTrackPlay={handleTrackPlay}
                     onAddToPlaylist={handleAddToPlaylist}
                     formatDuration={formatDuration}
+                    getImageUrl={getImageUrl}
                 />
             </div>
 

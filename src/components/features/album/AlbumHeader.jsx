@@ -186,10 +186,14 @@ const AlbumHeader = ({
     isPlaying, 
     isCurrentTrack, 
     onBack, 
-    onPlay 
+    onPlay,
+    getImageUrl
 }) => {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'ar';
+
+    // Déterminer l'URL de l'image à utiliser
+    const coverImageUrl = getImageUrl ? getImageUrl(album?.coverImage, 'large') : (album?.coverImage?.large || DEFAULT_IMAGE);
 
     return (
         <StyledAlbumHeader $isRTL={isRTL}>
@@ -198,11 +202,12 @@ const AlbumHeader = ({
             </BackButton>
             <AlbumCover>
                 <Image
-                    src={album?.coverImage?.large || DEFAULT_IMAGE}
+                    src={coverImageUrl || DEFAULT_IMAGE}
                     alt={album.title || t('common.unknownTitle')}
                     fill
                     style={{ objectFit: "cover" }}
                     unoptimized={true}
+                    priority={true}
                 />
             </AlbumCover>
             <AlbumInfo>

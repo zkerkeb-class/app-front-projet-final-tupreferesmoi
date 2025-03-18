@@ -19,6 +19,11 @@ const nextConfig = {
                 hostname: "picsum.photos",
                 pathname: "/**",
             },
+            {
+                protocol: "https",
+                hostname: "static.fnac-static.com",
+                pathname: "/**",
+            },
         ],
         dangerouslyAllowSVG: true,
         contentDispositionType: "attachment",
