@@ -14,6 +14,10 @@ import { getAlbumCoverImage, getImageUrl } from "@utils/imageHelpers";
 
 // Image par défaut à utiliser si aucune image n'est trouvée
 const DEFAULT_IMAGE = "/logo192.png";
+import { getAlbumCoverImage, getImageUrl } from "@utils/imageHelpers";
+
+// Image par défaut à utiliser si aucune image n'est trouvée
+const DEFAULT_IMAGE = "/logo192.png";
 
 export default function AlbumPage({ params }) {
     const dispatch = useDispatch();
@@ -167,6 +171,7 @@ export default function AlbumPage({ params }) {
                     onBack={() => router.push("/albums")}
                     onPlay={handleMainPlay}
                     getImageUrl={getImageUrl}
+                    getImageUrl={getImageUrl}
                 />
 
                 <TrackList 
@@ -177,6 +182,7 @@ export default function AlbumPage({ params }) {
                     onTrackPlay={handleTrackPlay}
                     onAddToPlaylist={handleAddToPlaylist}
                     formatDuration={formatDuration}
+                    getImageUrl={getImageUrl}
                     getImageUrl={getImageUrl}
                 />
             </div>

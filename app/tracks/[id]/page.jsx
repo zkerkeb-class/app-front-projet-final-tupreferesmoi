@@ -16,6 +16,7 @@ import { DynamicAddToPlaylistModal } from "@components/common/dynamic";
 import { PlayButton } from "@/components/common/buttons/PlayButton";
 import authService from "@/services/authService";
 import { getSpecialAlbumCoverUrl, isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
+import { getSpecialAlbumCoverUrl, isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
 
 const BackButton = styled.button`
     position: absolute;
@@ -303,8 +304,23 @@ export default function TrackPage({ params }) {
             }
         }
         
+
+        // S'assurer que artist est une chaîne de caractères et non un objet
+        let artistName = "";
+        if (track.artistId) {
+            // Si artistId est un objet avec name
+            if (typeof track.artistId === 'object' && track.artistId.name) {
+                artistName = track.artistId.name;
+            }
+            // Si artistId est une chaîne
+            else if (typeof track.artistId === 'string') {
+                artistName = track.artistId;
+            }
+        }
+        
         const trackData = {
             ...track,
+            artist: artistName || t('common.unknownArtist'),
             artist: artistName || t('common.unknownArtist'),
         };
 

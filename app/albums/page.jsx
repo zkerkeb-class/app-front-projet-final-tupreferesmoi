@@ -9,6 +9,7 @@ import { Card } from "@components/common";
 import Pagination from "@components/common/Pagination";
 import { useTranslation } from "react-i18next";
 import { isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
+import { isValidExternalUrl, getArtistName, getArtistImage } from "@utils/imageHelpers";
 
 const Container = styled.div`
     padding: ${({ theme }) => theme.spacing.xl};
