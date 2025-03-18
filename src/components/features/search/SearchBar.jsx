@@ -15,7 +15,7 @@ import { Search, X } from "react-feather";
 const DEBOUNCE_DELAY = 300; // milliseconds
 
 const SearchContainer = styled.div`
-    position: absolute;
+    position: relative;
     width: 100%;
     max-width: 36rem;
 `;
@@ -97,11 +97,14 @@ const ClearButton = styled.button`
 `;
 
 const ResultsWrapper = styled.div`
-    position: absolute;
-    width: 100%;
-    top: 100%;
+    position: fixed;
+    background-color: #121212;
+    z-index: 1000;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     margin-top: 0.5rem;
-    z-index: 50;
+    border: 1px solid #333;
 `;
 
 const SearchBar = React.forwardRef((props, ref) => {
@@ -111,8 +114,10 @@ const SearchBar = React.forwardRef((props, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const [activeFilter, setActiveFilter] = useState("ALL");
+    const [resultsPosition, setResultsPosition] = useState({ top: 0, width: 0, left: 0 });
     const searchTimeout = useRef(null);
     const searchRef = useRef(null);
+    const inputWrapperRef = useRef(null);
 
     const handleSearch = useCallback(async (searchQuery) => {
         if (!searchQuery.trim()) {
@@ -173,6 +178,29 @@ const SearchBar = React.forwardRef((props, ref) => {
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Calculate position for dropdown results and handle resize
+    useEffect(() => {
+        const updatePosition = () => {
+            if (inputWrapperRef.current) {
+                const rect = inputWrapperRef.current.getBoundingClientRect();
+                setResultsPosition({
+                    top: rect.bottom,
+                    width: rect.width,
+                    left: rect.left
+                });
+            }
+        };
+        
+        if (isFocused && (results || isLoading)) {
+            updatePosition();
+            // Petit délai pour s'assurer que tout est bien rendu
+            setTimeout(updatePosition, 50);
+        }
+        
+        window.addEventListener('resize', updatePosition);
+        return () => window.removeEventListener('resize', updatePosition);
+    }, [isFocused, results, isLoading]);
+
     const handleInputChange = (e) => {
         setQuery(e.target.value);
     };
@@ -196,7 +224,7 @@ const SearchBar = React.forwardRef((props, ref) => {
     return (
         <SearchContainer ref={searchRef}>
             <SearchForm onSubmit={(e) => e.preventDefault()}>
-                <InputWrapper $isFocused={isFocused}>
+                <InputWrapper ref={inputWrapperRef} $isFocused={isFocused}>
                     <SearchIcon $isFocused={isFocused}>
                         <Search size={18} />
                     </SearchIcon>
@@ -221,13 +249,21 @@ const SearchBar = React.forwardRef((props, ref) => {
                 </InputWrapper>
             </SearchForm>
             {(results || isLoading) && isFocused && (
-                <DynamicSearchResults
-                    results={results}
-                    onResultClick={handleResultClick}
-                    isLoading={isLoading}
-                    activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
-                />
+                <ResultsWrapper 
+                    style={{
+                        top: `${resultsPosition.top + 8}px`,
+                        width: `${resultsPosition.width}px`,
+                        left: `${resultsPosition.left}px`
+                    }}
+                >
+                    <DynamicSearchResults
+                        results={results}
+                        onResultClick={handleResultClick}
+                        isLoading={isLoading}
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                    />
+                </ResultsWrapper>
             )}
         </SearchContainer>
     );

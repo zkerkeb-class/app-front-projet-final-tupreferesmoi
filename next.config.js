@@ -24,6 +24,7 @@ const nextConfig = {
         contentDispositionType: "attachment",
         contentSecurityPolicy:
             "default-src 'self'; script-src 'none'; sandbox;",
+        unoptimized: true,
     },
     // Enable React strict mode for better development
     reactStrictMode: true,

@@ -341,7 +341,7 @@ const SearchResults = ({ results, onResultClick, isLoading, activeFilter, onFilt
             <ItemContent>
                 <ItemTitle>{track.title}</ItemTitle>
                 <ItemSubtitle>
-                    {t('search.labels.artist')}: {track.artist}
+                    {t('search.labels.artist')}: {typeof track.artist === 'object' ? track.artist.name : track.artist}
                 </ItemSubtitle>
             </ItemContent>
         </ResultItem>

@@ -17,7 +17,7 @@ export const RecentTracksSection = ({ tracks, isLoading, onTrackClick }) => {
             onItemPlay={(track, index) => handlePlay(track, { tracks, index })}
             getItemProps={(track) => ({
                 title: track.title,
-                subtitle: track.artist,
+                subtitle: typeof track.artist === 'object' ? track.artist.name : track.artist,
                 imageUrl: track.coverUrl,
                 isPlaying: isCurrentTrack(track) && isPlaying
             })}

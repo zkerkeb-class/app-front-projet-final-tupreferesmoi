@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { setCurrentTrack, setIsPlaying } from "@store/slices/playerSlice";
 import { musicApi } from "@services/musicApi";
 import { GridLoader } from "@components/common/loaders";
-import { Card } from "@components/common";
+import Card from "@/components/common/cards/Card";
 import Pagination from "@components/common/Pagination";
 import { useRouter } from "next/navigation";
 import { DEFAULT_IMAGE } from "@/features/player/constants";
@@ -182,7 +182,7 @@ export default function TracksPage() {
                     <Card
                         key={track.id}
                         title={track.title}
-                        subtitle={track.artist}
+                        subtitle={typeof track.artist === 'object' ? track.artist.name : track.artist}
                         imageUrl={track.coverUrl || DEFAULT_IMAGE}
                         type="track"
                         onClick={() => router.push(`/tracks/${track.id}`)}
