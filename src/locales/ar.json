@@ -1,0 +1,224 @@
+{
+    "common": {
+        "search": "بحث",
+        "home": "الرئيسية",
+        "library": "المكتبة",
+        "settings": "الإعدادات",
+        "profile": "الملف الشخصي",
+        "logout": "تسجيل الخروج",
+        "login": "تسجيل الدخول",
+        "register": "تسجيل",
+        "welcome": "مرحباً",
+        "error": "خطأ",
+        "loading": "جاري التحميل...",
+        "email": "البريد الإلكتروني أو اسم المستخدم",
+        "password": "كلمة المرور",
+        "submit": "إرسال",
+        "cancel": "إلغاء",
+        "showAll": "عرض الكل",
+        "backToHome": "العودة إلى الرئيسية",
+        "unknownTitle": "عنوان غير معروف",
+        "unknownArtist": "فنان غير معروف",
+        "unknownAlbum": "ألبوم غير معروف",
+        "error": {
+            "invalidResponse": "استجابة غير صالحة من الخادم"
+        },
+        "save": "حفظ",
+        "delete": "حذف",
+        "edit": "تعديل"
+    },
+    "pagination": {
+        "pageInfo": "الصفحة {{current}} من {{total}} ({{count}} {{items}})"
+    },
+    "artists": {
+        "allArtists": "جميع الفنانين",
+        "artistsLabel": "فنانين",
+        "verified": "فنان موثق",
+        "popularTracks": "المقاطع الشائعة",
+        "trackCount": "{{count}} مقطع",
+        "backToList": "العودة إلى قائمة الفنانين",
+        "error": {
+            "loadFailed": "فشل تحميل الفنانين",
+            "noTracks": "لم يتم العثور على مقاطع لهذا الفنان"
+        }
+    },
+    "tracks": {
+        "allTracks": "جميع المقاطع",
+        "tracksLabel": "مقاطع",
+        "track": "مقطع",
+        "fromAlbum": "من الألبوم",
+        "duration": "المدة",
+        "error": {
+            "loadFailed": "فشل تحميل المقاطع",
+            "invalidId": "معرف المقطع غير صالح",
+            "invalidData": "بيانات المقطع غير صالحة",
+            "fetchFailed": "فشل جلب البيانات",
+            "notFound": "المقطع غير موجود"
+        }
+    },
+    "sidebar": {
+        "home": "الرئيسية",
+        "search": "بحث",
+        "createPlaylist": "إنشاء قائمة تشغيل",
+        "myPlaylists": "قوائم التشغيل الخاصة بي",
+        "recentPlaylists": "قوائم التشغيل الأخيرة",
+        "noPlaylists": "لا توجد قوائم تشغيل",
+        "newPlaylistName": "اسم قائمة التشغيل",
+        "create": "إنشاء"
+    },
+    "home": {
+        "recentTracks": "المقاطع الأخيرة",
+        "popularArtists": "الفنانون المشهورون",
+        "recentAlbums": "الألبومات الأخيرة",
+        "loading": "جاري التحميل..."
+    },
+    "auth": {
+        "login": {
+            "title": "تسجيل الدخول",
+            "emailLabel": "البريد الإلكتروني أو اسم المستخدم",
+            "passwordLabel": "كلمة المرور",
+            "submitButton": "تسجيل الدخول",
+            "loadingButton": "جاري تسجيل الدخول...",
+            "noAccount": "ليس لديك حساب؟ سجل الآن",
+            "error": "حدث خطأ أثناء تسجيل الدخول"
+        },
+        "register": {
+            "title": "تسجيل",
+            "emailLabel": "البريد الإلكتروني",
+            "usernameLabel": "اسم المستخدم",
+            "passwordLabel": "كلمة المرور",
+            "submitButton": "تسجيل",
+            "loadingButton": "جاري التسجيل...",
+            "hasAccount": "لديك حساب بالفعل؟ سجل الدخول",
+            "error": "حدث خطأ أثناء التسجيل",
+            "passwordRequirements": "8 أحرف على الأقل، حرف وأحد الأرقام أو الرموز الخاصة",
+            "passwordError": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، حرف وأحد الأرقام أو الرموز الخاصة"
+        }
+    },
+    "player": {
+        "play": "تشغيل",
+        "pause": "إيقاف مؤقت",
+        "next": "التالي",
+        "previous": "السابق",
+        "shuffle": "عشوائي",
+        "repeat": "تكرار",
+        "volume": "مستوى الصوت",
+        "queue": "قائمة الانتظار",
+        "mute": "كتم الصوت",
+        "unmute": "تشغيل الصوت",
+        "fullscreen": "ملء الشاشة",
+        "exitFullscreen": "الخروج من ملء الشاشة",
+        "repeatModes": {
+            "normal": "الوضع العادي",
+            "repeat": "تكرار القائمة",
+            "repeatOne": "تكرار المقطع"
+        }
+    },
+    "playlist": {
+        "create": "إنشاء قائمة تشغيل",
+        "edit": "تعديل قائمة التشغيل",
+        "delete": "حذف قائمة التشغيل",
+        "addToPlaylist": "إضافة إلى قائمة التشغيل",
+        "removeFromPlaylist": "إزالة من قائمة التشغيل"
+    },
+    "track": {
+        "addToQueue": "إضافة إلى قائمة الانتظار",
+        "addToPlaylist": "إضافة إلى قائمة التشغيل",
+        "removeFromPlaylist": "إزالة من قائمة التشغيل",
+        "like": "إعجاب",
+        "unlike": "إلغاء الإعجاب"
+    },
+    "albums": {
+        "allAlbums": "جميع الألبومات",
+        "albumsLabel": "ألبومات",
+        "type": "ألبوم",
+        "trackCount": "{{count}} مقطع",
+        "duration": "{{minutes}} دقيقة",
+        "backToList": "العودة إلى قائمة الألبومات",
+        "error": {
+            "loadFailed": "فشل تحميل الألبومات",
+            "invalidId": "معرف الألبوم غير صالح",
+            "invalidData": "بيانات الألبوم غير صالحة",
+            "fetchFailed": "فشل جلب البيانات",
+            "notFound": "الألبوم غير موجود"
+        }
+    },
+    "playlists": {
+        "myPlaylists": "قوائم التشغيل الخاصة بي",
+        "createNew": "إنشاء قائمة تشغيل جديدة",
+        "newPlaylistName": "اسم قائمة التشغيل",
+        "create": "إنشاء",
+        "trackCount": "{{count}} مقطع",
+        "duration": "{{minutes}} دقيقة",
+        "visibility": {
+            "public": "عام",
+            "private": "خاص"
+        },
+        "error": {
+            "createFailed": "فشل إنشاء قائمة التشغيل",
+            "deleteFailed": "فشل حذف قائمة التشغيل",
+            "updateFailed": "فشل تحديث قائمة التشغيل",
+            "loadFailed": "فشل تحميل قائمة التشغيل",
+            "notFound": "قائمة التشغيل غير موجودة"
+        },
+        "confirmDelete": "هل أنت متأكد من حذف قائمة التشغيل هذه؟",
+        "confirmRemoveTrack": "هل أنت متأكد من إزالة هذا المقطع من قائمة التشغيل؟",
+        "unknownUser": "مستخدم غير معروف"
+    },
+    "addToPlaylistModal": {
+        "title": "إضافة إلى قائمة التشغيل",
+        "newPlaylistName": "اسم قائمة التشغيل",
+        "createAndAdd": "إنشاء وإضافة",
+        "creating": "جاري الإنشاء...",
+        "createNew": "إنشاء قائمة تشغيل جديدة",
+        "back": "رجوع",
+        "error": {
+            "loadFailed": "فشل تحميل قوائم التشغيل",
+            "enterName": "الرجاء إدخال اسم لقائمة التشغيل",
+            "addFailed": "فشل الإضافة إلى قائمة التشغيل",
+            "createFailed": "فشل إنشاء قائمة التشغيل"
+        },
+        "success": {
+            "trackAdded": "تمت إضافة المقطع بنجاح",
+            "playlistCreated": "تم إنشاء قائمة التشغيل وإضافة المقطع بنجاح"
+        }
+    },
+    "header": {
+        "searchPlaceholder": "البحث عن المقاطع والفنانين والألبومات وقوائم التشغيل"
+    },
+    "search": {
+        "filters": {
+            "all": "الكل",
+            "tracks": "المقاطع",
+            "artists": "الفنانين",
+            "albums": "الألبومات",
+            "playlists": "قوائم التشغيل"
+        },
+        "sections": {
+            "tracks": "المقاطع",
+            "artists": "الفنانين",
+            "albums": "الألبومات",
+            "playlists": "قوائم التشغيل"
+        },
+        "labels": {
+            "artist": "فنان",
+            "album": "ألبوم",
+            "playlist": "قائمة تشغيل"
+        },
+        "noResults": "لا توجد نتائج",
+        "noResultsIn": "في {{filter}}"
+    },
+    "theme": {
+        "switchToLight": "التبديل إلى الوضع الفاتح",
+        "switchToDark": "التبديل إلى الوضع الداكن"
+    },
+    "menu": {
+        "title": "سبوتيفاي-ينوف",
+        "toggle": "فتح/إغلاق القائمة",
+        "close": "إغلاق القائمة",
+        "myPlaylists": "قوائم التشغيل الخاصة بي",
+        "allTracks": "جميع المقاطع",
+        "allArtists": "جميع الفنانين",
+        "allAlbums": "جميع الألبومات"
+    }
+} 
