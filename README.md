@@ -2,6 +2,26 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Playlist présentation site : 
+
+https://youtu.be/O75SFc5S95U : FRONT - home hébergé et theme
+
+https://youtu.be/o62STl9MX4g : FRONT - responsive et langue
+
+https://youtu.be/JO-etL2j5qs : FRONT - Performance
+
+https://youtu.be/WqM2bRlNwHk : FRONT - recherche tri connexion
+
+https://youtu.be/6fDRUy-THhE : FRONT - loader
+
+https://youtu.be/LlZbT_zEtic : FRONT - big picture et navigation
+
+https://youtu.be/W6mDmKK1L8c : BACKOFFICE - Présentation & CRUD
+
+https://youtu.be/KPG37qtAJVs : BACKEND - test unitaire
+
+
+
 ## Available Scripts
 
 In the project directory, you can run:
